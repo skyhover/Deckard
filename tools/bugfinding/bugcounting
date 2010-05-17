@@ -1,0 +1,33 @@
+#!/bin/bash
+
+if [[ $# -ne 1 ]]; then
+    echo "Usage: $0 <bug report file>"
+    exit 65
+fi
+
+if [[ ! (-f $1) ]]; then
+    echo "Usage: no file: $1"
+    exit 65
+fi
+
+RANKS='1 2 3 4 5 6 7'
+echo -n "Total: "
+grep "Rank score: " $1 | wc -l
+for i in ${RANKS}; do
+    echo -n "Rank $i: "
+    grep "Rank score: $i" $1 | wc -l
+done
+
+BUGS='1 2 3 4 5 6 7 8 9 10 11 12 13 14 15'
+echo -n "Bugs: "
+grep "^B" $1 | wc -l
+for i in ${BUGS}; do
+    echo -n "B${i}="
+    grep "^B" $1 | sed -r "s/^B([[:digit:]]+).*/B\1/" | grep "^B${i}$" | wc -l
+done
+echo -n "Styles: "
+grep "^S" $1 | wc -l
+for i in ${BUGS}; do
+    echo -n "S${i}="
+    grep "^S" $1 | sed -r "s/^S([[:digit:]]+).*/S\1/" | grep "^S${i}$" | wc -l
+done

@@ -1,0 +1,63 @@
+#!/bin/bash
+
+# Usage: $1=<token size>, $2=<stride>, $3=<sim>
+
+# make sure ${GROUPING_S} and ${VECTOR_DIR} are set correctly.
+
+if [[ $# -ne 3 ]]; then
+	echo "Usage: $0 <token size> <stride> <similarity>"
+	exit 65
+fi
+
+# TODO: may check whether parameters have been set or not...
+
+t=$1
+s=$2
+sim=$3
+# convert SIMILARITY to DISTANCE:
+i=`echo "$sim ${GROUPING_S}" | awk '{printf( "%.7g\n", sqrt((1-$1)*$2) )}'`
+find $VECTOR_DIR -type f -name "vdb_${t}_${s}_g[0-9]*_${i}_${GROUPING_S}" -not -name '*.param' -print0 | xargs -0 ls -S > tempfile
+# not easy to pipe "head -n 1" with "ls", coz. often cause signal 13 (no more reader, while writer's still writing)
+groupfortuning=`head -n 1 tempfile`
+rm tempfile
+grptuningid=`echo $vdb | sed "s/.*vdb_${t}_${s}_g\([0-9]*\)_${i}_${GROUPING_S}/\1/"`
+grpal=0
+grpdist=0
+# if $grptuningid is empty, error occurs...
+if [[ $grptuningid -eq 0 ]]; then
+    grpal=`head -n $(expr $grptuningid + 1) $(dirname $vdb)/vdb_${t}_${s}_ranges_${i}_${GROUPING_S} | tail -n 1 | awk '{print $3}'`
+    grpdist=`echo "$sim ${grpal}" | awk '{printf( "%.7g\n", sqrt((1-$1)*$2) )}'`
+else
+    grpal=`head -n $(expr $grptuningid + 1) $(dirname $vdb)/vdb_${t}_${s}_ranges_${i}_${GROUPING_S} | tail -n 1 | awk '{print $2}'`
+    grpdist=`echo "$sim ${grpal}" | awk '{printf( "%.7g\n", sqrt((1-$1)*2*$2) )}'`
+fi
+echo "Looking for local optimal parameters by clustering $groupfortuning $grpdist ..."
+cluster $groupfortuning $grpdist
+
+if [[ ! -s ${groupfortuning}.param ]]; then
+    echo "Parameter tuning failed ... exit ..."
+    exit 3
+fi
+
+echo "Setting Parameters for all other groups..."
+find $VECTOR_DIR -type f -name "vdb_${t}_${s}_g[0-9]*_${i}_${GROUPING_S}" -not -name '*.param' | while read vdb;
+#NOTE: trouble with filenames with spaces:
+#for vdb in `find $VECTOR_DIR -type f -name "vdb_${t}_${s}_g[0-9]*_${i}_${GROUPING_S}" -not -name '*.param'`;
+  do
+  grpfileid=`echo "$vdb" | sed "s/.*vdb_${t}_${s}_g\([0-9]*\)_${i}_${GROUPING_S}/\1/"`
+  grpal=0
+  grpdist=0
+  if [[ $grptuningid -eq $grpfileid ]]; then
+      continue
+  elif [[ $grpfileid -eq 0 ]]; then
+      grpal=`head -n $(expr $grpfileid + 1) $(dirname "$vdb")/vdb_${t}_${s}_ranges_${i}_${GROUPING_S} | tail -n 1 | awk '{print $3}'`
+      grpdist=`echo "$sim ${grpal}" | awk '{printf( "%.7g\n", sqrt((1-$1)*$2) )}'`
+      else
+      grpal=`head -n $(expr $grpfileid + 1) $(dirname "$vdb")/vdb_${t}_${s}_ranges_${i}_${GROUPING_S} | tail -n 1 | awk '{print $2}'`
+      grpdist=`echo "$sim ${grpal}" | awk '{printf( "%.7g\n", sqrt((1-$1)*2*$2) )}'`
+  fi
+  lineno=`wc -l "$vdb" | awk '{print $1}'`
+  lineno=$(($lineno / 2))
+  `dirname $0`/generateparam ${groupfortuning}.param $lineno $grpdist > "${vdb}.param"
+done
+

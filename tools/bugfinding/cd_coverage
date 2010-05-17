@@ -1,0 +1,36 @@
+#!/usr/bin/python
+
+#no 64-bit psyco yet...03/11/07
+#import psyco
+#psyco.full()
+
+import sys
+f= open(sys.argv[1])
+
+inputs=[]
+import re
+reg= re.compile(".*FILE (.*) LINE:(\d+):(\d+) NODE_KIND.*")
+for line in f.readlines():
+    m= reg.match(line)
+    if m != None:
+        l1= int(m.group(2))
+        l2= int(m.group(3))+l1
+        inputs.append( (m.group(1), (l1, l2)) )
+
+fileCoverSet={}
+
+for file,linerange  in inputs:
+    if linerange[0] > linerange[1]:
+        print "bad linerange:",linerange
+        continue
+    if file not in fileCoverSet:
+        fileCoverSet[file] = set()
+    fileCoverSet[file].update(range(linerange[0],linerange[1]))
+
+sum = 0
+for file,coverset in fileCoverSet.items():
+    #print file,',',coverset
+    sum += len(coverset)
+
+print sum
+

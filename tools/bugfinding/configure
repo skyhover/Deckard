@@ -1,0 +1,39 @@
+#!/bin/bash
+
+if [[ -e config ]];
+then
+	. config
+else
+	echo "no config file in current directory"
+	exit 0
+fi
+
+
+check_var()
+{
+	if [[ -z ${!1} ]];
+	then
+		echo "no $1 in config file"
+		exit 0
+	fi
+
+	export $1
+}
+
+check_var "FILE_PATTERN"
+check_var "SRC_DIR"
+check_var "TIME_DIR"
+check_var "VECTOR_DIR"
+check_var "CLUSTER_DIR"
+check_var "VGEN_EXEC"
+check_var "GROUPING_EXEC"
+check_var "CLUSTER_EXEC"
+check_var "MIN_TOKENS"
+check_var "STRIDE"
+#check_var "DISTANCE"
+check_var "SIMILARITY"
+# for grouping
+check_var "GROUPING_S"
+#check_var "GROUPING_D"
+#check_var "GROUPING_C"
+

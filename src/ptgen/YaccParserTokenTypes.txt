@@ -1,0 +1,18 @@
+// $ANTLR 2.7.6 (2005-12-22): yacc.g -> YaccParserTokenTypes.txt$
+YaccParser    // output token vocab name
+ID=4
+COLON=5
+SEMICOLON=6
+CHAR=7
+STRING=8
+ERROR=9
+PREC=10
+ACTION=11
+OR=12
+HYPHEN=13
+CARROT=14
+BANG=15
+LETTER=16
+DIGIT=17
+COMMENT=18
+WS=19

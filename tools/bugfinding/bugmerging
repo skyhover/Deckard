@@ -1,0 +1,132 @@
+#!/usr/bin/python
+
+# Usage: $0 <a bug report-src> <another bug report-dest>
+# output to stdout
+# only merge "category marks"
+
+import re
+import sys
+import os
+#import shutil
+
+if len(sys.argv) != 3:
+    print "Usage: ", sys.argv[0], " <a bug report-src> <another bug report-dest>"
+    sys.exit(1)
+
+rs= re.compile('.*Rank score:\s*(-?\d+)\s*\*\s*(\d+)\s*=\s*(-?\d+)\s*buggy score:\s*(-?\d+).*')
+#rs= re.compile('.*Rank score:\s*(-?\d+)\s*\*\s*(\d+)\s*=\s*(-?\d+)\s*buggy score:\s*(-?\d+)\s(-?\d+)\s(-?\d+)\s(-?\d+).*')
+range_r= re.compile('.*FILE (.*) LINE:(\d+):(\d+) NODE_KIND.*')
+bugcategory_r= re.compile('(^B|^S|^G|^F)(\d+)\s*.*')
+def readclusters( file ):
+    f= open(file,'r')
+    clusters= []
+    cluster= []
+    for line in f.readlines():
+        if line == '\n' or line == '':
+            if len(cluster) > 0:
+                clusters.append(cluster)
+                cluster=[]
+            continue
+        cluster.append(line)
+    f.close()
+    if len(cluster) > 0:
+        clusters.append(cluster)
+    return clusters
+
+def print_cluster(cluster):
+    for line in cluster:
+        print line,
+
+def print_clusters(clusters):
+    for cluster in clusters:
+        print_cluster(cluster)
+        print
+
+def cluster_lineranges( cluster ):
+    size= len(cluster)
+# rsl[0]: rank score and other comments
+# rsl[1]: category marks, its length should be <=1
+# rsl[2]: the clones
+# rsl[3]: the ranges of clones
+# rsl[4]: the size of cluster
+    rsl=([], [], [], [], size)
+    for i in range(size):
+        rs_m= rs.match(cluster[i])
+        if rs_m != None:
+            rsl[0].append(cluster[i])
+            continue
+        bug_m= bugcategory_r.match(cluster[i])
+        if bug_m != None:
+            rsl[1].append(cluster[i])
+            continue
+        m= range_r.match(cluster[i])
+        if m != None:
+            rsl[2].append(cluster[i])
+            rsl[3].append( ( m.group(1), int(m.group(2)), int(m.group(2))+int(m.group(3))-1 ) )
+            continue
+        rsl[0].append(cluster[i])
+    return rsl
+
+def buggy_clusters( clusters ):
+    newlist= []
+    for i in range(len(clusters)):
+        keep= False
+        for j in range(len(clusters[i])):
+            m= bugcategory_r.match(clusters[i][j])
+            if m == None:
+                continue
+            else:
+                keep= True
+        if keep:
+            newlist.append(clusters[i])
+    return newlist
+
+def merge_clusters(c1, c2):
+    c1ranges= map(cluster_lineranges, c1)
+    c2ranges= map(cluster_lineranges, c2)
+    falseneg= 0
+    for i in range(len(c1ranges)):
+        findmatch= -1
+        for j in range(len(c2ranges)):
+            if len(c1ranges[i][3]) == len(c2ranges[j][3]):
+                matched= True
+                for k in range(len(c2ranges[j][3])):
+                    linematched= False
+                    for l in range(len(c2ranges[j][3])):
+                        if c1ranges[i][3][k][2]<=c2ranges[j][3][l][2] and c1ranges[i][3][k][1]>=c2ranges[j][3][l][1] \
+                                and c1ranges[i][3][k][0]==c2ranges[j][3][l][0]:
+                            linematched= True
+                            break
+                        else:
+                            continue
+                    if not linematched:
+                        matched= False
+                        break
+                if matched:
+                    findmatch= j
+                    break
+        if findmatch>=0:
+# update c2:
+# 	only need B, S marks, and C2's own marks take priority:
+            if len(c2ranges[findmatch][1][:])<1:
+                c2ranges[findmatch][1][:] = c1ranges[i][1]
+        else:
+            falseneg = falseneg+1
+            for line in c1ranges[i][0]+c1ranges[i][1]+c1ranges[i][2]:
+                print >> sys.stderr, line,
+            print >> sys.stderr
+    newlist=[]
+    for i in range(len(c2ranges)):
+        newlist.append(c2ranges[i][0]+c2ranges[i][1]+c2ranges[i][2])
+    print >> sys.stderr, "Miss bugs: ", falseneg
+    return newlist
+
+clusters1= readclusters( sys.argv[1] )
+clusters2= readclusters( sys.argv[2] )
+clusters1= buggy_clusters(clusters1)
+merged_clusters=merge_clusters(clusters1, clusters2)
+# mark the output as auto generated:
+print "Auto generated: merging ", len(clusters1), len(clusters2)
+print_clusters(merged_clusters)
+
+

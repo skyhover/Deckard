@@ -1,0 +1,24 @@
+# java, c, or php?
+FILE_PATTERN='*.java'
+# where are the source files?
+SRC_DIR='src'
+# where to output timing info?
+TIME_DIR='times'
+# where to output vectors?
+VECTOR_DIR='vectors'
+# where to output clone clusters?
+CLUSTER_DIR='clusters'
+# where is the vector generator?
+VGEN_EXEC='/home/deckard/src/main/jvecgen'
+# where is the lsh?
+CLUSTER_EXEC='/home/deckard/src/lsh/bin/enumBuckets'
+# how to divide the vectors into groups?
+GROUPING_EXEC='/home/deckard/src/vgen/sort/runvectorsort'
+# the maximal vector size for the first group; not really useful
+GROUPING_S='50'
+# clone parameters; refer to paper.
+MIN_TOKENS='50 100'
+STRIDE='0 2'
+#DISTANCE='2.236 0.70711 1.58114'
+SIMILARITY='1.0 0.95'
+

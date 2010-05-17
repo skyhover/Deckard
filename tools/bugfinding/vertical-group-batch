@@ -1,0 +1,279 @@
+#!/bin/bash
+
+# Due to disk space limit, I need to do everything (clustering and post-processing) for each MIN_TOKENS, each STRIDE, and each SIMILARITY at once, and delete intermediate files (cluster_*, post_*, ) as soon as possible.
+
+# Later on, may add support for vecgen and each of the grouping parameters also...
+
+export PATH=$PATH:~
+echo $PATH
+export cmd=`dirname $0`/post_process_groupfile
+export coverage=`dirname $0`/cd_coverage
+
+# transform similarity to distance: $1=<similarity>, $2=<grpid>, $3=<range file>
+sim2dist()
+{
+#refactoring code...TODO
+    echo "Not finished code ... exit "
+    exit 1
+}
+
+# grouping: $1=<token size>, $2=<stride>, $3=<distance>
+grouping()
+{
+# only use the first elements of $GROUPING_S
+    if [[ -s $VECTOR_DIR/vdb_$1_$2_g0_$3_${GROUPING_S} &&
+	  $VECTOR_DIR/vdb_$1_$2_g0_$3_${GROUPING_S} -nt $VECTOR_DIR/vdb_$1_$2 ]];
+    then
+	echo "$VECTOR_DIR/vdb_$1_$2 is already grouped for distance $3 and starting range ${GROUPING_S}."
+	echo "        Delete them if want re-generation."
+    else
+	# delete old vector groups, in case some files are not overwritten:
+	echo "Grouping $VECTOR_DIR/vdb_$1_$2 by <dist=$3, GROUPING_S=${GROUPING_S}> as $VECTOR_DIR/vdb_$1_$2_g[0-9]*_$3_${GROUPING_S}"
+	groupingD=$3
+        groupingC=`echo $3 | awk "{if (\\$1 == 0) print -1; else print \\$1}"` # Note: what are the differences amongre $1, \$1 and \\$1 in awk?
+	find $VECTOR_DIR/ -regex ".*vdb_$1_$2_g[0-9]+_$3_${GROUPING_S}" -print0 | xargs -0 -r --max-args=500 rm -f
+	( time \
+	  $GROUPING_EXEC $VECTOR_DIR/vdb_$1_$2 $GROUPING_S ${groupingD} ${groupingC} true
+	) >& $TIME_DIR/grouping_$1_$2_$3_${GROUPING_S} # "2>&1 >" not working right...
+	fi
+	echo "Done Grouping $1 $2 $3 ${GROUPING_S}"
+
+	return 0
+}
+
+# set parameter files: $1=<token size>, $2=<stride>, $3=<sim>
+paramsetting()
+{
+# TODO: may check whether parameters have been set or not...
+    t=$1
+    s=$2
+    sim=$3
+# convert SIMILARITY to DISTANCE:
+    i=`echo "$sim ${GROUPING_S}" | awk '{printf( "%.7g\n", sqrt((1-$1)*$2) )}'`
+# pipe "head -n 1" with "ls" causes signal 13 (no more reader, while writer's still writing), but should not matter here:
+    groupfortuning=`find $VECTOR_DIR -type f -name "vdb_${t}_${s}_g[0-9]*_${i}_${GROUPING_S}" -not -name '*.param' -print0 | xargs -0 ls -S | head -n 1`
+    grptuningid=`echo ${groupfortuning} | sed "s/.*vdb_${t}_${s}_g\([0-9]*\)_${i}_${GROUPING_S}/\1/"`
+    grpal=0
+    grpdist=0
+# if $grptuningid is empty, error occurs...
+    if [[ $grptuningid -eq 0 ]]; then
+	grpal=`head -n $(expr $grptuningid + 1) ${VECTOR_DIR}/vdb_${t}_${s}_ranges_${i}_${GROUPING_S} | tail -n 1 | awk '{print $3}'`
+	grpdist=`echo "$sim ${grpal}" | awk '{printf( "%.7g\n", sqrt((1-$1)*$2) )}'`
+    else
+	grpal=`head -n $(expr $grptuningid + 1) ${VECTOR_DIR}/vdb_${t}_${s}_ranges_${i}_${GROUPING_S} | tail -n 1 | awk '{print $2}'`
+	grpdist=`echo "$sim ${grpal}" | awk '{printf( "%.7g\n", sqrt((1-$1)*2*$2) )}'`
+    fi
+    echo "Looking for local optimal parameters by clustering $groupfortuning $grpdist ..."
+    cluster $groupfortuning $grpdist -c
+
+    if [[ ! -s ${groupfortuning}.param ]]; then
+	echo "Parameter tuning failed ... exit ..."
+	exit 3
+    fi
+
+    echo "Setting Parameters for all other groups..."
+    ( time \
+	find $VECTOR_DIR -type f -name "vdb_${t}_${s}_g[0-9]*_${i}_${GROUPING_S}" -not -name '*.param' | while read vdb;
+#NOTE: trouble with filenames with spaces
+#	for vdb in `find $VECTOR_DIR -type f -name "vdb_${t}_${s}_g[0-9]*_${i}_${GROUPING_S}" -not -name '*.param'`;
+	do
+	grpfileid=`echo "$vdb" | sed "s/.*vdb_${t}_${s}_g\([0-9]*\)_${i}_${GROUPING_S}/\1/"`
+	grpal=0
+	grpdist=0
+	if [[ ${grptuningid} -eq $grpfileid ]]; then
+	    continue
+	elif [[ $grpfileid -eq 0 ]]; then
+	    grpal=`head -n $(expr $grpfileid + 1) $(dirname "$vdb")/vdb_${t}_${s}_ranges_${i}_${GROUPING_S} | tail -n 1 | awk '{print $3}'`
+	    grpdist=`echo "$sim ${grpal}" | awk '{printf( "%.7g\n", sqrt((1-$1)*$2) )}'`
+	else
+	    grpal=`head -n $(expr $grpfileid + 1) $(dirname "$vdb")/vdb_${t}_${s}_ranges_${i}_${GROUPING_S} | tail -n 1 | awk '{print $2}'`
+	    grpdist=`echo "$sim ${grpal}" | awk '{printf( "%.7g\n", sqrt((1-$1)*2*$2) )}'`
+	fi
+	lineno=`wc -l "$vdb" | awk '{print $1}'`
+	lineno=$(($lineno / 2))
+	`dirname $0`/generateparam ${groupfortuning}.param $lineno $grpdist > "${vdb}.param"
+	done
+    ) 2> ${TIME_DIR}/paramsetting_${t}_${s}_${sim}_${GROUPING_S}
+}
+
+# clustering: $1=<vec file>, $2=<distance>, $3=<flag to computer parameter>
+cluster()
+{
+	vdb="$1"
+	dist=$2
+	vfile=`basename "$vdb"`
+	flag=$3
+
+	if [[ $3 != "-c" ]]; then
+	    flag=
+	fi
+
+	if [[ -s $CLUSTER_DIR/cluster_${vfile}_$2 &&
+	      $CLUSTER_DIR/cluster_${vfile}_$2 -nt "$vdb" ]];
+        then
+		echo "$CLUSTER_DIR/cluster_${vfile}_$2 has already existed."
+		return 0
+	fi
+
+	mem=`ls -l "$vdb" | awk '{printf("%.0f", $5/1024/1024+0.5)}'`
+	if [ $mem -lt 2 ]; then
+		mem=10000000
+	elif [ $mem -lt 5 ]; then
+		mem=20000000
+	elif [ $mem -lt 10 ]; then
+		mem=30000000
+	elif [ $mem -lt 20 ]; then
+		mem=60000000
+	elif [ $mem -lt 50 ]; then
+		mem=150000000
+	elif [ $mem -lt 100 ]; then
+		mem=300000000
+	elif [ $mem -lt 200 ]; then
+		mem=600000000
+	elif [ $mem -lt 500 ]; then
+		mem=900000000
+	elif [ $mem -lt 1024 ]; then
+		mem=1900000000
+	elif [ $mem -lt 2048 ]; then
+		mem=3800000000
+	else
+		echo "Size of $vdb > 2G. I don't want to do it."
+		exit 1;
+	fi
+# group vector files have already <dist> in their names
+# parameter file should've existed:
+	if [[ $3 != "-c" && -s "${vdb}" &&
+	      ! -s "${vdb}.param" ]]; then
+		echo "Parameter File missing for '$vdb' $dist ..."
+		exit 65
+	fi
+	( time \
+	  $CLUSTER_EXEC -R $dist -M $mem -b 2 -A -f "$vdb" ${flag} -p "${vdb}.param" \
+	  > $CLUSTER_DIR/cluster_${vfile} 2> /dev/null \
+	) 2> $TIME_DIR/cluster_${vfile}
+
+	return 0
+}
+
+# Post-processing and count clone line #:
+pcluster()
+{
+	cdb="$1"
+	cfile=`basename "$cdb"`
+# Clone line # before post-processing:
+#        echo "Count clone lines for '$cdb' ..."
+#        ( time \
+#          $coverage "$cdb" > ${CLUSTER_DIR}/coverage_${cfile} \
+#        ) 2> ${TIME_DIR}/coverage_${cfile}
+# Post-processing:
+	if [[ -s $CLUSTER_DIR/post_${cfile} &&
+	      $CLUSTER_DIR/post_${cfile} -nt "$cdb" ]];
+        then
+		echo "    $CLUSTER_DIR/post_${cfile} has already existed."
+	else
+		( time \
+		  $cmd "$cdb" > ${CLUSTER_DIR}/post_${cfile} 2> /dev/null \
+		) 2> ${TIME_DIR}/post_${cfile}
+	fi
+# Count clone line # after post-processing:
+#	echo "Count clone lines for $CLUSTER_DIR/post_${cfile} ..."
+#	( time \
+#	  $coverage ${CLUSTER_DIR}/post_${cfile} > ${CLUSTER_DIR}/coverage_post_${cfile} \
+#	) 2> ${TIME_DIR}/coverage_post_${cfile}
+
+	return 0
+}
+
+
+. `dirname $0`/configure
+
+for t in ${MIN_TOKENS};
+do
+  for s in ${STRIDE};
+  do
+    for sim in $SIMILARITY
+    do
+# convert SIMILARITY to DISTANCE:
+#     (1) always round up; (2) dynamic precision:
+#      i=`echo "$sim ${GROUPING_S}" | awk 'BEGIN{w=7} {printf( "%.*g\n", w, sqrt((1-$1)*$2) + exp(-w*log(10))/2 )}'`
+#     standard rounding only:
+      i=`echo "$sim ${GROUPING_S}" | awk '{printf( "%.7g\n", sqrt((1-$1)*$2) )}'`
+# Grouping:
+	grouping $t $s $i
+	# NOTE:
+	#   range file name:  vdb_${t}_${s}_ranges_${i}_${GROUPING_S}
+	#   group file names: vdb_${t}_${s}_g[0-9]+_${i}_${GROUPING_S}
+# Set parameter files:
+	paramsetting $t $s $sim
+	echo "Done parameter setting: $t $s $sim $GROUPING_S."
+# Clustering without parameter tuning:
+	find $VECTOR_DIR -type f -name "vdb_${t}_${s}_g[0-9]*_${i}_${GROUPING_S}" -not -name '*.param' | while read vdb;
+#	for vdb in `find $VECTOR_DIR -type f -name "vdb_${t}_${s}_g[0-9]*_${i}_${GROUPING_S}" -not -name '*.param'`;
+	do
+	  grpfileid=`echo "$vdb" | sed "s/.*vdb_${t}_${s}_g\([0-9]*\)_${i}_${GROUPING_S}/\1/"`
+	  grpal=0
+	  grpdist=0
+	# TODO: what are better distance parameters for the groups?
+	  if [[ $grpfileid -eq 0 ]]; then
+		grpal=`head -n $(expr $grpfileid + 1) $(dirname "$vdb")/vdb_${t}_${s}_ranges_${i}_${GROUPING_S} | tail -n 1 | awk '{print $3}'`
+	  	grpdist=`echo "$sim ${grpal}" | awk '{printf( "%.7g\n", sqrt((1-$1)*$2) )}'`
+	  else
+		grpal=`head -n $(expr $grpfileid + 1) $(dirname "$vdb")/vdb_${t}_${s}_ranges_${i}_${GROUPING_S} | tail -n 1 | awk '{print $2}'`
+	  	grpdist=`echo "$sim ${grpal}" | awk '{printf( "%.7g\n", sqrt((1-$1)*2*$2) )}'`
+	  fi
+	  echo "Clustering '${vdb}' ${grpdist} ..."
+	  cluster "$vdb" $grpdist
+	done
+# Merging:
+	echo "Merging into $CLUSTER_DIR/cluster_vdb_${t}_${s}_allg_${sim}_${GROUPING_S} ..."
+	if [[ -s $CLUSTER_DIR/cluster_vdb_${t}_${s}_allg_${sim}_${GROUPING_S} &&
+	      $CLUSTER_DIR/cluster_vdb_${t}_${s}_allg_${sim}_${GROUPING_S} -nt $CLUSTER_DIR/cluster_vdb_${t}_${s}_g0_${i}_${GROUPING_S} ]];
+	then
+		echo "    '$CLUSTER_DIR/cluster_vdb_${t}_${s}_allg_${sim}_${GROUPING_S}' has already existed."
+	else
+#		Continue to merge:
+		if [[ -s $CLUSTER_DIR/cluster_vdb_${t}_${s}_allg_${sim}_${GROUPING_S} ]];
+		then
+			rm -f $CLUSTER_DIR/cluster_vdb_${t}_${s}_allg_${sim}_${GROUPING_S}
+		fi
+		touch $CLUSTER_DIR/cluster_vdb_${t}_${s}_allg_${sim}_${GROUPING_S}
+		( time \
+		  find $CLUSTER_DIR -type f -name "cluster_vdb_${t}_${s}_g[0-9]*_${i}_${GROUPING_S}" | while read grpf;
+#		  for grpf in `find $CLUSTER_DIR -type f -name "cluster_vdb_${t}_${s}_g[0-9]*_${i}_${GROUPING_S}"`
+		  do
+			lineno=`wc -l $grpf | awk '{print $1;}'`
+			head -n `expr $lineno - 2` $grpf | tail -n `expr $lineno - 11` >> $CLUSTER_DIR/cluster_vdb_${t}_${s}_allg_${sim}_${GROUPING_S}
+		  done \
+		) 2> ${TIME_DIR}/merging_${t}_${s}_${sim}_${GROUPING_S}
+	fi
+# Post-processing:
+	if [[ $(wc -l $CLUSTER_DIR/cluster_vdb_${t}_${s}_allg_${sim}_${GROUPING_S} | awk '{print $1}') -lt 2 ]];
+	then
+		echo "Warning: the cluster file is almost zero. The results may not be right."
+	else
+		echo "Post processing ${CLUSTER_DIR}/cluster_vdb_${t}_${s}_allg_${sim}_${GROUPING_S} and count clones..."
+		pcluster ${CLUSTER_DIR}/cluster_vdb_${t}_${s}_allg_${sim}_${GROUPING_S}
+	fi
+# Delete intermediate files, but leave times/* and cluster/coverage* files there:
+      echo "Deleting intermediate vdb_${t}_${s}_g*_${i}_${GROUPING_S}, cluster_vdb_${t}_${s}_* and post_cluster_vdb_${t}_${s}_allg_${sim}_${GROUPING_S} ..."
+#      find $CLUSTER_DIR -type f -name "post_cluster_vdb_${t}_${s}_allg_${sim}_${GROUPING_S}" -print0 | xargs -0 -r rm -f
+#      find $CLUSTER_DIR -type f -name "cluster_vdb_${t}_${s}_allg_${sim}_${GROUPING_S}" -print0 | xargs -0 -r rm -f
+      find $CLUSTER_DIR -type f -name "cluster_vdb_${t}_${s}_g[0-9]*_${i}_${GROUPING_S}" -print0 | xargs -0 -r --max-args=500 rm -f
+      find $VECTOR_DIR -type f -name "vdb_${t}_${s}_g[0-9]*_${i}_${GROUPING_S}" -print0 | xargs -0 -r --max-args=500 rm -f
+# also delete parameter files, coz. the number of files is too big to be handled by certain OS:
+      find $VECTOR_DIR -type f -name "vdb_${t}_${s}_g[0-9]*_${i}_${GROUPING_S}.param" -print0 | xargs -0 -r --max-args=500 rm -f
+# Bug Finding:
+      echo "Filtering clone clusters for bugs..."
+      echo "To avoid accidental overwriting, call the following manually if intended. Also, be careful with languages (c, java):"
+      echo "( time `dirname $0`/bugfiltering ${CLUSTER_DIR}/post_cluster_vdb_${t}_${s}_allg_${sim}_${GROUPING_S} > ${CLUSTER_DIR}/bug_cluster_vdb_${t}_${s}_allg_${sim}_${GROUPING_S} [c | java]) 2> ${TIME_DIR}/bugfiltering_${t}_${s}_${sim}_${GROUPING_S}"
+#      ( time \
+#        `dirname $0`/bugfiltering ${CLUSTER_DIR}/post_cluster_vdb_${t}_${s}_allg_${sim}_${GROUPING_S} <language> > ${CLUSTER_DIR}/bug_cluster_vdb_${t}_${s}_allg_${sim}_${GROUPING_S} ) 2> ${TIME_DIR}/bugfiltering_${t}_${s}_${sim}_${GROUPING_S}
+      echo "out2html ${CLUSTER_DIR}/bug_cluster_vdb_${t}_${s}_allg_${sim}_${GROUPING_S} > ${CLUSTER_DIR}/bug_cluster_vdb_${t}_${s}_allg_${sim}_${GROUPING_S}.html"
+#      out2html ${CLUSTER_DIR}/bug_cluster_vdb_${t}_${s}_allg_${sim}_${GROUPING_S} > ${CLUSTER_DIR}/bug_cluster_vdb_${t}_${s}_allg_${sim}_${GROUPING_S}.html
+      echo "Done: ${t} ${s} $sim ${GROUPING_S}"
+    done
+  done
+done
+
+echo "All Done for current 'config'."
+

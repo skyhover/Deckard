@@ -1,0 +1,79 @@
+This is a pre-release package of Deckard -- a tree-based, scalable,
+and accurate code clone detection toool. The package contains: (1)
+src/ which includes all the source code for code clone detection and
+context-based detection of inconsistency bugs; (2) tool/ which
+includes some scripts for conveniently running Deckard repeatedly.
+
+****************************
+* Installation
+****************************
+cd src/main
+./build.sh
+
+For convenience, add "src/main" into $PATH.
+
+
+****************************
+* Usage
+****************************
+
+1. For clone detection (suppose the source code of your application is
+in /path/to/app/src):
+
+ - create three directory in /path/to/app/ for storing outputs (see
+   samples in tools/sample-app/)
+
+ - create a "config" file in /path/to/app/; refer to the sample
+   "config" in tools/sample-app/.
+   make sure all paths are valid.
+
+ - need python (tested with 2.4) to run the following scripts
+
+ - also need source-highlight if you want to transform the source
+   files into html files; if not, change the "vdbgen" below to disable
+   source-highlight.
+
+ - vector generation: run
+   "/path/to/tools/bugfinding/vdbgen" in /path/to/app/src
+
+ - vector clustering (i.e., clone detection): run
+   "/path/to/tools/bugfinding/vertical-group-batch" in /path/to/app/src
+
+The scripts basically glue many steps of Deckard together. If needed,
+you can look into the scripts to see how to run Deckard step-by-step.
+
+2. Bug finding based on inconsistent contexts of clones:
+ - when all steps in 1. finish, follow the last several lines of output to carry out bug detection.
+
+
+
+************************************
+* How to use the clone reports?
+***********************************
+
+There are no well defined APIs yet. However, Deckard outputs clones in
+a specific format and provides unique IDs for relating the clone
+reports with code segments in original source files.
+
+Each clone has a TBID and a TEID, in addition to the file name, and
+line numbers. The TBID and TEID uniquely identify the IDs of the first
+token and the last token in the clone. If you use "yyparse()" to parse
+the original file again, you can tell which part of the parse tree
+corresponds to the tokens between TBID and TEID. 
+
+You may refer to "src/main/bugfinding/clone-cluster.h" for more
+technical details. There are mainly two functions that may help you
+to understand how it works:
+
+1. parse a line from the clone report to get file name, line numbers,
+TBID, and TEID, etc.
+  bool parse(char * line, regex_t patterns[], int dim=ENUM_CLONE_THE_END);
+
+2. given a parse tree from yyparse(), and a TBID and TEID, return the
+smallest tree that contains all tokens between TBID and TEID:
+  Tree* tokenRange2Tree2(std::pair<long, long> tokenrange, ParseTree* pt);
+
+The returned tree is also considered as the corresponding tree for the
+clone that has the same TBIE and TEID.  Then, you should be able to do
+things you want on such trees.
+

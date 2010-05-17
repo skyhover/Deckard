@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# Usage: thisfile <vec file> [s d c]
+
+if [ $# -ne 1 -a $# -ne 2 ]
+then
+  if [ $# -ne 4 ]
+  then
+    if [ $# -ne 5 ]
+    then
+     echo "Usage: $0 <vec file> [ flag | {s d c [<#g>]} ]"
+     exit 65;
+    fi
+  fi
+fi
+
+lineno=`wc -l $1 | awk '{print $1;}'`
+vecno=1000000
+if [[ -n $lineno ]]
+then
+  if [ $(($lineno%2)) -ne 0 ]
+  then
+    vecno=`expr $lineno / 2 + 1`
+  else
+    vecno=`expr $lineno / 2`
+  fi
+fi
+
+if [ $# -eq 1 ]
+then
+  `dirname $0`/split $1 $vecno
+elif [ $# -eq 2 ]
+then
+  `dirname $0`/split $1 $vecno $2
+elif [ $# -eq 4 ]
+then
+  `dirname $0`/split $1 $vecno $2 $3 $4
+else
+  `dirname $0`/split $1 $vecno $2 $3 $4 $5
+fi
+

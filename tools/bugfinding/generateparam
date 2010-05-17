@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [[ $# -ne 3 ]]; then
+	echo "Usage: $0 <a param file> <dimension> <dist>"
+	exit 65
+fi
+
+head -n 2 "$1"
+echo $3
+head -n 8 "$1" | tail -n 5
+echo $3 | awk '{printf("%.7g\n", $1*$1)}'
+head -n 20 "$1" | tail -n 11
+echo $2
+tail -n 2 "$1"
+

@@ -1,0 +1,59 @@
+#!/usr/bin/python
+
+# Usage: $0 <post-precossed cluster file> <lang>
+# output to stdout
+
+import re
+import sys
+import os
+#import shutil
+
+if len(sys.argv) != 3:
+    print "Usage: ", sys.argv[0], " <clone report> <lang>"
+    sys.exit(1)
+elif sys.argv[2] != 'c' and sys.argv[2] != 'java' and sys.argv[2] != 'php':
+    print "We only support c, java, and php for now"
+    sys.exit(1)
+
+def readclusters( file ):
+    f= open(file,'r')
+    clusters= []
+    cluster= []
+    for line in f.readlines():
+        if line == '\n' or line == '':
+            if len(cluster) > 0:
+                clusters.append(cluster)
+                cluster=[]
+            continue
+        cluster.append(line)
+    f.close()
+    if len(cluster) > 0:
+        clusters.append(cluster)
+    return clusters
+
+clusters= readclusters( sys.argv[1] )
+#os.system('echo -n "" > ' + sys.argv[1] + '.bug')
+for cluster in clusters:
+    f=open( sys.argv[1] + '.clustertmp', 'w' )
+    for line in cluster:
+        f.write(line)
+    f.close()
+# meaning of IDs to cbugfilters:
+# 0: apply all filters and filter it iff all filters agree.
+# 1: apply context comparison
+# 2: apply context comparison and condition comparison
+# 3: apply variable filtering
+# none: apply all filters and filter it iff any filter says yes
+    if sys.argv[2] == 'c':
+        os.system('cbugfilters 2 < ' + sys.argv[1] + '.clustertmp')
+    elif sys.argv[2] == 'java':
+        os.system('jbugfilters 2 < ' + sys.argv[1] + '.clustertmp')
+    elif sys.argv[2] == 'php':
+        os.system('phpbugfilters 2 < ' + sys.argv[1] + '.clustertmp')
+    else:
+        print "parameter error for bugfiltering."
+        sys.exit(1)
+#    os.system('cbugfilters < ' + sys.argv[1] + '.clustertmp >> ' + sys.argv[1] + '.bug')
+#    os.system('echo "" >> ' + sys.argv[1] + '.bug')
+os.remove(sys.argv[1] + '.clustertmp')
+
