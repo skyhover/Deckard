@@ -241,20 +241,22 @@ parseClonePoint(char * line, PClonePointT pcp)
 bool TokenTreeMap::
 createFN2Tree()			// read lines from stdin
 {
-  char *line = NULL;
-  size_t bufferLength = 0;
-  ssize_t lineLength;
+  string line;
   int linecount = 0;
 
   clearBuffer();
 
-  while ( (lineLength = getline(&line, &bufferLength, stdin)) > 0) {
+  while ( !cin.eof() ) {
+    getline(cin, line);
     ClonePointT temp;
     linecount++;
-    if ( parseClonePoint(line, &temp) ) {
+    char * charline = new char[line.length()+1];
+    strcpy(charline, line.c_str());
+    if ( parseClonePoint(charline, &temp) ) {
       clusterbuffer.push_back(temp);
     } else
       cerr << "Warning: error line " << linecount << ": " << line << endl;
+    delete charline;
   }
   // set ranks:
   rank = 0;

@@ -25,26 +25,29 @@ int main( int argc, char **argv )
   id_init();
   TokenTreeMap::init_shared_data();
   ClonePointT tt;
-  FILE * inf = fopen(argv[1], "r");
-  if ( inf==NULL ) {
+  ifstream inf(argv[1], ios::in);
+  if ( ! inf.is_open() ) {
     cerr << "Can't open file: " << argv[1] << endl;
     return 1;
   }
 
-  char *line = NULL;
-  size_t bufferLength = 0;
-  ssize_t lineLength;
+  string line;
   int linecount = 0;
 
-  while ( (lineLength = getline(&line, &bufferLength, inf)) > 0) {
+  while ( !inf.eof() ) {
+    getline(inf, line);
     linecount++;
-    if ( strcmp(line, "")==0 || strncmp(line, "\n", 1)==0 )
+    char * charline = new char[line.length()+1];
+    strcpy(charline, line.c_str());
+    if ( strcmp(charline, "")==0 || strncmp(charline, "\n", 1)==0 )
       cout << "<p></p>" << endl << "<br />" << endl;
-    else if ( tt.parse(line, TokenTreeMap::clone_patterns) ) {
+    else if ( tt.parse(charline, TokenTreeMap::clone_patterns) ) {
       tt.out2html0(cout);
     } else
       cout << tt << "<br /> " << endl;
+    delete charline;
   }
+  inf.close();
 
   return 0;
 }

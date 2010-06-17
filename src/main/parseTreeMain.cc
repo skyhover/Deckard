@@ -35,16 +35,8 @@ int main( int argc, char **argv )
     return 2;
   }
 
-  id_init();
-
-  ParseTree* pt = parseFile(argv[1]);
-  if ( pt==NULL ) {
-    cerr << "Error: no parse tree created for file: " << argv[1] << endl;
-    return 1;
-  }
-
   long tbid, teid;
-  if(!from_string(tbid, string(argv[2]), dec) || tbid<=0 ) {
+  if(!from_string(tbid, string(argv[2]), dec) || tbid<0 ) {
     cerr << "Error: start token id incorrect: " << argv[2] << "-->" << tbid << endl;
     return 1;
   }
@@ -53,6 +45,14 @@ int main( int argc, char **argv )
     return 1;
   }
   
+  id_init();
+
+  ParseTree* pt = parseFile(argv[1]);
+  if ( pt==NULL ) {
+    cerr << "Error: no parse tree created for file: " << argv[1] << endl;
+    return 1;
+  }
+
   if(argc>4) {
     pt->dumpParseTree(true);
   } else {

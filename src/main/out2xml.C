@@ -25,34 +25,37 @@ int main( int argc, char **argv )
   id_init();
   TokenTreeMap::init_shared_data();
   ClonePointT tt;
-  FILE * inf = fopen(argv[1], "r");
-  if ( inf==NULL ) {
+  ifstream inf(argv[1], ios::in);
+  if ( ! inf.is_open() ) {
     cerr << "Can't open file: " << argv[1] << endl;
     return 1;
   }
 
-  char *line = NULL;
-  size_t bufferLength = 0;
-  ssize_t lineLength;
+  string line;
   int linecount = 0;
   int clonesetcount = 0;
 
   cout <<"<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl;
   cout <<"<clone_list>"<<endl;
   cout <<"<cloneset id=\""<<clonesetcount <<"\">"<<endl;
-  while ( (lineLength = getline(&line, &bufferLength, inf)) > 0) {
+  while ( !inf.eof() ) {
+    getline(inf, line);
     linecount++;
-    if ( strcmp(line, "")==0 || strncmp(line, "\n", 1)==0 ) {
+    char * charline = new char[line.length()+1];
+    strcpy(charline, line.c_str());
+    if ( strcmp(charline, "")==0 || strncmp(charline, "\n", 1)==0 ) {
       clonesetcount++;
       cout <<"</cloneset>"<<endl<<"<cloneset id=\""<< clonesetcount << "\">"<< endl;
     }
-    else if ( tt.parse(line, TokenTreeMap::clone_patterns) )
+    else if ( tt.parse(charline, TokenTreeMap::clone_patterns) )
     {
       cout <<"<clonepart ";
       tt.out2xml(cout);
       cout <<"/>"<<endl;
     }
+    delete charline;
   }
+  inf.close();
   cout <<"</cloneset>"<<endl;
   cout <<"</clone_list>"<<endl;
   return 0;

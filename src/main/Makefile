@@ -6,7 +6,8 @@ PHPHEADERS=../ptgen/php5/phprelevantNodes.h ../ptgen/php5/phpatomicNodes.h ../pt
 CXX= g++ -I../include -I../vgen/treeTra # -g
 CXXFLAGS= -O3
 EXES=cvecgen jvecgen cbugfilters jbugfilters out2html \
-     phpvecgen phpbugfilters out2xml
+     phpvecgen phpbugfilters out2xml \
+     parseTreeMain
 
 
 TARGET:${EXES}
@@ -43,6 +44,9 @@ out2html:${COBJS} out2html.C
 out2xml:${COBJS} out2xml.C
 	${CXX} ${CXXFLAGS} -o $@ out2xml.C ${COBJS}
 	
+parseTreeMain:${COBJS} parseTreeMain.cc
+	${CXX} ${CXXFLAGS} -o $@ parseTreeMain.cc ${COBJS}
+
 .PHONY: clean
 clean:
 	rm -f *.o ${EXES}
