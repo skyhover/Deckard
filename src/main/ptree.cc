@@ -56,14 +56,14 @@ int ParseTree::getTypeID( const string &name)
     }
 }
 
-bool ParseTree::dumpParseTree(bool forceToDump)
+bool ParseTree::dumpParseTree(bool toOveride)
 {
     ifstream inp;
     ofstream out;
     string outputfn = filename + ".grp";
 
     // prepare the output file:
-    if(!forceToDump) {
+    if(!toOveride) {
         inp.open(outputfn.c_str(), ifstream::in);
 	inp.close();
 	if(!inp.fail()) {
@@ -126,6 +126,36 @@ Tree* ParseTree::tokenRange2Tree(long startTokenId, long endTokenId)
     delete path2;
 
   return rsl; // shouldn't return NULL here.
+}
+
+Tree* ParseTree::getContextualNode(Tree* node)
+{
+   // assert 'node' in this parse tree
+   if ( node==NULL )
+      return root;
+
+   map<NodeAttributeName_t, void*>::iterator attr_itr = node->attributes.find(NODE_TOKEN_ID);
+   assert ( attr_itr != node->attributes.end() );
+   pair<long, long>* startrange = (pair<long, long>*)(*attr_itr).second;
+   if (node->parent==NULL)
+      return root;
+
+   Tree* startnode = node->parent;
+   while ( startnode!=NULL ) {
+      if ( isContextualNode(startnode) ) { // this condition is language-dependant
+	 break;
+      } else
+	 startnode = startnode->parent;
+   }
+   if ( startnode==NULL )
+      return root;
+   return startnode;
+}
+
+Tree* ParseTree::getContextualNode(long startTokenId, long endTokenId)
+{
+   Tree* node = tokenRange2Tree(startTokenId, endTokenId);
+   return getContextualNode(node);
 }
 
 list<Tree*>* ParseTree::root2Token(long tid)
@@ -279,5 +309,43 @@ ParseTree* parseFile(const char * fn)
   token_range_counter->traverse(root, initial_inh);
   pt->filename = fn;
   return pt;
+}
+
+static vector<bool> ctxNodes; /* internal use only: ctxNodes[i]==true iff the node kind is considered as contexts */
+static const char * contextualNodes[] = {
+#ifdef JAVA 
+#include "../ptgen/java/jcontextualNodes.h"
+#else
+#ifdef PHP
+#include "../ptgen/php5/phpcontextualNodes.h"
+#else
+#include "../ptgen/gcc/ccontextualNodes.h"
+#endif
+#endif
+};
+
+bool setContextualNodes() /* internal use only */
+{
+  bool errflag = false;
+  assert ( name2id.size() > 0 );
+  ctxNodes = vector<bool>(id2name.size(), false);
+  for (const char **s= contextualNodes; *s != NULL; s++) {
+    map<string,int>::iterator i= name2id.find(*s);
+    if (i == name2id.end()) {
+      cerr << "unknown node type when setting contextual nodes: " << *s << endl;
+      errflag = true;
+      continue;
+    }
+    ctxNodes[i->second] = true;
+  }
+  return errflag;
+}
+
+bool isContextualNode(Tree* node)
+{
+  assert( node->type >= 0 && node->type < id2name.size() );
+  if ( ctxNodes.empty() )
+    setContextualNodes();
+  return ctxNodes[node->type];
 }
 

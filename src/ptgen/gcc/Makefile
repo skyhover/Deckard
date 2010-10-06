@@ -1,10 +1,9 @@
 CXX= g++ -I../../include
 OBJS= lex.yy.o pt_c.tab.o head.o
-#TARGET=c_ptgen
+#TARGET=c_ptgen # this is just a test driver
 TARGET=gccptgen.a
 
 all: $(TARGET)
-
 
 gccptgen.a: $(OBJS)
 	ar -qcs $@ $(OBJS)
@@ -17,11 +16,12 @@ c_ptgen: $(OBJS) main.o
 
 lex.yy.cc: c.l pt_c.tab.cc
 	flex -olex.yy.cc c.l
+
 pt_c.tab.cc: pt_c.y
 	bison -d pt_c.y -o pt_c.tab.cc
 
 head.cc pt_c.y: c.y c.y.head c.y.foot
-	../mainc.py c.y
+	./mainc.py c.y
 
 .PHONY: clean
 clean:

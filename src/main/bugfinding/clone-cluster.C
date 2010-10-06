@@ -506,12 +506,12 @@ getContext2(pair<long, long> tokenrange, string & fn)
   rsl.context_node_begin = rsl.context_node_end = NULL;
   rsl.context_node_begin = tokenRange2Tree2(tokenrange, pt);
   if ( rsl.context_node_begin!=NULL ) {
-    // if tokenrange is within (actual subrange) context_node_begin, then start from context_node_begin;
-    // otherwise, start searching from the parent of context_node_begin;
     map<NodeAttributeName_t, void*>::iterator attr_itr = rsl.context_node_begin->attributes.find(NODE_TOKEN_ID);
     assert ( attr_itr!=rsl.context_node_begin->attributes.end() );
     pair<long, long>* startrange = (pair<long, long>*)(*attr_itr).second;
     Tree* startnode = rsl.context_node_begin;
+    // if tokenrange is within (actual subrange) context_node_begin, then start from context_node_begin;
+    // otherwise, start searching from the parent of context_node_begin;
     if ( tokenrange.first <= startrange->first && tokenrange.second >= startrange->second )
       startnode = rsl.context_node_begin->parent;
     while ( startnode!=NULL ) {

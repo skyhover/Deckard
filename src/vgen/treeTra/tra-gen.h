@@ -24,6 +24,11 @@ class TraGenMain {
 
  public:
   TraGenMain(ParseTree* rt, const char * fn, FILE * out);
+ public:
+  TraGenMain(ParseTree* rt, int mergeTokens, int mergeStride, int mergeLists, FILE * out);
+
+  static bool getParameters(const char * fn, int & mergeTokens, int & mergeStride, int & mergeLists);
+
   ~TraGenMain();
 
   void run();

@@ -22,12 +22,12 @@ string identifierTypeName = "IDENTIFIER";
 
 static const char *cxtNodes[] = {
 #ifdef JAVA 
-#include "jcontextualNodes.h"
+#include "../ptgen/java/jcontextualNodes.h"
 #else
 #ifdef PHP
 #include "../ptgen/php5/phpcontextualNodes.h"
 #else
-#include "ccontextualNodes.h"
+#include "../ptgen/gcc/ccontextualNodes.h"
 #endif
 #endif
 };
@@ -40,11 +40,14 @@ static bool cloneClusterFiltered(TokenTreeMap & cls) {
      code is for which filters...and the several versions of the
      filters (especially for filter 4) caused the most trouble, the
      data (# bugs detected) in the paper may be a little off (not
-     essential though. fix it when time is appropriate). 
+     essential though. Fixed). 
 
      The code for filters should be better organized to avoid the
-     above confusions...at least, use command-line options instead of
-     re-compiling the code for enabling different filters.
+     above confusions. TODO: use command-line options instead of
+     re-compiling the code for enabling different filters. However,
+     since the current code for filtering is scattered among serveral source
+     files, it'd better to re-architect the filtering code before
+     implementing the command line options.
   */
 
   if ( cls.rank>=4 /* <=> cls.buggy_score[1]>0 */ && cls.buggy_score[1]>2 ) /* Filter ALL */
@@ -64,7 +67,7 @@ static bool cloneClusterFiltered(TokenTreeMap & cls) {
 }
 
 /* Decide whether to filter a clone cluster: for ONE cluster only;
-   need a shell script to pass every clone cluster to this class. */
+   use a shell script to pass every clone cluster to this class. */
 int main( int argc, char **argv )
 {
   if ( argc>2 ) {
@@ -72,6 +75,7 @@ int main( int argc, char **argv )
 	 << "\t stdin is the input channel; stdout is the output channel." << endl;
     return 1;
   }
+  cerr << "NOTE: Command line options for filter IDs not implemented" << endl;
 /*
   int fid = 0;
   if ( argc==2 )

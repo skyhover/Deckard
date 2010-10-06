@@ -1,11 +1,11 @@
 CXX= g++ -I../../include
 OBJS= lex.yy.o pt_zend_language_parser.tab.o head.o
-#TARGET=php_ptgen
-TARGET=gccptgen.a
+#TARGET=php_ptgen # this is just a test driver
+TARGET=phpptgen.a
 
 all: $(TARGET)
 
-gccptgen.a: $(OBJS)
+phpptgen.a: $(OBJS)
 	ar -qcs $@ $(OBJS)
 
 php_ptgen: $(OBJS) main.o
@@ -21,7 +21,7 @@ lex.yy.cc: zend_language_scanner.l pt_zend_language_parser.tab.cc
 	flex -i -olex.yy.cc zend_language_scanner.l
 
 head.cc pt_zend_language_parser.y: zend_language_parser.y zend_language_parser.y.head zend_language_parser.y.foot
-	../mainphp.py zend_language_parser.y
+	./mainphp.py zend_language_parser.y
 	sed -i "s/'\"'/'\\\\\"'/" head.cc
 
 .PHONY: clean

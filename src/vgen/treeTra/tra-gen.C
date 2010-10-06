@@ -15,22 +15,8 @@ TraGenMain(ParseTree* rt, const char * fn, FILE * out)
     vecGen_outfile(out), token_counter(NULL), token_range_counter(NULL),
     tree_serializer(NULL), vec_generator(NULL), vec_outputor(NULL)
 {
-  int mergeTokens = 30, mergeLists = 3, mergeStride = 1;
-  if ( fn!=NULL ) {
-    ifstream configfile(fn);
-    if ( configfile.is_open() ) {
-      if ( !configfile.eof() )
-	configfile >> mergeTokens;
-      if ( !configfile.eof() )
-	configfile >> mergeStride;
-      if ( !configfile.eof() )
-	configfile >> mergeLists;
-      cerr << "Merging parameters: " << mergeTokens << ", " << mergeStride << ", " << mergeLists << endl;
-    } else {
-      cerr << "Can't open configuration file `" << fn << "', use default setting (30, 1, 3)." << endl;
-    }
-    configfile.close();
-  }
+  int mergeTokens = 30, mergeStride = 1, mergeLists = 3;
+  getParameters(fn, mergeTokens, mergeStride, mergeLists);
 
   vecGen_config = new TraGenConfiguration(rt, mergeTokens, mergeStride, mergeLists); 
   token_counter = new TokenCounter(*vecGen_config); // NOT depend on vecGen_config->mergeTokens/moveStride.
@@ -38,6 +24,48 @@ TraGenMain(ParseTree* rt, const char * fn, FILE * out)
   tree_serializer = new RelevantNoAtomicParent_TreeSerializer(*vecGen_config); // NOT depend on vecGen_config->mergeTokens/moveStride.
   vec_generator = new VecGenerator(*vecGen_config); // NOT depend on vecGen_config->mergeTokens/moveStride.
   vec_outputor = new TraVecOutput(*vecGen_config, vecGen_outfile); // DO depend on vecGen_config->mergeTokens, NOT on moveStride.
+}
+
+TraGenMain::
+TraGenMain(ParseTree* rt, int mergeTokens, int mergeStride, int mergeLists, FILE * out)
+  : parse_tree(rt), vecGen_config(NULL), token_merger(NULL), list_merger(NULL),
+    vecGen_outfile(out), token_counter(NULL), token_range_counter(NULL),
+    tree_serializer(NULL), vec_generator(NULL), vec_outputor(NULL)
+{
+  vecGen_config = new TraGenConfiguration(rt, mergeTokens, mergeStride, mergeLists); 
+  token_counter = new TokenCounter(*vecGen_config); // NOT depend on vecGen_config->mergeTokens/moveStride.
+  token_range_counter = new TokenRangeCounter(*vecGen_config); // NOT depend on vecGen_config->mergeTokens/moveStride.
+  tree_serializer = new RelevantNoAtomicParent_TreeSerializer(*vecGen_config); // NOT depend on vecGen_config->mergeTokens/moveStride.
+  vec_generator = new VecGenerator(*vecGen_config); // NOT depend on vecGen_config->mergeTokens/moveStride.
+  vec_outputor = new TraVecOutput(*vecGen_config, vecGen_outfile); // DO depend on vecGen_config->mergeTokens, NOT on moveStride.
+}
+
+bool TraGenMain::
+getParameters(const char * fn, int & mergeTokens, int & mergeStride, int & mergeLists)
+{
+  bool flag = false;
+  if ( fn!=NULL ) {
+    ifstream configfile(fn);
+    try {
+      if ( configfile.is_open() ) {
+        if ( !configfile.eof() )
+          configfile >> mergeTokens;
+        if ( !configfile.eof() )
+          configfile >> mergeStride;
+        if ( !configfile.eof() )
+          configfile >> mergeLists;
+        flag = true;
+      } else {
+        cerr << "Can't open configuration file  `" << fn << "', use default parameters." << endl;
+      }
+    } catch (...) {
+      // do nothing.
+    }
+    // 'finally' not in c++/gcc?
+      cerr << "Merging parameters: " << mergeTokens << ", " << mergeStride << ", " << mergeLists << endl;
+      configfile.close();
+  }
+  return flag;
 }
 
 TraGenMain::

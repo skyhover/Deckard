@@ -18,7 +18,6 @@ class Tree;
 
 /** A whole parse tree */
 class ParseTree {
-
   public:
     ParseTree(Tree *root, int nTypes, map<int,string> *typeNames, map<string,int> *typeIds);
     ~ParseTree();
@@ -49,10 +48,14 @@ class ParseTree {
     vector<int> mergeableNodes;
 
     /** dump the whole tree in a graph-like format; output filename is the 'filename'+'.grp' */ 
-    bool dumpParseTree(bool forceToDump);
+    bool dumpParseTree(bool toOveride);
 
     /** return the smallest common ancestor in the parse tree that contains all the tokens in the range: */
     Tree* tokenRange2Tree(long startTokenId, long endTokenId); 
+    /** return the "contextual" node above the given node: */
+    Tree* getContextualNode(Tree* node);
+    Tree* getContextualNode(long startTokenId, long endTokenId);
+
     /** return the path from the root to the token: */
     std::list<Tree*>* root2Token(long tid); 
     bool root2TokenAux(long tid, Tree* node, std::list<Tree*>& path);
@@ -82,6 +85,7 @@ int typeCount(std::map<int, std::string>& id2name);
 int typeCount(std::map<std::string, int>& name2id);
 const string & getTypeName(std::map<int, std::string>& id2name, int id);
 int getTypeID(std::map<std::string, int>& name2id, const string& name); /* "IDENTIFER" for identifiers. */
+bool isContextualNode(Tree* node);  // language-dependent operation 
 
 /** create a parse tree from a file: */
 ParseTree* parseFile(const char * fn);

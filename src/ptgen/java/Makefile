@@ -1,11 +1,11 @@
 CXX= g++ -I../../include
 OBJS= lex.yy.o pt_j.tab.o head.o
-#TARGET=c_ptgen
-TARGET=gccptgen.a
+#TARGET=j_ptgen # this is just a test driver
+TARGET=javaptgen.a
 
 all: $(TARGET)
 
-gccptgen.a: $(OBJS)
+javaptgen.a: $(OBJS)
 	ar -qcs $@ $(OBJS)
 
 j_ptgen: $(OBJS) main.o
@@ -16,11 +16,12 @@ j_ptgen: $(OBJS) main.o
 
 lex.yy.cc: j.l pt_j.tab.cc
 	flex -olex.yy.cc j.l
+
 pt_j.tab.cc: pt_j.y
 	bison -d pt_j.y -o pt_j.tab.cc
 
 head.cc pt_j.y: j.y j.y.head j.y.foot
-	../mainj.py j.y
+	./mainj.py j.y
 
 .PHONY: clean
 clean:
