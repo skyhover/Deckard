@@ -5,7 +5,9 @@ CTREEOBJS=ptreeC.o
 JTREEOBJS=ptreeJ.o
 PHPTREEOBJS=ptreePHP.o
 
-CVGENOBJS=${CTREEOBJS} ../vgen/treeTra/libvgen.a  # TODO: libvgen may also be language dependant, especially the parts that involve "contextual nodes" (e.g., bugfinding, context locating code)
+CVGENOBJS=${CTREEOBJS} ../vgen/treeTra/libvgen.a  # TODO: libvgen may also be language dependent, especially the parts that involve "contextual nodes" (e.g., bugfinding, context locating code)
+# A better architecture would make 'vgen' language independent, put all language-dependent code into ptgen/ptree but provide a language-independent interface for accessing tree structures;
+# 'bugfinding' (the buggy code scoring algorithm in particular) should also be language-independent, accessing language-dependent tree structures only through a language-independent interface.
 JVGENOBJS=${JTREEOBJS} ../vgen/treeTra/libvgen.a
 PHPVGENOBJS=${PHPTREEOBJS} ../vgen/treeTra/libvgen.a
 
@@ -22,7 +24,7 @@ CXXFLAGS= -O3
 
 EXES=cvecgen jvecgen cbugfilters jbugfilters out2html \
      phpvecgen phpbugfilters out2xml \
-     parseTreeMainC parseTreeMainJ parseTreeMainPHP
+     cParseTreeMain jParseTreeMain phpParseTreeMain
 
 
 TARGET:${EXES}
@@ -63,19 +65,19 @@ phpbugfilters:${PHPOBJS} ${PHPHEADERS} bugmain.cc
 	${CXX} ${CXXFLAGS} -c -DPHP bugmain.cc
 	${CXX} ${CXXFLAGS} -o $@ bugmain.o ${PHPOBJS}
 
-out2html:${COBJS} out2html.C
+out2html:${COBJS} out2html.C  # don't matter to use COBJS or others
 	${CXX} ${CXXFLAGS} -o $@ out2html.C ${COBJS}
 
-out2xml:${COBJS} out2xml.C
+out2xml:${COBJS} out2xml.C  # don't matter to use COBJS or others
 	${CXX} ${CXXFLAGS} -o $@ out2xml.C ${COBJS}
 	
-parseTreeMainC:${COBJS} ${CHEADERS} parseTreeMain.cc
+cParseTreeMain:${COBJS} ${CHEADERS} parseTreeMain.cc
 	${CXX} ${CXXFLAGS} -DCLANG -o $@ parseTreeMain.cc ${COBJS}
 
-parseTreeMainJ:${JOBJS} ${JHEADERS} parseTreeMain.cc
+jParseTreeMain:${JOBJS} ${JHEADERS} parseTreeMain.cc
 	${CXX} ${CXXFLAGS} -DJAVA -o $@ parseTreeMain.cc ${JOBJS}
 
-parseTreeMainPHP:${PHPOBJS} ${PHPHEADERS} parseTreeMain.cc
+phpParseTreeMain:${PHPOBJS} ${PHPHEADERS} parseTreeMain.cc
 	${CXX} ${CXXFLAGS} -DPHP -o $@ parseTreeMain.cc ${PHPOBJS}
 
 .PHONY: clean

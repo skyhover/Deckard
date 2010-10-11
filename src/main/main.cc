@@ -1,3 +1,10 @@
+
+/** This is the main entry for vector generation for one source file.
+ *  With different defines, the file can be compiled for different languages.
+ *  
+ *  Need to use with scripts if wanting vector generation for many source files.
+ */
+
 #include <ptree.h>
 #include <map>
 #include <string>

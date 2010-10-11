@@ -8,23 +8,18 @@ export CFLAGS="-O3"
 (
 cd ../ptgen
 make clean
-make
 )
 
 (
 cd ../vgen/treeTra/
 make clean
-make
 cd ../sort/
 make clean
-make
 )
 
 make clean
-make
 
 (
 cd ../lsh
 make clean
-make
 )

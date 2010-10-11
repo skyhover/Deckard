@@ -12,8 +12,8 @@ class ContextInconsistency_PHP : public TokenTreeMap {
   virtual Tree* getContextNode(Tree* node); /* get the highest node which represents the context type of "node"; language dependent */
   virtual Tree* getContextParent(Tree* node); /* get the contextual parent; return NULL if not found. */
 
-  bool comparePHPContext2(CloneContextT& context1, CloneContextT& context2); /* for Java only */
-  bool comparePHPConditions(CloneContextT& context1, CloneContextT& context2); /* for Java only, compare conditions of "if" etc. */
+  bool comparePHPContext2(CloneContextT& context1, CloneContextT& context2); /* for Php only */
+  bool comparePHPConditions(CloneContextT& context1, CloneContextT& context2); /* for Php only, compare conditions of "if" etc. */
   virtual Tree* get_conditional_operator(Tree* node); /* grammar-dependent */
   virtual bool isMainOperator(Tree* node); /* grammar-dependent */
   virtual Tree* get_condition_within(Tree* node); /* grammar-dependent */

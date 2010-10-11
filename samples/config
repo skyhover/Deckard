@@ -1,0 +1,68 @@
+###################################################################
+# Configuration file for clone detection.
+#
+
+###################################################################
+# Often, need to change these common parameters:
+# - FILE_PATTERN : for source files in different languages
+# - SRC_DIR : the root directory containing the source files
+# - DECKARD_DIR : Where is the home directory of DECKARD
+# - clone detection parameters: c.f. DECKARD's paper
+#   -- MIN_TOKENS
+#   -- STRIDE
+#   -- SIMILARITY
+#
+# java, c, or php?
+FILE_PATTERN='*.java' # used for the 'find' command
+# where are the source files?
+SRC_DIR='src'
+# where is Deckard?
+DECKARD_DIR='/home/deckard'
+# clone parameters; refer to paper.
+MIN_TOKENS='50 100'
+STRIDE='0 2'
+#DISTANCE='2.236 0.70711 1.58114'
+SIMILARITY='1.0 0.95'
+
+###################################################################
+# Where to store result files?
+#
+# where to output generated vectors?
+VECTOR_DIR='vectors'
+# where to output detected clone clusters?
+CLUSTER_DIR='clusters'
+# where to output timing/debugging info?
+TIME_DIR='times'
+
+###################################################################
+# where are several programs we need?
+#
+# where is the vector generator?
+VGEN_EXEC="$DECKARD_DIR/src/main"
+case $FILE_PATTERN in 
+  *.java )
+    VGEN_EXEC="$VGEN_EXEC/jvecgen" ;;
+  *.php )
+    VGEN_EXEC="$VGEN_EXEC/phpvecgen" ;;
+  *.c | *.h )
+    VGEN_EXEC="$VGEN_EXEC/cvecgen" ;;
+  * )
+    echo "Error: invalid FILE_PATTERN: $FILE_PATTERN"
+    VGEN_EXEC="$VGEN_EXEC/invalidvecgen" ;;
+esac
+# where is the lsh?
+CLUSTER_EXEC="$DECKARD_DIR/src/lsh/bin/enumBuckets"
+# how to divide the vectors into groups?
+GROUPING_EXEC="$DECKARD_DIR/src/vgen/sort/runvectorsort"
+# how to transform source code html?
+SRC2HTM_EXEC=source-highlight 
+SRC2HTM_OPTS=--line-number-ref
+
+###################################################################
+# Some additional, internal parameters; can be ignored
+#
+# the maximal vector size for the first group; not really useful
+GROUPING_S='50'
+#GROUPING_D
+#GROUPING_C
+

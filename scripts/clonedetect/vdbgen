@@ -1,0 +1,74 @@
+#!/bin/bash
+
+clean()
+{
+	find "$SRC_DIR" -iname '*.vec' -print0 | xargs -0 -r --max-args 500 rm
+}
+
+#vgen $1 $2: $1=min_token; $2=stride
+vgen()
+{
+	if (($# != 2));
+	then
+		return 1
+	fi
+
+	if [[ -s "$VECTOR_DIR/vdb_$1_$2" ]];
+	then
+	  echo "Vec file $VECTOR_DIR/vdb_$1_$2 has already existed."
+	  echo "    Delete it first re-generation is desired."
+	else
+	  clean
+
+	  echo > log
+
+#NOTE: "for .. in .." has trouble when a filename contains spaces; use "while read .." instead:
+	  ( time \
+	    find "$SRC_DIR" -iname "$FILE_PATTERN" | while read file;
+#	    for file in `find $SRC_DIR/ -iname "$FILE_PATTERN"`;
+	    do
+		echo "$file" >> log
+		if [[ ! -e "${file}.vec" ]];
+		then
+			"$VGEN_EXEC" "$file" $1 $2 1 >& /dev/null ||
+			echo "failed($?): $VGEN_EXEC $file" >> error.log
+		fi
+	    done \
+	  ) 2> "$TIME_DIR/vgen_$1_$2"
+
+	  find "$SRC_DIR" -iname '*.vec' -print0 | xargs -0 --max-args=100 cat > "$VECTOR_DIR/vdb_$1_$2"
+
+# transform source code to html:
+	  if ( which "$SRC2HTM_EXEC" >& /dev/null );
+	  then
+		  echo "Transforming source code to html.........."
+		  ( time \
+		    find $SRC_DIR/ -iname "$FILE_PATTERN" | while read file;
+	  	    do
+			    if [[ ! -e "${file}.html" ]];
+			    then
+				    echo "$SRC2HTM_EXEC $SRC2HTM_OPTS $file"
+				    "$SRC2HTM_EXEC" "$SRC2HTM_OPTS" "$file"
+			    fi
+		    done \
+		  ) 2> $TIME_DIR/source-highlight.log
+	  fi
+        fi
+
+	return 0
+}
+
+
+. `dirname $0`/configure
+echo "$VGEN_EXEC $FILE_PATTERN"
+echo > error.log
+
+for t in ${MIN_TOKENS};
+do
+	for s in ${STRIDE};
+	do
+		echo "vgen: $t $s";
+		vgen $t $s
+	done
+done
+
