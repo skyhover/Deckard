@@ -50,6 +50,11 @@ class ParseTree {
     /** dump the whole tree in a graph-like format; output filename is the 'filename'+'.grp' */ 
     bool dumpParseTree(bool toOveride);
 
+    /** return the smallest tree containing all elements from the line number */
+    Tree* line2Tree(int ln);
+    /** return the smallest tree containing all elements from the line range */
+    Tree* line2Tree(int startln, int endln);
+
     /** return the smallest common ancestor in the parse tree that contains all the tokens in the range: */
     Tree* tokenRange2Tree(long startTokenId, long endTokenId); 
     /** return the "contextual" node above the given node: */

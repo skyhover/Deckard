@@ -11,6 +11,7 @@
 #include <tra-gen.h>
 #include <algorithm>
 #include <cctype>
+#include <getopt.h>
 
 using namespace std;
 
@@ -34,7 +35,7 @@ void id_init();
 
 extern FILE *yyin;
 
-static char *relNodes[] = {
+static const char *relNodes[] = {
 #ifdef JAVA 
 #include "../ptgen/java/jrelevantNodes.h"
 #else
@@ -46,7 +47,7 @@ static char *relNodes[] = {
 #endif
 };
 
-static char *atomicNodes[] = {
+static const char *atomicNodes[] = {
 #ifdef JAVA
 #include "../ptgen/java/jatomicNodes.h"
 #else
@@ -58,7 +59,7 @@ static char *atomicNodes[] = {
 #endif
 };
 
-static char *valParents[] = {
+static const char *valParents[] = {
 #ifdef JAVA
 #include "../ptgen/java/jparentNodes.h"
 #else
@@ -71,9 +72,9 @@ static char *valParents[] = {
 };
 
 
-void initNodes( vector<int> & nodes, char **nodeconfig)
+void initNodes( vector<int> & nodes, const char **nodeconfig)
 {
-    for (char **s= nodeconfig; *s != NULL; s++) {
+    for (const char **s= nodeconfig; *s != NULL; s++) {
         map<string,int>::iterator i= name2id.find(*s);
         if (i == name2id.end()) {
             cerr << "unknown node type: " << *s << endl;
@@ -88,25 +89,138 @@ ParseTree* global_tree_for_debugging;
 
 int main( int argc, char **argv )
 {
-    if ( argc<2 ) {
-        cerr << "usage: %s filename [config_file | [3 parameters]]" << endl
-	     << "\tCurrent config_file contains three natural numbers: " << endl
-	     << "\t\t(1) # tokens for merging; " << endl
-	     << "\t\t(2) length of a stride; " << endl
-	     << "\t\t(3) # lists for merging." << endl;
-        return 1;
+    const char * inputfilename = NULL;
+    const char * outputfilename = NULL;
+    const char * configfilename = NULL;
+    int mergeTokens = 30, mergeStride = 1, mergeLists = 3;
+    int startline = 0, endline = -1; /* default: all lines */
+
+    // use getopt_long; should also work under cygwin
+    static const struct option longOpts[] = {
+        { "input-file", required_argument, NULL, 'i' },
+        { "output-file", required_argument, NULL, 'o' },
+        { "config-file", required_argument, NULL, 'c' },
+        { "mim-token-number", required_argument, NULL, 'm' },
+        { "stride", required_argument, NULL, 't' },
+        { "merge-list-size", required_argument, NULL, 0 },
+        { "start-line-number", required_argument, NULL, 0 },
+        { "end-line-number", required_argument, NULL, 0 },
+        { "help", no_argument, NULL, 'h'},
+        { NULL, no_argument, NULL, 0 }
+    };
+
+    int c = 0, longIndex = 0;
+    while ((c = getopt_long (argc, argv, "i:o:c:m:t:h", longOpts, &longIndex)) != -1) {
+      switch (c) {
+      case 'i':
+        inputfilename = optarg;
+        break;
+      case 'o':
+        outputfilename = optarg;
+        break;
+      case 'f':
+        configfilename = optarg;
+        TraGenMain::getParameters(configfilename, mergeTokens, mergeStride, mergeLists);
+        break;
+      case 'm':
+        if ( sscanf(optarg, "%d", &mergeTokens)<=0 ) {
+          cerr << "Warning: invalid mergeTokens in option -m (default 30): " << optarg << endl;
+          mergeTokens = 30;
+        }
+        break;
+      case 't':
+        if ( sscanf(optarg, "%d", &mergeStride)<=0 ) {
+          cerr << "Warning: invalid mergeStride in option -t (default 1): " << optarg << endl;
+          mergeStride = 1;
+        }
+        break;
+      case 0: /* for long options w/o a short name */
+        if( stricmp( "merge-list-size", longOpts[longIndex].name ) == 0 ) {
+          if ( sscanf(optarg, "%d", &mergeLists)<=0 ) {
+            cerr << "Warning: invalid mergeLists in option --merge-list-size (default 3): " << optarg << endl;
+            mergeLists = 3;
+          }
+        } else if ( stricmp( "start-line-number", longOpts[longIndex].name ) == 0 ) {
+          if ( sscanf(optarg, "%d", &startline)<=0 ) {
+            cerr << "Warning: invalid startline in option --start-line-number (default: all lines): " << optarg << endl;
+            startline = 0;
+          }
+        } else if ( stricmp( "end-line-number", longOpts[longIndex].name ) == 0 ) {
+          if ( sscanf(optarg, "%d", &endline)<=0 ) {
+            cerr << "Warning: invalid endline in option --end-line-number (default: same as --start-line-number): " << optarg << endl;
+            endline = -1;
+          }
+        }
+        break;
+      case 'h':
+      case '?':
+        /* getopt_long should have already printed an error message. */
+        cerr << "Usage: " << argv[0] << " [options] [filename] " << endl;
+        cerr << "--input-file <source file name>, or -i " << endl;
+        cerr << "--output-file <vector file name>, or -o (default: source name plus '.vec')" << endl;
+        cerr << "--config-file <parameter file name>, or -c (default: not use)" << endl;
+        cerr << "--mim-token-number <number>, or -m (default: 30)" << endl;
+        cerr << "--stride <number>, or -t (default: 1)" << endl;
+        cerr << "--merge-list-size <number> (default: not used)" << endl;
+        cerr << "--start-line-number <number> (default: all lines)" << endl;
+        cerr << "--end-line-number <number> (default: same as start-line-number)" << endl;
+        cerr << "--help or -h" << endl;
+        cerr << "Later options can override previous options. The actual overriding order is undefined; pls avoid specifying the same parameter twice." << endl;
+        return 0;
+      default:
+        /* unreachable */;
+        abort();
+      }
     }
 
+    // additional processing of options:
+    if(endline<0)
+      endline = startline;
+
+    // more vec gen parameters (for backward compatibility only)
+    if (optind < argc) {
+       cerr << "Warning: unparsed options may be used to overload the parameters: [src file] [config-file | [min-tokens][stride][merge-list]]" << endl;
+       inputfilename = argv[optind++];
+       if (optind < argc)
+         configfilename = argv[optind++];
+       if (optind < argc) {
+         configfilename = NULL;
+         optind--;
+         if ( sscanf(argv[optind], "%d", &mergeTokens)<=0 ) {
+           cerr << "Error: invalid mergeTokens: " << argv[optind] << endl;
+           exit(1);
+         }
+         optind++;
+       } else {
+         TraGenMain::getParameters(configfilename, mergeTokens, mergeStride, mergeLists);
+       }
+       if (optind < argc) {
+        if ( sscanf(argv[optind], "%d", &mergeStride)<=0 ) {
+          cerr << "Error: invalid mergeStride: " << argv[optind] << endl;
+          exit(1);
+        }
+        optind++;
+       }
+       if (optind < argc) {
+         if ( sscanf(argv[optind], "%d", &mergeLists)<=0 ) {
+          cerr << "Error: invalid mergeLists: " << argv[optind] << endl;
+          exit(1);
+         }
+         optind++;
+       }
+    }
+    cerr << "Merging parameters: " << mergeTokens << ", " << mergeStride << ", " << mergeLists << endl;
+
     // parse the input file
-    yyin= fopen(argv[1],"r");
+    yyin= fopen(inputfilename,"r");
     if (!yyin) {
-        cerr << "invalid filename: %s" << argv[1] << endl;
+        cerr << "invalid filename: " << inputfilename << endl;
         return 1;
     }
     id_init();
     yyparse();
     if (!root) {
-        cerr << "failed to parse file: " << argv[1] << endl;
+        cerr << "failed to parse file: " << inputfilename << endl;
         return 65;
     }
 
@@ -124,52 +238,22 @@ int main( int argc, char **argv )
     initNodes(p.validParents, valParents);
     //initNodes(p.mergeableNodes, mergeableNodes);
 
-    p.filename= argv[1];
-
-    // vec gen parameters:
-    int mergeTokens = 30, mergeStride = 1, mergeLists = 3;
-    const char * configfilename = NULL;
-    if ( argc==3 ) {
-      configfilename = argv[2];
-      if ( !TraGenMain::getParameters(configfilename, mergeTokens, mergeStride, mergeLists) )
-        /* use whatever parameters set so far */ ;
-    } else {
-      if ( argc>=3 ) {
-        if ( sscanf(argv[2], "%d", &mergeTokens)<=0 ) {
-          cerr << "Can't get mergeTokens from argv[2]: " << argv[2] << endl;
-          mergeTokens = 30;
-        }
-      }
-      if ( argc>=4 ) {
-        if ( sscanf(argv[3], "%d", &mergeStride)<=0 ) {
-          cerr << "Can't get mergeStride from argv[3]: " << argv[3] << endl;
-          mergeStride = 1;
-        }
-      }
-      if ( argc>=5 ) {
-        if ( sscanf(argv[4], "%d", &mergeLists)<=0 ) {
-          cerr << "Can't get mergeLists from argv[4]: " << argv[4] << endl;
-          mergeLists = 3;
-        }
-      }
-      cerr << "Merging parameters: " << mergeTokens << ", " << mergeStride << ", " << mergeLists << endl;
-    }
+    p.filename = inputfilename;
 
     // for debugging use only in vector generator.
     global_tree_for_debugging = &p;
     cerr << "typeCount before init() = " << p.typeCount() << endl;
 
     // setup vec file
-    string outfilename = argv[1];
-    outfilename += ".vec";
+    string outfilestring = outputfilename==NULL ? string(inputfilename) + ".vec" : outputfilename;
     FILE * outfile = NULL;
-    outfile = fopen(outfilename.c_str(), "w");
+    outfile = fopen(outfilestring.c_str(), "w");
     if(outfile==NULL) {
-      cerr << "Can't open file for writing vectors; skip: " << outfilename << endl;
+      cerr << "Warning: Can't open file for writing vectors; skip: " << outfilestring << endl;
       return 65;
     }
     TraGenMain t(&p, mergeTokens, mergeStride, mergeLists, outfile);
-    t.run();
+    t.run(startline, endline);
     fclose(outfile);
     global_tree_for_debugging = NULL;
 

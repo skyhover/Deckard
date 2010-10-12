@@ -56,13 +56,12 @@ getParameters(const char * fn, int & mergeTokens, int & mergeStride, int & merge
           configfile >> mergeLists;
         flag = true;
       } else {
-        cerr << "Can't open configuration file  `" << fn << "', use default parameters." << endl;
+        cerr << "Warning: can't open configuration file  `" << fn << "', use previous parameters." << endl;
       }
     } catch (...) {
       // do nothing.
     }
     // 'finally' not in c++/gcc?
-      cerr << "Merging parameters: " << mergeTokens << ", " << mergeStride << ", " << mergeLists << endl;
       configfile.close();
   }
   return flag;
@@ -106,7 +105,7 @@ TraGenMain::
 }
 
 void TraGenMain::
-run( )
+run(int startln, int endln)
 {
   Tree* initial_inh = NULL;
   // count toke nnumbers (optional: set parent pointers)
@@ -114,12 +113,31 @@ run( )
 #ifdef VGDEBUG
   fprintf(stderr, "Total counted terminals:%ld\n", parse_tree->getRoot()->terminal_number);
 #endif
-  // count token ranges for each node: mainly for bug finding purpose
+  // count token ranges for each node: mainly for bug finding purpose so far
   token_range_counter->traverse(parse_tree->getRoot(), initial_inh);
 
   // generate basic vectors for nodes:
   vec_generator->traverse(parse_tree->getRoot(), initial_inh);
-  // output basic vectors
+
+  // output basic vectors for the lines are specified,
+  if(startln>endln || startln<0 || endln<0) {
+    cerr << "Error: no vec. Check startln<=endln && startln>=0 && endln>=0: " << startln << ", " << endln << endl;
+    cerr << "Also, startln==0 means default vec gen for all lines." << endl;
+    return;
+  }
+  cerr << "Line range used: " << (startln==0 ? "All " : " ") << "[" << startln << ", " << endln << "]" << endl;
+  if(startln>0) {
+    Tree* line_node = parse_tree->line2Tree(startln, endln);
+    if(line_node!=NULL) {
+      TreeVector* tv = TreeAccessor::get_node_vector(line_node);
+      if (! tv->output(vecGen_outfile) ) {
+        cerr << "Warning: no vec." << endl;
+      }
+    }
+    return;
+  }
+
+  // otherwise, output basic vectors for all nodes
   if ( vecGen_config->mergeTokens>0 )
     vec_outputor->traverse(parse_tree->getRoot(), initial_inh);
   else if ( vecGen_config->mergeTokens==0 )

@@ -31,7 +31,7 @@ class TraGenMain {
 
   ~TraGenMain();
 
-  void run();
+  void run(int startln=0, int endln=0);
 };
 
 #endif /* _TRA_GEN_H_ */

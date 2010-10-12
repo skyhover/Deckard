@@ -88,6 +88,46 @@ bool ParseTree::dumpParseTree(bool toOveride)
     return true;
 }
 
+Tree* ParseTree::line2Tree(int ln)
+{
+  // precondition: the line range of each node is set, and the line range of a parent node contains the line ranges of all of its children
+  // Note that there may be more than one token in the same line
+  return line2Tree(ln, ln);
+}
+
+Tree* ParseTree::line2Tree(int startln, int endln)
+{
+  // precondition: the line range of each node is set, and the line range of a parent node contains the line ranges of all of its children
+  if(startln>endln || startln<0)
+    return NULL;
+  if(startln==0)
+    return root;
+  //else
+  Tree* itr = root;
+  while(itr!=NULL) {
+//    cerr << "children size: " << itr->children.size() << ". Comparing with line range: " << itr->min << ":" << itr->max << endl;
+    if(itr->min<=endln && startln<=itr->max) {
+      int inRangeCount = 0;
+      Tree* inRangeNode = NULL;
+      for(int i=0; i<itr->children.size(); i++) {
+//        cerr << "comparing with children " << i << "'s line range: " << itr->children[i]->min << ":" << itr->children[i]->max << endl;
+        if(itr->children[i]->min<=endln && startln<=itr->children[i]->max) {
+          inRangeCount++;
+          if(inRangeCount>=2)
+            break;
+          inRangeNode = itr->children[i];
+        }
+      }
+      if(inRangeCount==1)
+        itr = inRangeNode;
+      else
+        break;
+    } else
+      itr = NULL;
+  }
+  return itr;
+}
+
 Tree* ParseTree::tokenRange2Tree(long startTokenId, long endTokenId)
 {
   if ( root == NULL )
@@ -209,7 +249,7 @@ long Tree::dumpTree(ofstream & out, long n)
     out << "n " << c << " " << getTypeName(id2name, type) << endl;
     for (int i= 0; i < children.size(); i++) {
         out << "e " << c << " " << n << endl;
-	n = children[i]->dumpTree(out, n);
+        n = children[i]->dumpTree(out, n);
     }
     return n;
 }
