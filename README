@@ -1,8 +1,10 @@
 This is a pre-release package of Deckard -- a tree-based, scalable,
-and accurate code clone detection toool. The package contains: (1)
-src/ which includes all the source code for code clone detection and
-context-based detection of inconsistency bugs; (2) tool/ which
-includes some scripts for conveniently running Deckard repeatedly.
+and accurate code clone detection tool. 
+
+****************************
+* LICENSE
+****************************
+3-clause BSD licence
 
 ****************************
 * Installation
@@ -12,6 +14,10 @@ cd src/main
 
 For convenience, add "src/main" into $PATH.
 
+NOTE: Deckard's built-in parser for Java cannot handle Java 1.5 or later
+features, which means when Deckard processes a Java 1.5 file, it is very likely
+there will be no vector generated.
+
 
 ****************************
 * Usage
@@ -20,61 +26,71 @@ For convenience, add "src/main" into $PATH.
 1. For clone detection (suppose the source code of your application is
 in /path/to/app/src):
 
- - create three directory in /path/to/app/ for storing outputs (see
-   samples in tools/sample-app/)
+ - Identify the location of your source code, say /path/to/app/src.
 
- - create a "config" file in /path/to/app/; refer to the sample
-   "config" in tools/sample-app/.
-   make sure all paths are valid.
+ - Create a "config" file in /path/to/app/.
+   Refer to the sample "config" in samples/.
+   Make sure all paths are valid.
 
- - need python (tested with 2.4) to run the following scripts
+ - (Optional) create other three directories in /path/to/app/ for storing outputs
+   (see samples/)
 
- - also need source-highlight if you want to transform the source
-   files into html files; if not, change the "vdbgen" below to disable
-   source-highlight.
+ - Vector generation: from where "config" is, run
+   "/path/to/scripts/clonedetect/vdbgen"
 
- - vector generation: run
-   "/path/to/tools/bugfinding/vdbgen" in /path/to/app/src
+ - Vector clustering (i.e., clone detection): from where "config" is, run
+   "/path/to/scripts/clonedetect/vertical-group-batch"
 
- - vector clustering (i.e., clone detection): run
-   "/path/to/tools/bugfinding/vertical-group-batch" in /path/to/app/src
+2. Vector generation for parts of a file:
 
-The scripts basically glue many steps of Deckard together. If needed,
-you can look into the scripts to see how to run Deckard step-by-step.
+ - Identify the source file name, say /path/to/src/filename.java
 
-2. Bug finding based on inconsistent contexts of clones:
- - when all steps in 1. finish, follow the last several lines of output to carry out bug detection.
+ - Run "src/main/jvecgen [options] /path/to/src/filename.java --start-line-number <s> --end-line-number <e>"
+   Run "jvecgen -h" for more options.
+   Run different vecgen for files in different languages.
+
+This command will generate a vector representing the code between Line <s> and
+<e> in the source file, and store the vector in filename.java.vec by default.
 
 
+************************************************************
+* How to programmably use the vectors and the clone reports?
+************************************************************
 
-************************************
-* How to use the clone reports?
-***********************************
+1. How to get the subtrees representing each clone?
 
-There are no well defined APIs yet. However, Deckard outputs clones in
-a specific format and provides unique IDs for relating the clone
-reports with code segments in original source files.
+Each clone in the reports has a TBID and a TEID, in addition to the file name,
+and line numbers. The TBID and TEID uniquely identify the IDs of the first
+token and the last token in the clone from the original file (possibly
+containing parsing errors). The following are the main steps; Please refer to
+"src/main/vgen/treeTra/token-tree-map.h" for more implementation details.
 
-Each clone has a TBID and a TEID, in addition to the file name, and
-line numbers. The TBID and TEID uniquely identify the IDs of the first
-token and the last token in the clone. If you use "yyparse()" to parse
-the original file again, you can tell which part of the parse tree
-corresponds to the tokens between TBID and TEID. 
+ - Given a line from the clone report file, parse it to get file name, line
+   numbers, TBID, and TEID, etc.  C.f. the function:
+   bool parse(char * line, regex_t patterns[], int dim=ENUM_CLONE_THE_END)
 
-You may refer to "src/main/bugfinding/clone-cluster.h" for more
-technical details. There are mainly two functions that may help you
-to understand how it works:
+ - Call "yyparse()" on the source file again to get the root of the whole parse tree
 
-1. parse a line from the clone report to get file name, line numbers,
-TBID, and TEID, etc.
-  bool parse(char * line, regex_t patterns[], int dim=ENUM_CLONE_THE_END);
+ - Call the following function to get the smallest tree that contains all
+   tokens between TBID and TEID:
+   Tree* tokenRange2Tree2(std::pair<long, long> tokenrange, ParseTree* pt)
 
-2. given a parse tree from yyparse(), and a TBID and TEID, return the
-smallest tree that contains all tokens between TBID and TEID:
-  Tree* tokenRange2Tree2(std::pair<long, long> tokenrange, ParseTree* pt);
-(making the functionality more easily accessible via command line)
+2. How to get the vector for a line or a sequence of lines from a file?
 
-The returned tree is also considered as the corresponding tree for the
-clone that has the same TBIE and TEID.  Then, you should be able to do
-things you want on such trees.
+Option 1: See above "Vector generation for parts of a file."
+
+Option 2: Given the parse tree for a file (through yyparse() again) and the
+starting/ending line number,
+
+  - (Only if not done before,) Call Deckard's vector generator on the parse
+    tree.  C.f., TraGenMain::run(int startln, int endln) and
+    VecGenerator::traverse(Tree* root, Tree* init).
+    
+
+  - Call the following function (c.f. include/ptree.h, src/main/ptree.cc) to
+    return the smallest tree enclosing all elements from these lines:
+    Tree* ParseTree::line2Tree(int startln, int endln)
+
+  - Then retrieve the vector (the actual vector generation is done separately):
+    TreeVector* tv = TreeAccessor::get_node_vector(tree_node_pointer)
 
