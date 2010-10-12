@@ -108,7 +108,7 @@ void TraGenMain::
 run(int startln, int endln)
 {
   Tree* initial_inh = NULL;
-  // count toke nnumbers (optional: set parent pointers)
+  // count token nnumbers and assign token IDs (and, optionally, set parent pointers for e)
   token_counter->traverse(parse_tree->getRoot(), initial_inh);
 #ifdef VGDEBUG
   fprintf(stderr, "Total counted terminals:%ld\n", parse_tree->getRoot()->terminal_number);
