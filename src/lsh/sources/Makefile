@@ -1,8 +1,9 @@
 # DEFINE_FLOAT should be set by a configure script (using testFloat.cpp)
 # if this doesn't work, try REAL_DOUBLE instead
 DEFINE_FLOAT	= REAL_FLOAT
+
 CPP_OPTS	= -O3 -D$(DEFINE_FLOAT) -Wunused-variable
-LINK_OPTS	= -lm
+LINK_OPTS	= -O3 -lm
 OUT_DIR		= ../bin
 
 LSH_SRC		= BucketHashing.cpp \
@@ -30,13 +31,13 @@ TEST_BUILDS	= $(addprefix $(OUT_DIR)/,$(TEST_SRC:.cpp=))
 all: $(TEST_BUILDS)
 
 $(OUT_DIR)/%: %.o $(LSH_OBJS)
-	g++ -O3 -o $@ $(LINK_OPTS) $^
+	g++ -o $@ $(LINK_OPTS) $^
 
-clean:
-	-rm -f *.o .depend
+clean:  # remove intermediate files
+	-rm -f *~ *.o .depend
 
-clean_all: clean
-	-rm -f
+clean_all: clean  # also remove exe files
+	-rm -f $(TEST_BUILDS)
 
 %.o: %.cpp
 	g++ -c $(CPP_OPTS) $<
@@ -45,3 +46,4 @@ clean_all: clean
 	g++ -MM $^ > $@
 
 include .depend
+

@@ -67,7 +67,7 @@ bool inconsistentIDchanges(char *v1, char *v2)
 {
   regex_t id;
   regmatch_t pmatch[1];
-  char *id1, *id2;
+  //char *id1, *id2;
   int nChanged=0, nUnchanged=0;
 
   if ( v1==v2 )
@@ -312,13 +312,13 @@ int compareInt32T(const void *a, const void *b){
 #define ENUM_BUCKETS
 
 #define CHECK_INT(v) { \
-  if (v == 0) { \
-    fprintf(stderr, "Incorrect value for %s\n", __STRING(v)); \
+  if (v <= 0) { \
+    fprintf(stderr, "Incorrect integer value for variable %s\n", #v); \
     usage(1, argv[0]); \
   }}
 #define CHECK_FLOAT(v) { \
   if (v < 1e-3) { \
-    fprintf(stderr, "Incorrect value for %s\n", __STRING(v)); \
+    fprintf(stderr, "Incorrect float value for variable %s\n", #v); \
     usage(1, argv[0]); \
   }}
 
@@ -401,7 +401,7 @@ int main(int argc, char *argv[]){
   FAILIF(0 != regcomp(&preg[ENUM_PPROP_OIDs], "OIDs:\\{[^}]*\\}([0-9]+)", REG_EXTENDED)); // TODO, pair-wise comparision of Vars.
 
   //initializeLSHGlobal();
-  availableTotalMemory = 800000000;
+  availableTotalMemory = (unsigned int)8e8;  // 800MB by default
 
   // Parse part of the command-line parameters.
   bool computeParameters = false;

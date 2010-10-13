@@ -33,13 +33,13 @@ LIBRARIES:=-lm
 all:
 	$(MAKE) -C sources all
 
-clean:
+clean:  # remove all intermediate file from compilation
 	$(MAKE) -C sources clean
 
-clean_all:
+clean_all:  # remove all files from compilation
 	$(MAKE) -C sources clean_all
 
-arch: clean_all
+arch: clean_all 
 	tar --exclude=experiments -C .. -cvzf ../enumBuckets-$(shell date -u +'%y%m%d-%H%M').tar.gz $(DIR)
 
 #	bin/compile
@@ -76,3 +76,4 @@ ship:
 	\rm -f E2LSH-0.1.tar
 	chmod -R g+rw E2LSH-0.1
 	chmod g+rw E2LSH-0.1.tar.gz
+

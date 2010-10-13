@@ -415,8 +415,8 @@ void freeUHashStructure(PUHashStructureT uhash, BooleanT freeHashFunctions){
 // of size totaling <size>. <a> is of length <size>.
 inline Uns32T computeBlockProductModDefaultPrime(Uns32T *a, Uns32T *(b[]), IntT nBPieces, IntT size){
   LongUns64T h = 0;
-  IntT j = 0;
-  IntT bPiece = 0;
+  //IntT j = 0;
+  //IntT bPiece = 0;
   IntT bPieceSize = size / nBPieces;
   IntT i = 0;
   for(IntT bPiece = 0; bPiece < nBPieces; bPiece++){
@@ -435,7 +435,7 @@ inline Uns32T computeBlockProductModDefaultPrime(Uns32T *a, Uns32T *(b[]), IntT 
 // Computes (a.b)mod UH_PRIME_DEFAULT.
 inline Uns32T computeProductModDefaultPrime(Uns32T *a, Uns32T *b, IntT size){
   LongUns64T h = 0;
-  IntT i = 0;
+  //IntT i = 0;
   for(IntT i = 0; i < size; i++){
     h = h + (LongUns64T)a[i] * (LongUns64T)b[i];
     h = (h & TWO_TO_32_MINUS_1) + 5 * (h >> 32);
@@ -526,7 +526,7 @@ void addBucketEntry(PUHashStructureT uhash, IntT nBucketVectorPieces, Uns32T fir
   }
 
   PGBucketT p;
-  BooleanT found;
+  BooleanT found;  // only used in the following disabled code 
   Int32T j;
   Int32T temp;
   switch (uhash->typeHT) {
