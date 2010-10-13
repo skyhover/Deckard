@@ -2,7 +2,7 @@
 # if this doesn't work, try REAL_DOUBLE instead
 DEFINE_FLOAT	= REAL_FLOAT
 
-CPP_OPTS	= -O3 -D$(DEFINE_FLOAT) -Wunused-variable
+CPP_OPTS	= -O3 -D$(DEFINE_FLOAT) # -Wunused-variable
 LINK_OPTS	= -O3 -lm
 OUT_DIR		= ../bin
 
