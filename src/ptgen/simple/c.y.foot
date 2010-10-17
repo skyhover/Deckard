@@ -1,0 +1,13 @@
+
+#include <stdio.h>
+
+extern char yytext[];
+extern int column;
+
+yyerror(s)
+char *s;
+{
+	fflush(stdout);
+	printf("%s: %d.%d",s,yylineno,column);
+}
+

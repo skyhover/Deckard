@@ -1,0 +1,68 @@
+#! /usr/bin/env python
+
+#
+# 
+# Copyright (c) 2007-2010,
+#   Lingxiao Jiang         <lxjiang@ucdavis.edu>
+#   Ghassan Misherghi      <ghassanm@ucdavis.edu>
+#   Zhendong Su            <su@ucdavis.edu>
+#   Stephane Glondu        <steph@glondu.net>
+# All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the University of California nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# 
+#
+
+#import psyco
+#psyco.full()
+
+import sys
+f= open(sys.argv[1])
+
+inputs=[]
+import re
+reg= re.compile(".*FILE (.*) LINE:(\d+):(\d+) NODE_KIND.*")
+for line in f.readlines():
+    m= reg.match(line)
+    if m != None:
+        l1= int(m.group(2))
+        l2= int(m.group(3))+l1
+        inputs.append( (m.group(1), (l1, l2)) )
+
+fileCoverSet={}
+
+for file,linerange  in inputs:
+    if linerange[0] > linerange[1]:
+        print "bad linerange:",linerange
+        continue
+    if file not in fileCoverSet:
+        fileCoverSet[file] = set()
+    fileCoverSet[file].update(range(linerange[0],linerange[1]))
+
+sum = 0
+for file,coverset in fileCoverSet.items():
+    #print file,',',coverset
+    sum += len(coverset)
+
+print sum
+

@@ -1,0 +1,153 @@
+#! /usr/bin/env python
+
+#
+# 
+# Copyright (c) 2007-2010,
+#   Lingxiao Jiang         <lxjiang@ucdavis.edu>
+#   Ghassan Misherghi      <ghassanm@ucdavis.edu>
+#   Zhendong Su            <su@ucdavis.edu>
+#   Stephane Glondu        <steph@glondu.net>
+# All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the University of California nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# 
+#
+
+# the regular expressions are copied from bugmerging
+# Usage: $0 <a bug report>
+# output to stdout
+
+import re
+import sys
+import os
+#import shutil
+
+if len(sys.argv) != 2:
+    print "Usage: ", sys.argv[0], " <a bug report>"
+    sys.exit(1)
+
+rs= re.compile('.*Rank score:\s*(-?\d+)\s*\*\s*(\d+)\s*=\s*(-?\d+)\s*buggy score:\s*(-?\d+).*')
+#rs= re.compile('.*Rank score:\s*(-?\d+)\s*\*\s*(\d+)\s*=\s*(-?\d+)\s*buggy score:\s*(-?\d+)\s(-?\d+)\s(-?\d+)\s(-?\d+).*')
+range_r= re.compile('.*FILE (.*) LINE:(\d+):(\d+) NODE_KIND.*')
+bugcategory_r= re.compile('(^B|^S|^G|^F)(\d+)\s*.*')
+onlybug_r= re.compile('^B.*')
+onlystyle_r= re.compile('^S.*')
+def readclusters( file ):
+    f= open(file,'r')
+    clusters= []
+    cluster= []
+    for line in f.readlines():
+        if line == '\n' or line == '':
+            if len(cluster) > 0:
+                clusters.append(cluster)
+                cluster=[]
+            continue
+        cluster.append(line)
+    f.close()
+    if len(cluster) > 0:
+        clusters.append(cluster)
+    return clusters
+
+def print_cluster(cluster):
+    for line in cluster:
+        print line,
+
+def print_clusters(clusters):
+    for cluster in clusters:
+        print_cluster(cluster)
+        print
+
+def buggy_clusters( clusters ):
+    newlist= []
+    for i in range(len(clusters)):
+        keep= False
+        for j in range(len(clusters[i])):
+            m= bugcategory_r.match(clusters[i][j])
+            if m == None:
+                continue
+            else:
+                keep= True
+        if keep:
+            newlist.append(clusters[i])
+    return newlist
+
+# This function currently can't handle the cases when one cluster contains several lines of Rank score.
+def rank_buggy_clusters( rankid, clusters ):
+    newlist= []
+    for i in range(len(clusters)):
+        keep= False
+        rank= 0
+        marks= []
+        for j in range(len(clusters[i])):
+            rs_m= rs.match(clusters[i][j])
+            if rs_m != None:
+                rank= int(rs_m.group(1))
+            m= onlybug_r.match(clusters[i][j])
+            if m != None:
+                marks.append(clusters[i][j])
+        if len(marks)>0 and rank==rankid:
+            keep= True
+        if keep:
+            newlist.append(clusters[i])
+    return newlist
+
+def type_buggy_clusters( typeid, clusters ):
+    newlist= []
+    typeids= {}
+    if typeid==1:
+        typeids= set([1, 3, 5, 7])
+    elif typeid==2:
+        typeids= set([2, 3, 6, 7])
+    elif typeid==3:
+        typeids= set([4, 5, 6, 7])
+    for i in range(len(clusters)):
+        keep= False
+        rank= 0
+        marks= []
+        for j in range(len(clusters[i])):
+            rs_m= rs.match(clusters[i][j])
+            if rs_m != None:
+                rank= int(rs_m.group(1))
+            m= onlybug_r.match(clusters[i][j])
+            if m != None:
+                marks.append(clusters[i][j])
+        if len(marks)>0 and rank in typeids:
+            keep= True
+        if keep:
+            newlist.append(clusters[i])
+    return newlist
+
+clustersall= readclusters( sys.argv[1] )
+rankclusters= []
+for i in range(1,8):
+    rankclusters.append( rank_buggy_clusters(i, clustersall) )
+sum= 0
+for i in range(7):
+    sum += len(rankclusters[i])
+    print len(rankclusters[i]),
+print
+print "Total bugs: ", sum
+print "Type 1 bugs: ", len(rankclusters[0])+len(rankclusters[2])+len(rankclusters[4])+len(rankclusters[6])
+print "Type 2 bugs: ", len(rankclusters[1])+len(rankclusters[2])+len(rankclusters[5])+len(rankclusters[6])
+print "Type 3 bugs: ", len(rankclusters[3])+len(rankclusters[4])+len(rankclusters[5])+len(rankclusters[6])
+

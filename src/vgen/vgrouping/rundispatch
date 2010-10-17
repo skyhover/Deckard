@@ -1,0 +1,97 @@
+#!/bin/bash
+
+#
+# 
+# Copyright (c) 2007-2010,
+#   Lingxiao Jiang         <lxjiang@ucdavis.edu>
+#   Ghassan Misherghi      <ghassanm@ucdavis.edu>
+#   Zhendong Su            <su@ucdavis.edu>
+#   Stephane Glondu        <steph@glondu.net>
+# All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the University of California nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# 
+#
+
+# Usage: thisfile <vec file> [s d c]
+
+if [[ $# -ne 2 && $# -ne 4 && $# -ne 6 && $# -ne 8 && $# -ne 10 ]]; then
+    echo "Usage: $0 <vecdir> <dist> [-l <low>] [-h <high>] [-o <outdir>] [-p <nameprefix>]"
+    echo "sample: $0 linux-2.6.19 1 -l 50 -h 1000000 -o vectorgroups/ -p linux2619"
+    exit 127;
+fi
+
+vecsrcdir=$1
+shift
+vecdist=$1
+shift
+# default values
+low=50
+high=1000000
+outdir=./vectorgroups
+nameprefix=vdb
+
+while [ $# -gt 0 ]; do
+  case $1 in
+  -l)
+    low=$2;;
+  -h)
+    high=$2;;
+  -o)
+    outdir=$2;;
+  -p)
+    nameprefix=$2;;
+  *)
+    echo "ERROR: wrong parameters"
+    exit 127;;
+  esac
+  shift 2
+done
+
+#echo $vecsrcdir
+#echo $vecdist
+#echo $low
+#echo $high
+#echo $outdir
+#echo $nameprefix
+
+if [[ ! -d $vecsrcdir ]]; then
+    echo "Directory $vecsrcdir doesn't exist."
+    exit 127
+fi
+
+if [[ ! -d $outdir ]]; then
+    mkdir $outdir || (echo "Can't make directory $outdir"; exit 127)
+fi
+
+# create the range file (once)
+`dirname $0`/computeranges $vecdist $low $high > "${outdir}/ranges_${vecdist}_${low}_${high}"
+if [[ ! -s ${outdir}/ranges_${vecdist}_${low}_${high} ]]; then
+    echo "Can't generate the range file: '${outdir}/ranges_${vecdist}_${low}_${high}'"
+    exit 1
+fi
+# dispatch the vectors:
+find ${vecsrcdir} -iname "*.vec" | while read fn; do
+    `dirname $0`/dispatchvectors "${outdir}/ranges_${vecdist}_${low}_${high}" "$fn" "${outdir}" "${nameprefix}" || (echo "Failed to dispatch '$fn'."; exit 1)
+done
+

@@ -1,0 +1,54 @@
+%token   PLUS_TK         MINUS_TK        MULT_TK         DIV_TK    REM_TK
+%token   LS_TK           SRS_TK          ZRS_TK
+%token   AND_TK          XOR_TK          OR_TK
+%token   BOOL_AND_TK BOOL_OR_TK
+%token   EQ_TK NEQ_TK GT_TK GTE_TK LT_TK LTE_TK
+
+/* This maps to the same binop_lookup entry than the token above */
+
+%token   PLUS_ASSIGN_TK  MINUS_ASSIGN_TK MULT_ASSIGN_TK DIV_ASSIGN_TK
+%token   REM_ASSIGN_TK
+%token   LS_ASSIGN_TK    SRS_ASSIGN_TK   ZRS_ASSIGN_TK
+%token   AND_ASSIGN_TK   XOR_ASSIGN_TK   OR_ASSIGN_TK
+
+
+/* Modifier TOKEN have to be kept in this order. Don't scramble it */
+
+%token   PUBLIC_TK       PRIVATE_TK         PROTECTED_TK
+%token   STATIC_TK       FINAL_TK           SYNCHRONIZED_TK
+%token   VOLATILE_TK     TRANSIENT_TK       NATIVE_TK
+%token   PAD_TK          ABSTRACT_TK        STRICT_TK
+%token   MODIFIER_TK
+
+/* Keep those two in order, too */
+%token   DECR_TK INCR_TK
+
+/* From now one, things can be in any order */
+
+%token   DEFAULT_TK      IF_TK              THROW_TK
+%token   BOOLEAN_TK      DO_TK              IMPLEMENTS_TK
+%token   THROWS_TK       BREAK_TK           IMPORT_TK
+%token   ELSE_TK         INSTANCEOF_TK      RETURN_TK
+%token   VOID_TK         CATCH_TK           INTERFACE_TK
+%token   CASE_TK         EXTENDS_TK         FINALLY_TK
+%token   SUPER_TK        WHILE_TK           CLASS_TK
+%token   SWITCH_TK       CONST_TK           TRY_TK
+%token   FOR_TK          NEW_TK             CONTINUE_TK
+%token   GOTO_TK         PACKAGE_TK         THIS_TK
+%token   ASSERT_TK
+
+%token   BYTE_TK         SHORT_TK           INT_TK            LONG_TK
+%token   CHAR_TK         INTEGRAL_TK
+
+%token   FLOAT_TK        DOUBLE_TK          FP_TK
+
+%token   ID_TK
+
+%token   REL_QM_TK         REL_CL_TK NOT_TK  NEG_TK
+
+%token   ASSIGN_ANY_TK   ASSIGN_TK
+%token   OP_TK  CP_TK  OCB_TK  CCB_TK  OSB_TK  CSB_TK  SC_TK  C_TK DOT_TK
+
+%token   STRING_LIT_TK   CHAR_LIT_TK        INT_LIT_TK        FP_LIT_TK
+%token   TRUE_TK         FALSE_TK           BOOL_LIT_TK       NULL_TK
+

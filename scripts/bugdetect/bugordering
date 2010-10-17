@@ -1,0 +1,101 @@
+#! /usr/bin/env python
+
+#
+# 
+# Copyright (c) 2007-2010,
+#   Lingxiao Jiang         <lxjiang@ucdavis.edu>
+#   Ghassan Misherghi      <ghassanm@ucdavis.edu>
+#   Zhendong Su            <su@ucdavis.edu>
+#   Stephane Glondu        <steph@glondu.net>
+# All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the University of California nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# 
+#
+
+# Usage: $0 <filtered clone clusters>
+# output to stdout
+
+# To change the way the clusters are sorted, change
+# the cmp_rank_score function
+
+import re
+import sys
+import os
+
+if len(sys.argv) != 2:
+    print "Usage: ", sys.argv[0], " <bug-filtered clones>"
+    sys.exit(1)
+
+rs= re.compile('.*Rank score:\s*(-?\d+)\s*\*\s*(\d+)\s*=\s*(-?\d+)\s*buggy score:\s*(-?\d+)\s(-?\d+)\s(-?\d+)\s(-?\d+).*')
+def cluster_rank_score( line ):
+    m= rs.match(line)
+    s= (0,0,0)
+    if m == None:
+        s= (0,0,0)
+    else:
+        s= ( int(m.group(1)), int(m.group(2)), int(m.group(4)) )
+    return s
+
+def cmp_rank_score( c1, c2 ):
+    s11= c1[0][0]*c1[0][1]
+    s12= c1[0][2]
+    s21= c2[0][0]*c2[0][1]
+    s22= c2[0][2]
+    if s11 > s21: return -1
+    elif s11 == s21 and s12 > s22: return -1
+    elif s11 < s21: return 1
+    elif s11 == s21 and s12 < s22: return 1
+    else: return 0
+
+def readclusters( file ):
+    f= open(file,'r')
+    clusters= []
+    cluster= []
+    for line in f.readlines():
+        if line == '\n' or line == '':
+            if len(cluster) > 0:
+                clusters.append((cluster_rank_score(cluster[0]), cluster))
+                cluster=[]
+            continue
+        cluster.append(line)
+    f.close()
+    if len(cluster) > 0:
+        clusters.append((cluster_rank_score(cluster[0]), cluster))
+        cluster=[]
+    return clusters
+
+clusters= readclusters( sys.argv[1] )
+#clusters= map( remove_overlaping, clusters )
+#clusters= filter( only_one_diff, clusters )
+clusters.sort( cmp_rank_score )
+
+
+#print len(clusters), 'clusters'
+#print
+for (score, cluster) in clusters:
+    for line in cluster:
+        print line,
+    print
+
+

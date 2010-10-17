@@ -1,0 +1,97 @@
+%{
+/*
+#include "config.h"
+#include "system.h"
+#include "coretypes.h"
+#include "tm.h"
+#include "tree.h"
+#include "input.h"
+#include "cpplib.h"
+#include "intl.h"
+#include "timevar.h"
+#include "c-pragma.h"
+#include "c-tree.h"
+#include "flags.h"
+#include "varray.h"
+#include "output.h"
+#include "toplev.h"
+#include "ggc.h"
+*/
+
+
+%}
+
+
+%start program
+
+%token IDENTIFIER
+%token TYPENAME
+%token SCSPEC			/* Storage class other than static.  */
+%token STATIC			/* Static storage class.  */
+%token TYPESPEC
+%token TYPE_QUAL
+%token CONSTANT
+%token STRING
+%token ELLIPSIS
+%token SIZEOF ENUM STRUCT UNION IF ELSE WHILE DO FOR SWITCH CASE DEFAULT
+%token BREAK CONTINUE RETURN GOTO ASM_KEYWORD TYPEOF ALIGNOF
+%token ATTRIBUTE EXTENSION LABEL
+%token REALPART IMAGPART VA_ARG CHOOSE_EXPR TYPES_COMPATIBLE_P
+%token PTR_VALUE PTR_BASE PTR_EXTENT
+%token FUNC_NAME
+
+%type <t> IDENTIFIER
+%type <t> TYPENAME
+%type <t> SCSPEC			/* Storage class other than static.  */
+%type <t> STATIC			/* Static storage class.  */
+%type <t> TYPESPEC
+%type <t> TYPE_QUAL
+%type <t> CONSTANT
+%type <t> STRING
+%type <t> ELLIPSIS
+%type <t> SIZEOF ENUM STRUCT UNION IF ELSE WHILE DO FOR SWITCH CASE DEFAULT
+%type <t> BREAK CONTINUE RETURN GOTO ASM_KEYWORD TYPEOF ALIGNOF
+%type <t> ATTRIBUTE EXTENSION LABEL
+%type <t> REALPART IMAGPART VA_ARG CHOOSE_EXPR TYPES_COMPATIBLE_P
+%type <t> PTR_VALUE PTR_BASE PTR_EXTENT
+%type <t> FUNC_NAME
+
+%type <t> ',' ')' ']' ';' '}' '{'  '~' '!'
+
+%nonassoc IF
+%nonassoc ELSE
+
+%right <t> ASSIGN '='
+%right <t> '?' ':'
+%left <t> OROR
+%left <t> ANDAND
+%left <t> '|'
+%left <t> '^'
+%left <t> '&'
+%left <t> EQCOMPARE
+%left <t> ARITHCOMPARE
+%left <t> LSHIFT RSHIFT
+%left <t> '+' '-'
+%left <t> '*' '/' '%'
+%right <t> UNARY PLUSPLUS MINUSMINUS
+%left HYPERUNARY
+%left <t> POINTSAT '.' '(' '['
+
+
+%token INTERFACE IMPLEMENTATION END SELECTOR DEFS ENCODE
+%token CLASSNAME PUBLIC PRIVATE PROTECTED PROTOCOL OBJECTNAME CLASS ALIAS
+%token AT_THROW AT_TRY AT_CATCH AT_FINALLY AT_SYNCHRONIZED
+%token OBJC_STRING
+
+/*
+%type <t> INTERFACE IMPLEMENTATION END SELECTOR DEFS ENCODE
+%type <t> CLASSNAME PUBLIC PRIVATE PROTECTED PROTOCOL OBJECTNAME CLASS ALIAS
+%type <t> AT_THROW AT_TRY AT_CATCH AT_FINALLY AT_SYNCHRONIZED
+%type <t> OBJC_STRING
+
+%type <t> ENUM STRUCT UNION IF ELSE WHILE DO FOR SWITCH CASE DEFAULT
+%type <t> BREAK CONTINUE RETURN GOTO ASM_KEYWORD SIZEOF TYPEOF ALIGNOF
+%type <t> IDENTIFIER TYPENAME CONSTANT STRING
+%type <t> SCSPEC STATIC TYPESPEC TYPE_QUAL
+*/
+

@@ -1,0 +1,85 @@
+==============================================================================
+Based on E2LSH 0.1:
+  Alexandr Andoni (andoni@mit.edu)
+  Piotr Indyk (indyk@mit.edu)
+Modified by:
+  Stephane Glondu (stephane.glondu@dptinfo.ens-cachan.fr)
+  Lingxiao Jiang (lxjiang@ucdavis.edu)
+  Andreas Saebjornsen (andsebjo@ucdavis.edu)
+  Jeremiah Willcock (jewillco@osl.iu.edu)
+LICENSE:
+  Following E2LSH, the MIT License applies to all files in this directory.
+
+==============================================================================
+Installation on Linux or Cygwin/Windows
+
+- Run "make", which should generate several binaries in bin/, Deckard uses only
+  "enumBuckets". There may (or may not) be precompiled binaries in bin/
+  depending on the package.
+
+  There are also several bash shell scripts in bin/ for easy invocations of LSH.
+
+- For convenience, users may add "bin/" into $PATH.
+
+- If trouble, try changing DEFINE_FLOAT in sources/Makefile.
+
+- To generate a time-stamped archive, run "make arch".
+
+- The source may or may not compile under different versions of Cygwin/Windows
+  due to some library incompatibility. But Cygwin 1.7.7 and later with gcc
+  4.3.4 should be fine.
+
+- The main changes in this modified version of E2LSH are in
+  sources/enumBuckets.cpp (which is a modified copy of sources/LSHMain.cpp) +
+  some changes in headers + Makefiles + some bug fixes.
+
+  Also, the base version does not work when distance is zero, while the
+modified version works (in an ad-hoc way, not 100% accurate). To improve upon
+this, we can directly employ exact hashing when distance is zero (c.f.
+Andreas's binary clone detection paper on ISSTA '09).
+
+==============================================================================
+Usage of the binary: enumBuckets <options>
+
+-A		output all clones, ignoring all filtering parameters except for lowerBound
+-B		output all clones, ignoring the filtering parameters for bug reports;
+		used for clone detections.
+-l <N>		minimum number of lines for a vector to be reported
+-b <N>		minimum number of vectors for a bucket to be reported
+-F		inter-file clone detection.
+==Options not implemented==
+-V <N>		maximum number of different nVARs for a bucket to be reported
+-e <R>		maximum diff among the number of different nVARs for a bucket to be reported
+-E <R>		maximum diff among nVARs for a bucket to be reported.
+==Many of these options are for filtering purposes, which can be 
+==better organized in a separate module, such as post-processing==
+
+-v <N>          minimum nVARS for an item to be reported
+-m <N>		minimum NUM_NODES for a vector to be reported
+-t <N>		maximum number of vectors for a bucket to be reported
+-N <N>		number of points (automatically detected)
+-d <N>		dimension (automatically detected)
+-p <file>	parameter file name (will be created if needed)
+-P <R>		probability of success (LSH parameter)
+-M <N>		available memory (default: 800000000)
+-a <N>		read <N> lines at once (prefetch parameter)
+-c		forces parameters to be recomputed
+-R <R>		radius parameter of the LSH algorithm
+-f <file>	input file
+
+<N> is a positive integer, <R> a floating-point value, <file> a filename
+
+Results are printed to stdout, error and warnings are printed to stderr.
+
+==============================================================================
+A typical use:
+  time bin/enumBuckets -p gcc.params -f gcc.vector -R 0.9 > gcc.result
+
+Used in Deckard's scripts/:
+  time bin/enumBuckets -R $distance -M $memory -b 2 -A \
+       -f <vector_file> -c -p <vec.param> > cluster_report 2> /dev/null
+
+==============================================================================
+LSH may be used for many other purposes besides its use in Deckard. Please
+refer to the detailed manual.ps.
+
