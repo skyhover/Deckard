@@ -4,11 +4,15 @@ and accurate code clone detection tool.
 ****************************
 * LICENSE
 ****************************
+
 3-clause BSD licence
 
 ****************************
 * Installation
 ****************************
+
+In bash shell or cygwin, run the build script: 
+
 cd src/main
 ./build.sh
 
@@ -52,6 +56,10 @@ in /path/to/app/src):
 This command will generate a vector representing the code between Line <s> and
 <e> in the source file, and store the vector in filename.java.vec by default.
 
+NOTE: The compiled executables may not be "executable" (showing "Permission
+Denied") on Windows Vista/7 due to false alarms of UAC rules (based on file
+path/hash of a .exe). A simple (but may not be desirable) workaround is to run
+cygwin shell with elevated privileges before invoking the above scripts.
 
 ************************************************************
 * How to programmably use the vectors and the clone reports?

@@ -19,10 +19,10 @@ SRC_DIR='src'
 # where is Deckard?
 DECKARD_DIR='/home/deckard'
 # clone parameters; refer to paper.
-MIN_TOKENS='50 100'
-STRIDE='0 2'
-#DISTANCE='2.236 0.70711 1.58114'
-SIMILARITY='1.0 0.95'
+MIN_TOKENS='50 100'  # can be a sequence of integers
+STRIDE='0 2'  # can be a sequence of integers
+SIMILARITY='1.0 0.95'  # can be a sequence of values <= 1
+#DISTANCE='0 0.70711 1.58114 2.236'
 
 ###########################################################
 # Where to store result files?
@@ -38,7 +38,7 @@ TIME_DIR='times'
 # where are several programs we need?
 #
 # where is the vector generator?
-VGEN_EXEC="$DECKARD_DIR/src/main/"
+VGEN_EXEC="$DECKARD_DIR/src/main"
 case $FILE_PATTERN in 
   *.java )
     VGEN_EXEC="$VGEN_EXEC/jvecgen" ;;
@@ -50,10 +50,12 @@ case $FILE_PATTERN in
     echo "Error: invalid FILE_PATTERN: $FILE_PATTERN"
     VGEN_EXEC="$VGEN_EXEC/invalidvecgen" ;;
 esac
-# where is the lsh?
-CLUSTER_EXEC="$DECKARD_DIR/src/lsh/bin/enumBuckets"
 # how to divide the vectors into groups?
-GROUPING_EXEC="$DECKARD_DIR/src/vgen/sort/runvectorsort"
+GROUPING_EXEC="$DECKARD_DIR/src/vgen/vgrouping/runvectorsort"
+# where is the lsh for vector clustering?
+CLUSTER_EXEC="$DECKARD_DIR/src/lsh/bin/enumBuckets"
+# how to post process clone groups?
+POSTPRO_EXEC="$DECKARD_DIR/scripts/clonedetect/post_process_groupfile"
 # how to transform source code html?
 SRC2HTM_EXEC=source-highlight 
 SRC2HTM_OPTS=--line-number-ref
@@ -62,7 +64,7 @@ SRC2HTM_OPTS=--line-number-ref
 # Some additional, internal parameters; can be ignored
 #
 # the maximal vector size for the first group; not really useful
-GROUPING_S='50'
+GROUPING_S='50'  # should be a single value
 #GROUPING_D
 #GROUPING_C
 

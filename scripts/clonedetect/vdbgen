@@ -1,8 +1,18 @@
 #!/bin/bash
 
+PARSELOG="$TIME_DIR/parse.log"
+TOOVERWRITE=
+
 clean()
 {
 	find "$SRC_DIR" -iname '*.vec' -print0 | xargs -0 -r --max-args 500 rm
+}
+
+clean_log()
+{
+	rm -f "$TIME_DIR/$PARSELOG"
+	find "$TIME_DIR" -iname 'vgen_*' -print0 | xargs -0 -r --max-args 500 rm
+	find "$VECTOR_DIR" -iname 'vdb_*' -print0 | xargs -0 -r --max-args 500 rm
 }
 
 #vgen $1 $2: $1=min_token; $2=stride
@@ -13,62 +23,100 @@ vgen()
 		return 1
 	fi
 
-	if [[ -s "$VECTOR_DIR/vdb_$1_$2" ]];
+	echo -n "$FUNCNAME: $t $s ..."  # FUNCNAME: the current function name; maintained by Bash
+	if [[ "$TOOVERWRITE" != "true" && -s "$VECTOR_DIR/vdb_$1_$2" ]];
 	then
-	  echo "Vec file $VECTOR_DIR/vdb_$1_$2 has already existed."
-	  echo "    Delete it first re-generation is desired."
+	  echo
+	  echo "Warning: Vec file $VECTOR_DIR/vdb_$1_$2 exists. Delete it manually or use '$0 overwrite'."
+	  echo "$FUNCNAME: $t $s ...Skip."
 	else
-	  clean
-
-	  echo > log
+	  echo -n > "$PARSELOG"
 
 #NOTE: "for .. in .." has trouble when a filename contains spaces; use "while read .." instead:
 	  ( time \
 	    find "$SRC_DIR" -iname "$FILE_PATTERN" | while read file;
 #	    for file in `find $SRC_DIR/ -iname "$FILE_PATTERN"`;
 	    do
-		echo "$file" >> log
-		if [[ ! -e "${file}.vec" ]];
+		echo >> "$PARSELOG"
+		echo "Parsing $file" >> "$PARSELOG"
+		if [[ ! -e "${file}.vec" || "$TOOVERWRITE"="true" ]];
 		then
-			"$VGEN_EXEC" "$file" $1 $2 1 >& /dev/null ||
-			echo "failed($?): $VGEN_EXEC $file" >> error.log
+			"$VGEN_EXEC" -i "$file" -m $1 -t $2 1>"$PARSELOG" 2>1
 		fi
 	    done \
-	  ) 2> "$TIME_DIR/vgen_$1_$2"
+	  ) 1>"$TIME_DIR/vgen_$1_$2" 2>1
 
 	  find "$SRC_DIR" -iname '*.vec' -print0 | xargs -0 --max-args=100 cat > "$VECTOR_DIR/vdb_$1_$2"
+	  echo "Done. Log: $TIME_DIR/vgen_$1_$2"
+        fi
+
+	if [[ -s "$VECTOR_DIR/vdb_$1_$2" ]]; then
+		return 0
+	else
+		return 1
+	fi
+}
 
 # transform source code to html:
+tohtml()
+{
 	  if ( which "$SRC2HTM_EXEC" >& /dev/null );
 	  then
-		  echo "Transforming source code to html.........."
+		  echo -n "Transforming source code to html..."
 		  ( time \
 		    find $SRC_DIR/ -iname "$FILE_PATTERN" | while read file;
 	  	    do
-			    if [[ ! -e "${file}.html" ]];
+			    if [[ ! -e "${file}.html" || "$TOOVERWRITE"="true" ]];
 			    then
 				    echo "$SRC2HTM_EXEC $SRC2HTM_OPTS $file"
 				    "$SRC2HTM_EXEC" "$SRC2HTM_OPTS" "$file"
 			    fi
 		    done \
-		  ) 2> $TIME_DIR/source-highlight.log
+		  ) 1>"$TIME_DIR/$SRC2HTM_EXEC.log" 2>1
+		  echo "Done. Log: $TIME_DIR/$SRC2HTM_EXEC.log"
 	  fi
-        fi
-
-	return 0
 }
 
-
 . `dirname $0`/configure
+
+if [[ $# -ge 1 ]]; then
+	case "$1" in
+		clean )
+			clean
+			exit $?
+			;;
+		clean_all )
+			clean
+			clean_log
+			exit $?
+		       	;;
+		overwrite )
+			TOOVERWRITE="true"
+			;;
+		* )
+			echo "Usage: $0 [overwrite | clean | clean_all]"
+			exit 1
+			;;
+	esac
+fi
+
+errcode=0
 echo "$VGEN_EXEC $FILE_PATTERN"
-echo > error.log
+echo 
 
 for t in ${MIN_TOKENS};
 do
 	for s in ${STRIDE};
 	do
-		echo "vgen: $t $s";
 		vgen $t $s
+		retcode=$?
+		if [[ $errcode -eq 0 ]]; then
+			errcode=$retcode
+		fi
+		echo
 	done
 done
+
+tohtml
+exit $errcode
 

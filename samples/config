@@ -50,10 +50,12 @@ case $FILE_PATTERN in
     echo "Error: invalid FILE_PATTERN: $FILE_PATTERN"
     VGEN_EXEC="$VGEN_EXEC/invalidvecgen" ;;
 esac
+# how to divide the vectors into groups? It's just the directory name that matters
+GROUPING_EXEC="$DECKARD_DIR/src/vgen/vgrouping/runvectorsort"
 # where is the lsh?
 CLUSTER_EXEC="$DECKARD_DIR/src/lsh/bin/enumBuckets"
-# how to divide the vectors into groups?
-GROUPING_EXEC="$DECKARD_DIR/src/vgen/sort/runvectorsort"
+# how to post process clone groups?
+POSTPRO_EXEC="$DECKARD_DIR/scripts/clonedetect/post_process_groupfile"
 # how to transform source code html?
 SRC2HTM_EXEC=source-highlight 
 SRC2HTM_OPTS=--line-number-ref

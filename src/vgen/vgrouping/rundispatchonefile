@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# Usage: thisfile <vec file> [s d c]
+
+if [[ $# -ne 2 && $# -ne 4 && $# -ne 6 && $# -ne 8 && $# -ne 10 ]]; then
+    echo "Usage: $0 <vecdir> <dist> [-l <low>] [-h <high>] [-o <outdir>] [-p <nameprefix>]"
+    echo "sample: $0 linux-2.6.19 1 -l 50 -h 1000000 -o vectorgroups/ -p linux2619"
+    exit 127;
+fi
+
+vecfile=$1
+shift
+vecdist=$1
+shift
+# default values
+low=50
+high=1000000
+outdir=./vectorgroups
+nameprefix=vdb
+
+while [ $# -gt 0 ]; do
+  case $1 in
+  -l)
+    low=$2;;
+  -h)
+    high=$2;;
+  -o)
+    outdir=$2;;
+  -p)
+    nameprefix=$2;;
+  *)
+    echo "ERROR: wrong parameters"
+    exit 127;;
+  esac
+  shift 2
+done
+
+#echo $vecfile
+#echo $vecdist
+#echo $low
+#echo $high
+#echo $outdir
+#echo $nameprefix
+
+if [[ ! -s $vecfile ]]; then
+    echo "Vector file $vecfile doesn't exist."
+    exit 127
+fi
+
+if [[ ! -d $outdir ]]; then
+    mkdir $outdir || (echo "Can't make directory $outdir"; exit 127)
+fi
+
+# create the range file (once)
+if [[ ! -s ${outdir}/ranges_${vecdist}_${low}_${high} ]]; then
+    `dirname $0`/computeranges $vecdist $low $high > "${outdir}/ranges_${vecdist}_${low}_${high}"
+fi
+if [[ ! -s ${outdir}/ranges_${vecdist}_${low}_${high} ]]; then
+    echo "Can't generate the range file: '${outdir}/ranges_${vecdist}_${low}_${high}'"
+    exit 1
+fi
+# dispatch the vectors:
+`dirname $0`/dispatchvectors "${outdir}/ranges_${vecdist}_${low}_${high}" "${vecfile}" "${outdir}" "${nameprefix}" || (echo "Failed to dispatch '${vecfile}'."; exit 1)
+

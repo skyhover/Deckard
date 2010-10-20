@@ -15,7 +15,7 @@ make
 cd ../vgen/treeTra/
 make clean
 make
-cd ../sort/
+cd ../vgrouping/
 make clean
 make
 )
@@ -28,3 +28,4 @@ cd ../lsh
 make clean
 make
 )
+
