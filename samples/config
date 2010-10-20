@@ -20,7 +20,7 @@ SRC_DIR='src'
 DECKARD_DIR=".."
 # clone parameters; refer to paper.
 MIN_TOKENS='50 100'
-STRIDE='0 2'
+STRIDE='2 0'
 #DISTANCE='2.236 0.70711 1.58114'
 SIMILARITY='1.0 0.95'
 

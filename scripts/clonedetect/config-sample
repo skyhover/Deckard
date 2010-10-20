@@ -20,7 +20,7 @@ SRC_DIR='src'
 DECKARD_DIR='/home/deckard'
 # clone parameters; refer to paper.
 MIN_TOKENS='50 100'  # can be a sequence of integers
-STRIDE='0 2'  # can be a sequence of integers
+STRIDE='2 0'  # can be a sequence of integers
 SIMILARITY='1.0 0.95'  # can be a sequence of values <= 1
 #DISTANCE='0 0.70711 1.58114 2.236'
 

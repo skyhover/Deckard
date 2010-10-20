@@ -39,7 +39,7 @@ vgen()
 	    do
 		echo >> "$PARSELOG"
 		echo "Parsing $file" >> "$PARSELOG"
-		if [[ ! -e "${file}.vec" || "$TOOVERWRITE"="true" ]];
+		if [[ ! -e "${file}.vec" || "$TOOVERWRITE" = "true" ]];
 		then
 			"$VGEN_EXEC" -i "$file" -m $1 -t $2 1>"$PARSELOG" 2>1
 		fi
@@ -66,7 +66,7 @@ tohtml()
 		  ( time \
 		    find $SRC_DIR/ -iname "$FILE_PATTERN" | while read file;
 	  	    do
-			    if [[ ! -e "${file}.html" || "$TOOVERWRITE"="true" ]];
+			    if [[ ! -e "${file}.html" || "$TOOVERWRITE" = "true" ]];
 			    then
 				    echo "$SRC2HTM_EXEC $SRC2HTM_OPTS $file"
 				    "$SRC2HTM_EXEC" "$SRC2HTM_OPTS" "$file"
