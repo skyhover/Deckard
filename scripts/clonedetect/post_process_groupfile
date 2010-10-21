@@ -108,7 +108,7 @@ def cluster_lineranges( cluster ):
 
 def remove_contained_across_clusters ( clusters ):
 #should have no effect on cd_coverage: compare each range and filename (luckily sorted by filenames)
-#too slow (from seconds to minutes)...range tree will be better, but it's worthwhile for bug filtering because it reduces the re-parsing time about 1/3 (several minutes)
+#take quadratic time (from seconds to minutes; range trees will perform better), but it can help to reduce re-parsing time (about 1/3, several minutes)
     rs= map( cluster_lineranges, clusters )
     keep= map( lambda x: True, clusters )
     for i in range(len(rs)):
@@ -180,23 +180,36 @@ def readclusters( file ):
 #    clusters= clusters[1:]
     return clusters
 
+
+# read in all clone clusters from a file
 clusters= readclusters( sys.argv[1] )
+
+# remove clones completely contained in another clone in the same cluster
 clusters= map( remove_contained, clusters )
+
+# remove clones overlapped with another clone more than 50%
 clusters= map( remove_staggered, clusters )
-#clusters= map( remove_overlaping, clusters )
+
+# remove clones overlapped with another clone more than 0%
+# disabled: clusters= map( remove_overlaping, clusters )
+
+# remove clones contained in another clone in another cluster
 clusters= remove_contained_across_clusters(clusters)
+
+# some of the filtering may only be useful for bug detection purpose, which should and has been separated into another module
 #clusters= filter( has_enough_lines , clusters )
 #clusters= filter( line_diff_big, clusters )
 #clusters= filter( only_one_diff, clusters )
+
+# remove clusters containing less than 2 clones
 clusters= filter( not_empty, clusters )
-#print clusters
+# sort clusters by the cloned lines of code
 clusters.sort( cmp_linecount )
 
-
-#print len(clusters), 'clusters'
-#print
+# print the result clusters
 for cluster in clusters:
     for line in cluster:
         print line,
     print
-    
+
+

@@ -136,22 +136,22 @@ paramsetting()
     ( time \
 	find "$VECTOR_DIR" -type f -name "vdb_${t}_${s}_g[0-9]*_${i}_${GROUPING_S}*" -not -name '*.param' | while read vdb;
 	do
-		echo "vdb: '$vdb'"
-	grpfileid=`echo "$vdb" | sed "s/.*vdb_${t}_${s}_g\([0-9]*\)_${i}_${GROUPING_S}.*/\1/"`
-	grpal=0
-	grpdist=0
-	if [[ ${grptuningid} -eq $grpfileid ]]; then
-	    continue
-	elif [[ $grpfileid -eq 1 ]]; then
-	    grpal=`head -n $(expr $grpfileid + 1) $(dirname "$vdb")/ranges_${i}_${GROUPING_S} | tail -n 1 | awk '{print $3}'`
-	    grpdist=`echo "$sim ${grpal}" | awk '{printf( "%.7g\n", sqrt((1-$1)*$2) )}'`
-	else
-	    grpal=`head -n $(expr $grpfileid + 1) $(dirname "$vdb")/ranges_${i}_${GROUPING_S} | tail -n 1 | awk '{print $2}'`
-	    grpdist=`echo "$sim ${grpal}" | awk '{printf( "%.7g\n", sqrt((1-$1)*2*$2) )}'`
-	fi
-	lineno=`wc -l "$vdb" | awk '{print $1}'`
-	lineno=$(($lineno / 2))
-	"`dirname $0`/generateparam" "${groupfortuning}.param" $lineno $grpdist > "${vdb}.param"
+		echo "$FUNCNAME: ${vdb}.param"
+		grpfileid=`echo "$vdb" | sed "s/.*vdb_${t}_${s}_g\([0-9]*\)_${i}_${GROUPING_S}.*/\1/"`
+		grpal=0
+		grpdist=0
+		if [[ ${grptuningid} -eq $grpfileid ]]; then
+			continue
+		elif [[ $grpfileid -eq 1 ]]; then
+			grpal=`head -n $(expr $grpfileid + 1) $(dirname "$vdb")/ranges_${i}_${GROUPING_S} | tail -n 1 | awk '{print $3}'`
+			grpdist=`echo "$sim ${grpal}" | awk '{printf( "%.7g\n", sqrt((1-$1)*$2) )}'`
+		else
+			grpal=`head -n $(expr $grpfileid + 1) $(dirname "$vdb")/ranges_${i}_${GROUPING_S} | tail -n 1 | awk '{print $2}'`
+			grpdist=`echo "$sim ${grpal}" | awk '{printf( "%.7g\n", sqrt((1-$1)*2*$2) )}'`
+		fi
+		lineno=`wc -l "$vdb" | awk '{print $1}'`
+		lineno=$(($lineno / 2))
+		"`dirname $0`/generateparam" "${groupfortuning}.param" $lineno $grpdist > "${vdb}.param"
 	done \
     ) 1>>"${TIME_DIR}/paramsetting_${t}_${s}_${sim}_${GROUPING_S}" 2>&1
     errcode=$?
@@ -386,8 +386,9 @@ do
 	clean
 # Bug Finding: done in main.sh instead.
 
-      echo "Done clustering: ${t} ${s} $sim. See clone reports in $CLUSTER_DIR/post_cluster_vdb_${t}_${s}_allg_${sim}_${GROUPING_S}"
-      echo
+	echo
+	echo "Done clustering: ${t} ${s} $sim. See clone reports in $CLUSTER_DIR/post_cluster_vdb_${t}_${s}_allg_${sim}_${GROUPING_S}"
+	echo
     done
   done
 done

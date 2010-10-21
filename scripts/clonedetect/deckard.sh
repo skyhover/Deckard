@@ -5,10 +5,7 @@ echo "Copyright (c) 2007-2010. University of California"
 echo "Distributed under the three-clause BSD license."
 echo
 
-echo "==== Start clone detection ====" 
-echo
-
-echo -n "Configuration checking..."
+echo -n "==== Configuration checking..."
 . `dirname $0`/configure
 errcode=$?
 if [[ $errcode -eq 0 ]]; then
@@ -17,6 +14,34 @@ if [[ $errcode -eq 0 ]]; then
 else
 	exit $errcode
 fi
+
+TOOVERWRITE=
+if [[ $# -ge 1 ]]; then
+	case "$1" in
+		clean )
+			"`dirname $0`/vdbgen" clean
+			"`dirname $0`/vertical-param-batch" clean
+			exit $?
+			;;
+		clean_all )
+			"`dirname $0`/vdbgen" clean_all
+			"`dirname $0`/vertical-param-batch" clean_all
+			exit $?
+		       	;;
+		overwrite )
+			TOOVERWRITE="overwrite"
+			;;
+		* )
+			echo "Usage: $0 [overwrite | clean | clean_all]"
+			exit 1
+			;;
+	esac
+fi
+
+
+
+echo "==== Start clone detection ====" 
+echo
 
 SRCLANG=${FILE_PATTERN##*.}
 case $SRCLANG in
@@ -28,7 +53,7 @@ case $SRCLANG in
 esac
 
 echo -n "Vector generation..."
-`dirname $0`/vdbgen
+"`dirname $0`/vdbgen" $TOOVERWRITE
 errcode=$?
 if [[ $errcode -ne 0 ]]; then
 	echo "Error: problem in vec generator step. Stop and check logs in $TIME_DIR/"
@@ -40,7 +65,7 @@ else
 fi
 
 echo "Vector clustering and filtering..."
-`dirname $0`/vertical-param-batch
+"`dirname $0`/vertical-param-batch" $TOOVERWRITE
 errcode=$?
 if [[ $errcode -ne 0 ]]; then
 	echo "Error: problem in vec clustering step. Stop and check logs in $TIME_DIR/"
