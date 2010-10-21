@@ -21,5 +21,5 @@ make clean
 
 (
 cd ../lsh
-make clean
+make clean_all
 )

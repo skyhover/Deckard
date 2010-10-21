@@ -45,7 +45,7 @@ fi
 
 (
 cd ../lsh
-make clean
+make clean_all
 make
 errcode=$?
 if [ $errcode -ne 0 ]; then

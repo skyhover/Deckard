@@ -9,5 +9,5 @@ all: $(EXEFILES)
 	${CC} ${CFLAGS} -o $@ $^ -lm
 
 clean:
-	rm ${EXEFILES} *~ *.o
+	rm -f ${EXEFILES} *~ *.o
 
