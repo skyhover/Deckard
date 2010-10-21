@@ -112,6 +112,7 @@ ACTION: '{' // naively handle quoted braces:
         ;
 
 COMMENT: "/*" (~('*')|('*')~('/'))* "*/" {$setType(antlr.SKIP)};
+//doesn't recognize '//' though
 
 WS    : ( ' '
         | '\r' '\n' { self.newline() }
