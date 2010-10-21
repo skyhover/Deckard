@@ -41,10 +41,10 @@ vgen()
 		echo "Parsing $file" >> "$PARSELOG"
 		if [[ ! -e "${file}.vec" || "$TOOVERWRITE" = "true" ]];
 		then
-			"$VGEN_EXEC" -i "$file" -m $1 -t $2 1>"$PARSELOG" 2>1
+			"$VGEN_EXEC" -i "$file" -m $1 -t $2 1>>"$PARSELOG" 2>&1
 		fi
 	    done \
-	  ) 1>"$TIME_DIR/vgen_$1_$2" 2>1
+	  ) 1>>"$TIME_DIR/vgen_$1_$2" 2>&1
 
 	  find "$SRC_DIR" -iname '*.vec' -print0 | xargs -0 --max-args=100 cat > "$VECTOR_DIR/vdb_$1_$2"
 	  echo "Done. Log: $TIME_DIR/vgen_$1_$2"
@@ -72,7 +72,7 @@ tohtml()
 				    "$SRC2HTM_EXEC" "$SRC2HTM_OPTS" "$file"
 			    fi
 		    done \
-		  ) 1>"$TIME_DIR/$SRC2HTM_EXEC.log" 2>1
+		  ) 1>>"$TIME_DIR/$SRC2HTM_EXEC.log" 2>&1
 		  echo "Done. Log: $TIME_DIR/$SRC2HTM_EXEC.log"
 	  fi
 }

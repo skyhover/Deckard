@@ -78,12 +78,9 @@ SH:../src/ptgen/simple/Makefile
 SH:../src/vgen/treeTra/Makefile
 SH:../src/vgen/vgrouping/Makefile
 c:../src/ptgen/yacc.g
-SH:../src/ptgen/antlr.py
 SH:../src/ptgen/gcc/mainc.py
 SH:../src/ptgen/java/mainj.py
 SH:../src/ptgen/php5/mainphp.py
-SH:../src/ptgen/YaccLexer.py
-SH:../src/ptgen/YaccParser.py
 SH:../src/vgen/vgrouping/rundispatch
 SH:../src/vgen/vgrouping/rundispatchonefile
 SH:../src/vgen/vgrouping/runsplit

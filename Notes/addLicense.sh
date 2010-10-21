@@ -25,7 +25,8 @@ while read line; do
 			"`dirname $0`/addLicenseOneFile.py" "$LICENSE" "$f" "$DELIMCST" "$DELIMCEND"
 			;;
 		[sS][hH] | [pP][yY] | * )
-			"`dirname $0`/addLicenseOneFile.py" "$LICENSE" "$f" "$DELIMSH"
+			# need special handling of the first line starting with #!
+			"`dirname $0`/addLicenseOneShell.py" "$LICENSE" "$f" "$DELIMSH"
 			;;
 	esac
 done < "$1"

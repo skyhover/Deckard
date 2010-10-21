@@ -82,6 +82,7 @@ check_var "GROUPING_S"
 #check_var "GROUPING_C"
 
 check_exe "which"
+check_exe "env"
 check_exe "python"
 check_exe "awk"
 check_exe "sed"

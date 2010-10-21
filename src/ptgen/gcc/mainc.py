@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#! /usr/bin/env python
 
 # Given a normal yacc .y file, simply split it into three files for our yacc.g to work: *.y (which contains and only contains all the rules), *.y.head, *.y.foot
 

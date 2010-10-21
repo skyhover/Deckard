@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#! /usr/bin/env python
 
 import sys
 
@@ -6,7 +6,7 @@ if len(sys.argv) !=5 and len(sys.argv) !=4:
     print >> sys.stderr, "Usage:", sys.argv[0], "<license file> <file> <start delimiter> [end delimiter]"
     sys.exit(1)
 
-print "This program will add a license into", sys.argv[2], "IN-PLACE."
+print "Adding license IN-PLACE:", sys.argv[1:]
 
 
 lineprefix = ' '

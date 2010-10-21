@@ -1,6 +1,5 @@
-#!/usr/bin/python
+#! /usr/bin/env python
 
-#no 64-bit psyco yet...03/11/07
 #import psyco
 #psyco.full()
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#! /usr/bin/env python
 
 # copied from bugmerging
 # Usage: $0 <a bug report-src> <another bug report-dest>
