@@ -2,12 +2,6 @@
 This is a release package of Deckard -- a tree-based, scalable, and accurate
 code clone detection tool. It is also capable of reporting clone-related bugs.
 
-**********************************************************************
-*
-* Version 1.0, Oct 17, 2010
-* 
-**********************************************************************
-
 
 **********************************************************************
 *
@@ -22,6 +16,14 @@ Copyright (c) 2007-2010, University of California
   Stephane Glondu        <steph@glondu.net>
 All rights reserved.
 3-clause BSD licence
+
+
+**********************************************************************
+*
+* Version 1.2
+* Oct 17, 2010
+* 
+**********************************************************************
 
 
 **********************************************************************
