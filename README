@@ -15,7 +15,7 @@ Copyright (c) 2007-2010, University of California
   Zhendong Su            <su@ucdavis.edu>
   Stephane Glondu        <steph@glondu.net>
 All rights reserved.
-3-clause BSD licence
+Three-clause BSD licence
 
 
 **********************************************************************
@@ -45,7 +45,9 @@ there will be no vector generated.
 NOTE: The compiled executables may not be "executable" (showing "Permission
 Denied") on Windows Vista/7 due to false alarms of UAC rules (based on file
 path/hash of a .exe). A simple (but may not be desirable) workaround is to run
-cygwin shell with elevated privileges before invoking the above scripts.
+cygwin shell with elevated privileges before invoking the above scripts. Also,
+Deckard's performance may be tens of times slower when executed in cygwin than
+on Linux due to slow I/O operations.
 
 To uninstall, simply
 
@@ -61,28 +63,35 @@ To uninstall, simply
 1. For clone detection (suppose the source code of your application is
 in /path/to/app/src):
 
- - Identify the location of your source code, say /path/to/app/src.
+ - Specify the location of your source code, say /path/to/app/src.
 
- - Create a "config" file in /path/to/app/.
-   Refer to the sample "config" in samples/.
-   Make sure all paths are valid.
+ - Create a "config" file in /path/to/app/, following the sample "config" in
+   samples/ or the template "config-sample" in scripts/clonedetect/.  Make sure
+   all paths are valid and the programming language is specified correctly.
 
- - (Optional) create other three directories in /path/to/app/ for storing outputs
-   (see samples/). These may be automatically created if specified in 'config'.
+ - (Optional) create other three directories in /path/to/app/ for storing
+   outputs (see what's in samples/). These directories may be automatically
+   created if specified in 'config'.
 
  - Batch mode run of clone detection (no bug detection by default):
+
    "/path/to/scripts/clonedetect/deckard.sh"
+
    An optional parameter to the script is 'clean', 'clean_all', or 'overwrite'
 
  - Instead of running 'deckard.sh', you may also run the scripts called in
-   'deckard.sh' by yourself:
+   'deckard.sh' step-by-step by yourself:
 
    -- Vector generation: from where "config" is, run
+
       "/path/to/scripts/clonedetect/vdbgen"
+
       An optional parameter to the script is 'clean', 'clean_all', or 'overwrite'
 
    -- Vector clustering (i.e., clone detection): from where "config" is, run
+
       "/path/to/scripts/clonedetect/vertical-param-batch"
+
       An optional parameter to the script is 'clean', 'clean_all', or 'overwrite'
 
 2. Vector generation for parts of a file:
@@ -100,10 +109,12 @@ This vecgen command will generate a vector representing the code between Line 's
 3. Detection of clone-related bugs:
 
  - Invoke 'bugfiltering' on a clone report file with a specified language, e.g.,
+
    /path/to/scripts/bugdetect/bugfiltering cluster_result c > bug_result
 
  - Optionally transform 'bug_result' to a html file for easier inspection of
    the reported potentially buggy clones in a web browser:
+
    /path/to/src/main/out2html bug_result > bug_result.html
 
  - See 'deckard.sh' for how to run it in a batch mode (not enabled by default).
@@ -152,6 +163,10 @@ The whole package is organized according to the several components in Deckard:
    -- scripts/bugdetect/ : bash and python scripts
    -- various auxiliary scripts for simple statistics
 
+ - Others
+   -- README
+   -- LICENSE
+
 2. Details about the clone/bug detection algorithms can be found in these two
 papers:
 
@@ -177,33 +192,39 @@ papers:
 Each clone in the reports has a TBID and a TEID, in addition to the file name,
 and line numbers. The TBID and TEID uniquely identify the IDs of the first
 token and the last token in the clone from the original file (possibly
-containing parsing errors, and you should leave it to "yyparse()" for how the IDs are calculated).
+containing parsing errors). To maintain consistent counting of the IDs, you
+should leave the work to "yyparse()" and Deckard's TokenCounter for how the IDs
+are calculated (see TraGenMain::run() for implementation details).
 
-The following are the main steps for getting the subtree; Please refer to
-"src/vgen/treeTra/token-tree-map.h" for more implementation details.
+The following are the main steps for getting the subtree for a clone (please
+refer to "src/vgen/treeTra/token-tree-map.h" for more implementation details):
 
  - Given a line from the clone report file, parse it to get file name, line
    numbers, TBID, and TEID, etc.  C.f. the function:
+
    bool parse(char * line, regex_t patterns[], int dim=ENUM_CLONE_THE_END)
 
- - Call the following function (which calls "yyparse()") to get a whole parse
-   tree for the source file:
+ - Call the following function (which calls "yyparse()" and a token counter) to
+   get a whole parse tree for the source file and the token IDs for every node:
+
    ParseTree* TokenTreeMap::parseFile(const char * filename)
 
  - Call the following function to get the smallest tree that contains all
    tokens between TBID and TEID:
+
    Tree* tokenRange2Tree2(std::pair<long, long> tokenrange, ParseTree* pt)
 
-  - Then do whatever you'd like with the returned tree. Note that vectors are
-    NOT generated for this tree yet. If vectors are needed, do the following:
+ - Then do whatever you'd like with the returned tree. Note that vectors are
+   NOT generated for this tree yet. If vectors are needed, do the following:
 
-    -- Create a new object of type TraGenMain and call "TraGenMain::run(0, 0)"
-       (c.f., src/main/main.cc)
+   -- Create a new object of type TraGenMain and call "TraGenMain::run(0, 0)"
+      (c.f., src/main/main.cc)
 
-    -- Retrieve the vector for the tree:
-       TreeVector* tv = TreeAccessor::get_node_vector(Tree* tree_node_pointer)
+   -- Retrieve the vector for the tree:
 
-    -- If you also want some merged vectors from the child nodes of this tree,
+      TreeVector* tv = TreeAccessor::get_node_vector(Tree* tree_node_pointer)
+
+   -- If you also want some merged vectors from the child nodes of this tree,
        that would require calls to TraGenMain::run() with different parameters
        or adjust the internals of TraGenMain::run(), depending on how you want
        the vectors to be presented to you. Feel free to improve the vector
@@ -211,26 +232,28 @@ The following are the main steps for getting the subtree; Please refer to
 
 2. How to get the vector for a line or a sequence of lines from a file?
 
-Option 1: See above: Use "vector generation for parts of a file" with your
-scripts.
+ - Option 1: See above: Use "vector generation for parts of a file" with your
+   scripts.
 
-Option 2: Given the parse tree for a file (produced by
-TokenTreeMap::parseFile() and yyparse()) and the starting and ending line
-numbers,
+ - Option 2: Given the parse tree for a file (produced by
+   TokenTreeMap::parseFile() and yyparse()) and the starting and ending line
+   numbers, do the following:
 
-  - (If not done before,) Call Deckard's vector generator on the parse tree
-    through TraGenMain::run, same as above. C.f., src/main/main.cc,
-    TraGenMain::run(int startln, int endln), and 
-    VecGenerator::traverse(Tree* root, Tree* init).
+   -- (If not done before,) Call Deckard's vector generator on the parse tree
+      through TraGenMain::run, same as above. Please refer to src/main/main.cc,
+      TraGenMain::run(int startln, int endln), and 
+      VecGenerator::traverse(Tree* root, Tree* init).
     
-  - Call the following function (c.f. src/include/ptree.h, src/main/ptree.cc) to
-    return the smallest tree enclosing all elements from these lines:
-    Tree* ParseTree::line2Tree(int startln, int endln)
+   -- Call the following function (c.f. src/include/ptree.h, src/main/ptree.cc) to
+      return the smallest tree enclosing all elements from these lines:
 
-  - Then retrieve the vector (the actual vector generation is done beforehand):
-    TreeVector* tv = TreeAccessor::get_node_vector(tree_node_pointer)
+      Tree* ParseTree::line2Tree(int startln, int endln)
+
+   -- Then retrieve the vector (the actual vector generation is done beforehand):
+
+      TreeVector* tv = TreeAccessor::get_node_vector(tree_node_pointer)
 
 
-Enjoy :=)
+Enjoy and Feedback :=)
 @Deckard : Am I a clone?
 
