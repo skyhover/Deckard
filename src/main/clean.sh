@@ -6,20 +6,21 @@ export CXXFLAGS="-O3"
 export CFLAGS="-O3"
 
 (
-cd ../ptgen
+cd ../ptgen/ || exit 1
 make clean
 )
 
 (
-cd ../vgen/treeTra/
+cd ../vgen/treeTra/ || exit 1
 make clean
-cd ../sort/
+cd ../vgrouping/ || exit 1
 make clean
 )
 
 make clean
 
 (
-cd ../lsh
+cd ../lsh/ || exit 1
 make clean_all
 )
+

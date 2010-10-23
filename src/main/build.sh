@@ -6,7 +6,7 @@ export CXXFLAGS="-O3"
 export CFLAGS="-O3"
 
 (
-cd ../ptgen
+cd ../ptgen/ || exit 1
 make clean
 make
 errcode=$?
@@ -17,7 +17,7 @@ fi
 )
 
 (
-cd ../vgen/treeTra/
+cd ../vgen/treeTra/ || exit 1
 make clean
 make
 errcode=$?
@@ -25,7 +25,7 @@ if [ $errcode -ne 0 ]; then
 	echo "Error: vcgen make failed. Exit."
 	exit 1
 fi
-cd ../vgrouping/
+cd ../vgrouping/ || exit 1
 make clean
 make
 errcode=$?
@@ -44,7 +44,7 @@ if [ $errcode -ne 0 ]; then
 fi
 
 (
-cd ../lsh
+cd ../lsh/ || exit 1
 make clean_all
 make
 errcode=$?
