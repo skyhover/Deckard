@@ -13,7 +13,7 @@ clean()
 clean_log()
 {
 	echo -n "...deleting vgen logs..."
-	rm -f "$TIME_DIR/$PARSELOG"
+	rm -f "$PARSELOG"
 	find "$TIME_DIR" -iname 'vgen_*' -print0 | xargs -0 -r --max-args 500 rm
 	echo "Done"
 	echo -n "...deleting vector db..."
