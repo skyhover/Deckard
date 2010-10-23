@@ -325,6 +325,7 @@ do
 	paramsetting $t $s $sim
 	errcode=$?
 # Clustering:
+	echo "Cluster every vector groups..." | tee "$TIME_DIR/cluster_vdb_${t}_${s}_allg_${i}_${GROUPING_S}"
 	find "$VECTOR_DIR" -type f -name "vdb_${t}_${s}_g[0-9]*_${i}_${GROUPING_S}*" -not -name '*.param' | while read vdb;
 	do
 	  grpfileid=`echo "$vdb" | sed "s/.*vdb_${t}_${s}_g\([0-9]*\)_${i}_${GROUPING_S}.*/\1/"`
@@ -343,6 +344,11 @@ do
 	  fi
 	  cluster "$vdb" $grpdist 1>>"$TIME_DIR/cluster_vdb_${t}_${s}_allg_${i}_${GROUPING_S}" 2>&1
 	  errcode=$?
+	  if [[ $errcode -ne 0 ]]; then
+		  echo "Clustering: Possible errors for vector group: $vdb. Check log: $TIME_DIR/cluster_vdb_${t}_${s}_allg_${i}_${GROUPING_S}" | tee -a "$TIME_DIR/cluster_vdb_${t}_${s}_allg_${i}_${GROUPING_S}"
+	  else
+		  echo "Done clustering. Check log: $TIME_DIR/cluster_vdb_${t}_${s}_allg_${i}_${GROUPING_S}" | tee -a "$TIME_DIR/cluster_vdb_${t}_${s}_allg_${i}_${GROUPING_S}"
+	  fi
 	done
 # Merging:
 	echo -n "Merging all clone reports into $CLUSTER_DIR/cluster_vdb_${t}_${s}_allg_${sim}_${GROUPING_S} ..." | tee -a "$TIME_DIR/merging_${t}_${s}_${sim}_${GROUPING_S}"
