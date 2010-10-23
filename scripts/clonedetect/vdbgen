@@ -5,14 +5,20 @@ TOOVERWRITE=
 
 clean()
 {
+	echo -n "...deleting vectors..."
 	find "$SRC_DIR" -iname '*.vec' -print0 | xargs -0 -r --max-args 500 rm
+	echo "Done"
 }
 
 clean_log()
 {
+	echo -n "...deleting vgen logs..."
 	rm -f "$TIME_DIR/$PARSELOG"
 	find "$TIME_DIR" -iname 'vgen_*' -print0 | xargs -0 -r --max-args 500 rm
+	echo "Done"
+	echo -n "...deleting vector db..."
 	find "$VECTOR_DIR" -iname 'vdb_*' -print0 | xargs -0 -r --max-args 500 rm
+	echo "Done"
 }
 
 #vgen $1 $2: $1=min_token; $2=stride
