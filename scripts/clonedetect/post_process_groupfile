@@ -153,6 +153,17 @@ def not_empty( cluster ):
         return False
     return True
 
+# compare locations of two clones:
+def cmp_codelocation( c1, c2 ):
+    r1 = vector_linerange(c1)
+    r2 = vector_linerange(c2)
+    if r1[2]==r2[2]:
+       if r1[0]<r2[0]: return -1
+       elif r1[0]>r2[0]: return 1
+       else: return r1[1]-r2[1]
+    elif r1[2]<r2[2]: return -1
+    else: return 1
+
 def cmp_linecount( c1, c2 ):
     c1l= map( vector_linecount, c1 )
     c2l= map( vector_linecount, c2 )
@@ -170,12 +181,14 @@ def readclusters( file ):
     for line in f.readlines():
         if line == '\n' or line == '':
             if len(cluster) > 0:
+                cluster.sort(cmp_codelocation)
                 clusters.append(cluster)
                 cluster=[]
             continue
         cluster.append(line)
     f.close()
     if len(cluster) > 0:
+        cluster.sort(cmp_codelocation)
         clusters.append(cluster)
 #    clusters= clusters[1:]
     return clusters
@@ -194,7 +207,7 @@ clusters= map( remove_staggered, clusters )
 # disabled: clusters= map( remove_overlaping, clusters )
 
 # remove clones contained in another clone in another cluster
-clusters= remove_contained_across_clusters(clusters)
+# disabled for performance: clusters= remove_contained_across_clusters(clusters)
 
 # some of the filtering may only be useful for bug detection purpose, which should and has been separated into another module
 #clusters= filter( has_enough_lines , clusters )
