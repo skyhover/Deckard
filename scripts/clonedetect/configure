@@ -93,7 +93,7 @@ check_exe "cat"
 check_exe "touch"
 check_exe "head"
 check_exe "tail"
-check_exe "time"
+#check_exe "time"
 
 
 
