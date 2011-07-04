@@ -14,6 +14,9 @@ clean_log()
 	echo -n "...deleting vgen logs..."
 	find "$TIME_DIR" -iname 'vgen_*' -print0 | xargs -0 -r --max-args 500 rm -f 
 	echo "Done"
+	echo -n "...deleting html transforming logs..."
+	rm -f "$TIME_DIR/`basename "$SRC2HTM_EXEC"`.log"
+	echo "Done"
 	echo -n "...deleting vector db files..."
 	find "$VECTOR_DIR" -iname 'vdb_*' -print0 | xargs -0 -r --max-args 500 rm -f 
 	echo "Done"
@@ -39,7 +42,7 @@ vgen()
 #NOTE: "for .. in .." has trouble when a filename contains spaces; use "while read .." instead:
 	  ( time \
 	    find "$SRC_DIR" -iname "$FILE_PATTERN" | while read file;
-#	    for file in `find $SRC_DIR/ -iname "$FILE_PATTERN"`;
+#	    for file in `find "$SRC_DIR" -iname "$FILE_PATTERN"`;
 	    do
 		echo "Parsing $file" >> "$TIME_DIR/vgen_$1_$2"
 		if [[ ! -s "${file}.vec" || "$TOOVERWRITE" = "true" ]];
@@ -67,7 +70,7 @@ tohtml()
 	  then
 		  echo -n "Transforming source code to html..."
 		  ( time \
-		    find $SRC_DIR/ -iname "$FILE_PATTERN" | while read file;
+		    find "$SRC_DIR" -iname "$FILE_PATTERN" | while read file;
 	  	    do
 			    if [[ ! -e "${file}.html" || "$TOOVERWRITE" = "true" ]];
 			    then
@@ -75,8 +78,8 @@ tohtml()
 				    "$SRC2HTM_EXEC" "$SRC2HTM_OPTS" "$file"
 			    fi
 		    done \
-		  ) 1>>"$TIME_DIR/$SRC2HTM_EXEC.log" 2>&1
-		  echo "Done. Log: $TIME_DIR/$SRC2HTM_EXEC.log"
+		  ) 1>>"$TIME_DIR/`basename "$SRC2HTM_EXEC"`.log" 2>&1
+		  echo "Done. Log: $TIME_DIR/`basename "$SRC2HTM_EXEC"`.log"
 	  fi
 }
 
