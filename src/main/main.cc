@@ -9,6 +9,7 @@
 #include <map>
 #include <string>
 #include <tra-gen.h>
+#include <vgen-utils.h>
 #include <algorithm>
 #include <cctype>
 #include <getopt.h>
@@ -135,17 +136,17 @@ int main( int argc, char **argv )
         }
         break;
       case 0: /* for long options w/o a short name */
-        if( stricmp( "merge-list-size", longOpts[longIndex].name ) == 0 ) {
+        if( compare_string_nocase( "merge-list-size", longOpts[longIndex].name ) == 0 ) {
           if ( sscanf(optarg, "%d", &mergeLists)<=0 ) {
             cerr << "Warning: invalid mergeLists in option --merge-list-size (default 3): " << optarg << endl;
             mergeLists = 3;
           }
-        } else if ( stricmp( "start-line-number", longOpts[longIndex].name ) == 0 ) {
+        } else if ( compare_string_nocase( "start-line-number", longOpts[longIndex].name ) == 0 ) {
           if ( sscanf(optarg, "%d", &startline)<=0 ) {
             cerr << "Warning: invalid startline in option --start-line-number (default: all lines): " << optarg << endl;
             startline = 0;
           }
-        } else if ( stricmp( "end-line-number", longOpts[longIndex].name ) == 0 ) {
+        } else if ( compare_string_nocase( "end-line-number", longOpts[longIndex].name ) == 0 ) {
           if ( sscanf(optarg, "%d", &endline)<=0 ) {
             cerr << "Warning: invalid endline in option --end-line-number (default: same as --start-line-number): " << optarg << endl;
             endline = -1;

@@ -1,6 +1,7 @@
 #include <ptree.h>
 #include <map>
 #include <string>
+#include <string.h>
 #include <token-tree-map.h>
 #include <algorithm>
 #include <cctype>

@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <cstring>
+#include <string.h> // for compatibility on various platforms
 #include <iostream>
 #include <fstream>
 #include <sstream>

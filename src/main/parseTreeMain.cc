@@ -1,5 +1,6 @@
 #include <map>
 #include <string>
+#include <string.h>
 #include <algorithm>
 #include <cctype>
 #include <ptree.h>
