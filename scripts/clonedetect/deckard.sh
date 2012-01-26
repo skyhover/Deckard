@@ -2,7 +2,7 @@
 
 #
 # 
-# Copyright (c) 2007-2010,
+# Copyright (c) 2007-2012,
 #   Lingxiao Jiang         <lxjiang@ucdavis.edu>
 #   Ghassan Misherghi      <ghassanm@ucdavis.edu>
 #   Zhendong Su            <su@ucdavis.edu>
@@ -33,8 +33,8 @@
 # 
 #
 
-echo "DECKARD--A Tree-Based Code Clone Detection Toolkit. Version 1.0"
-echo "Copyright (c) 2007-2010. University of California"
+echo "DECKARD--A Tree-Based Code Clone Detection Toolkit. Version 1.2.3"
+echo "Copyright (c) 2007-2012. University of California"
 echo "Distributed under the three-clause BSD license."
 echo
 

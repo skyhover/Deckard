@@ -1,6 +1,6 @@
 /*
  * 
- * Copyright (c) 2007-2010,
+ * Copyright (c) 2007-2012,
  *   Lingxiao Jiang         <lxjiang@ucdavis.edu>
  *   Ghassan Misherghi      <ghassanm@ucdavis.edu>
  *   Zhendong Su            <su@ucdavis.edu>
@@ -57,3 +57,24 @@ int compare_string(const void *c1, const void *c2) /* a wrapper of strcmp. */
 {
   return strcmp((const char *)c1, (const char *)c2);
 }
+
+/* ad-hoc comparison of strings without case; can't handle unicode etc. */
+int compare_string_nocase(const void *c1, const void *c2)
+{
+  const char * s1 = (const char *)c1;
+  const char * s2 = (const char *)c2;
+  unsigned i;
+  for (i = 0; s1[i]!=NULL && s2[i]!=NULL; i++) {
+    char uc1 = toupper(s1[i]);
+    char uc2 = toupper(s2[i]);
+    if ( uc1!=uc2 )
+      return uc1 - uc2;
+  }
+  if (s1[i]==NULL && s2[i]==NULL)
+    return 0;
+  else if (s1[i]==NULL)
+    return 0 - s2[i];
+  else
+    return s1[i];
+}
+

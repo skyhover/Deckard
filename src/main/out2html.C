@@ -1,6 +1,6 @@
 /*
  * 
- * Copyright (c) 2007-2010,
+ * Copyright (c) 2007-2012,
  *   Lingxiao Jiang         <lxjiang@ucdavis.edu>
  *   Ghassan Misherghi      <ghassanm@ucdavis.edu>
  *   Zhendong Su            <su@ucdavis.edu>
@@ -33,6 +33,7 @@
 #include <ptree.h>
 #include <map>
 #include <string>
+#include <string.h>
 #include <token-tree-map.h>
 #include <algorithm>
 #include <cctype>

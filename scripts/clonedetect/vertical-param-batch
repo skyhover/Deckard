@@ -2,7 +2,7 @@
 
 #
 # 
-# Copyright (c) 2007-2010,
+# Copyright (c) 2007-2012,
 #   Lingxiao Jiang         <lxjiang@ucdavis.edu>
 #   Ghassan Misherghi      <ghassanm@ucdavis.edu>
 #   Zhendong Su            <su@ucdavis.edu>
@@ -108,7 +108,7 @@ grouping()
     fi
 
 	# delete old vector groups, in case some files may not be overwritten:
-	find "$VECTOR_DIR/" -regex ".*vdb_$1_$2_g[0-9]+_$3_${GROUPING_S}.*" -print0 | xargs -0 -r --max-args=500 rm -f
+	find "$VECTOR_DIR" -regex ".*vdb_$1_$2_g[0-9]+_$3_${GROUPING_S}.*" -print0 | xargs -0 -r --max-args=500 rm -f
 	( time \
           "`dirname ${GROUPING_EXEC}`/rundispatchonefile" "$VECTOR_DIR/vdb_$1_$2" $3 -l $GROUPING_S -h $GROUPING_H -o "$VECTOR_DIR" -p "vdb_$1_$2" || (echo "Error: $FUNCNAME failure: $1 $2 $3"; exit 1) \
 	) 1>>"$TIME_DIR/grouping_$1_$2_$3_${GROUPING_S}" 2>&1
@@ -140,7 +140,7 @@ paramsetting()
     fi
 # use the largest group file for paramter tuning:
 # "head -n 1" may break the pipe coming from "ls", causing signal 13 (no more reader, while writer's still writing), but should not matter here:
-    groupfortuning=`find $VECTOR_DIR -type f -name "vdb_${t}_${s}_g[0-9]*_${i}_${GROUPING_S}*" -not -name '*.param' -print0 | xargs -0 ls -S | head -n 1`
+    groupfortuning=`find "$VECTOR_DIR" -type f -name "vdb_${t}_${s}_g[0-9]*_${i}_${GROUPING_S}*" -not -name '*.param' -print0 | xargs -0 ls -S | head -n 1`
     grptuningid=`echo ${groupfortuning} | sed "s/.*vdb_${t}_${s}_g\([0-9]*\)_${i}_${GROUPING_S}.*/\1/"`
     grpal=0
     grpdist=0

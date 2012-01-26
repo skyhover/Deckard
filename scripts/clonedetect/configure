@@ -2,7 +2,7 @@
 
 #
 # 
-# Copyright (c) 2007-2010,
+# Copyright (c) 2007-2012,
 #   Lingxiao Jiang         <lxjiang@ucdavis.edu>
 #   Ghassan Misherghi      <ghassanm@ucdavis.edu>
 #   Zhendong Su            <su@ucdavis.edu>
@@ -126,7 +126,7 @@ check_exe "cat"
 check_exe "touch"
 check_exe "head"
 check_exe "tail"
-check_exe "time"
+#check_exe "time"
 
 
 

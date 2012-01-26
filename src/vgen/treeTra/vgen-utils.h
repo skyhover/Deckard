@@ -1,6 +1,6 @@
 /*
  * 
- * Copyright (c) 2007-2010,
+ * Copyright (c) 2007-2012,
  *   Lingxiao Jiang         <lxjiang@ucdavis.edu>
  *   Ghassan Misherghi      <ghassanm@ucdavis.edu>
  *   Zhendong Su            <su@ucdavis.edu>
@@ -40,6 +40,7 @@
 #include <stdarg.h>
 #include <assert.h>
 #include <string.h>
+#include <ctype.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,9 +50,11 @@ extern "C" {
 char *stringclone(const char *var);
 char *stringnclone(const char *var, unsigned int len);
 int compare_string(const void *c1, const void *c2); /* a wrapper of strcmp. */
+int compare_string_nocase(const void *c1, const void *c2); /* ad-hoc comparison of strings without case; can't handle unicode etc. */
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
+

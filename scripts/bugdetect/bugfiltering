@@ -2,7 +2,7 @@
 
 #
 # 
-# Copyright (c) 2007-2010,
+# Copyright (c) 2007-2012,
 #   Lingxiao Jiang         <lxjiang@ucdavis.edu>
 #   Ghassan Misherghi      <ghassanm@ucdavis.edu>
 #   Zhendong Su            <su@ucdavis.edu>
@@ -42,10 +42,19 @@ import os
 #import shutil
 
 if len(sys.argv) != 3:
-    print "Usage: ", sys.argv[0], " <clone report> <lang>"
+    print >> sys.stderr, "Usage: ", sys.argv[0], " <clone report> <lang>"
     sys.exit(1)
 elif sys.argv[2] != 'c' and sys.argv[2] != 'java' and sys.argv[2] != 'php':
-    print "We only support c, java, and php for now"
+    print >> sys.stderr, "We only support c, java, and php for now"
+    sys.exit(1)
+
+# check executable paths
+filterpath = os.environ.get("DECKARD_DIR")
+if filterpath==None:
+    filterpath = '.'
+filterpath = filterpath + '/src/main'
+if not os.path.exists(filterpath):
+    print >> sys.stderr, "cannot find bugfilters in", filterpath
     sys.exit(1)
 
 def readclusters( file ):
@@ -71,6 +80,7 @@ for cluster in clusters:
     for line in cluster:
         f.write(line)
     f.close()
+    #raw_input("Press Enter to continue...")
 # meaning of IDs to cbugfilters:
 # 0: apply all filters and filter it iff all filters agree.
 # 1: apply context comparison
@@ -78,13 +88,13 @@ for cluster in clusters:
 # 3: apply variable filtering
 # none: apply all filters and filter it iff any filter says yes
     if sys.argv[2] == 'c':
-        os.system('cbugfilters 2 < ' + sys.argv[1] + '.clustertmp')
+        os.system(filterpath + '/cbugfilters 2 < ' + sys.argv[1] + '.clustertmp')
     elif sys.argv[2] == 'java':
-        os.system('jbugfilters 2 < ' + sys.argv[1] + '.clustertmp')
+        os.system(filterpath + '/jbugfilters 2 < ' + sys.argv[1] + '.clustertmp')
     elif sys.argv[2] == 'php':
-        os.system('phpbugfilters 2 < ' + sys.argv[1] + '.clustertmp')
+        os.system(filterpath + '/phpbugfilters 2 < ' + sys.argv[1] + '.clustertmp')
     else:
-        print "parameter error for bugfiltering."
+        print >> sys.stderr, "parameter error for bugfiltering."
         sys.exit(1)
 #    os.system('cbugfilters < ' + sys.argv[1] + '.clustertmp >> ' + sys.argv[1] + '.bug')
 #    os.system('echo "" >> ' + sys.argv[1] + '.bug')

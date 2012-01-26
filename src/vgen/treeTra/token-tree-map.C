@@ -1,6 +1,6 @@
 /*
  * 
- * Copyright (c) 2007-2010,
+ * Copyright (c) 2007-2012,
  *   Lingxiao Jiang         <lxjiang@ucdavis.edu>
  *   Ghassan Misherghi      <ghassanm@ucdavis.edu>
  *   Zhendong Su            <su@ucdavis.edu>
@@ -201,7 +201,7 @@ outputCluster(ostream & out)
     out << buggy_score[i] << " ";
   out << endl;
   for (int i=0; i<clusterbuffer.size(); i++)
-    out << clusterbuffer[i];
+    out << clusterbuffer[i] << endl;
   return out;
 }
 
@@ -279,7 +279,9 @@ createFN2Tree()			// read lines from stdin
   clearBuffer();
 
   while ( !cin.eof() ) {
-    getline(cin, line);
+    getline(cin, line);  // get a line (read '\n' but not store it)
+	if ( line.length()<=0 )  // no more content in the file right before seeing EOF
+		break;
     ClonePointT temp;
     linecount++;
     char * charline = new char[line.length()+1];

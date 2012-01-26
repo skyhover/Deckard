@@ -1,6 +1,6 @@
 /*
  * 
- * Copyright (c) 2007-2010,
+ * Copyright (c) 2007-2012,
  *   Lingxiao Jiang         <lxjiang@ucdavis.edu>
  *   Ghassan Misherghi      <ghassanm@ucdavis.edu>
  *   Zhendong Su            <su@ucdavis.edu>
@@ -36,6 +36,8 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <cstring>
+#include <string.h> // for compatibility on various platforms
 #include <iostream>
 #include <fstream>
 #include <sstream>
