@@ -9,7 +9,7 @@ code clone detection tool. It is also capable of reporting clone-related bugs.
 *
 **********************************************************************
 
-Copyright (c) 2007-2011, University of California
+Copyright (c) 2007-2012, University of California
   Lingxiao Jiang         <lxjiang@ucdavis.edu>
   Ghassan Misherghi      <ghassanm@ucdavis.edu>
   Zhendong Su            <su@ucdavis.edu>
@@ -20,8 +20,8 @@ Three-clause BSD licence
 
 **********************************************************************
 *
-* Version 1.2.2
-* Apr 22, 2011
+* Version 1.2.3
+* January 22, 2012
 * 
 **********************************************************************
 
