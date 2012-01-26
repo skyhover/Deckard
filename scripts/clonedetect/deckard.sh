@@ -1,7 +1,7 @@
 #!/bin/bash
 
-echo "DECKARD--A Tree-Based Code Clone Detection Toolkit. Version 1.2.2"
-echo "Copyright (c) 2007-2011. University of California"
+echo "DECKARD--A Tree-Based Code Clone Detection Toolkit. Version 1.2.3"
+echo "Copyright (c) 2007-2012. University of California"
 echo "Distributed under the three-clause BSD license."
 echo
 
