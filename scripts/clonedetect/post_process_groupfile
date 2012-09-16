@@ -66,6 +66,7 @@ def only_one_diff( cluster ):
         return True
     return False
 
+#TODO: may consider to tighten the criteria and reduce the amount of overlapping clone reports. 
 def remove_staggered( cluster ):
     rs= map( vector_linerange, cluster )
     keep= map( lambda x: True, cluster )

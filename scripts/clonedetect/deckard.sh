@@ -73,7 +73,7 @@ if [[ $errcode -ne 0 ]]; then
 fi
 
 echo "Clone detection done. Logs in $TIME_DIR/*"
-echo "Clone reports in $VECTOR_DIR/post_cluster_*"
+echo "Clone reports in $CLUSTER_DIR/post_cluster_*"
 echo
 
 # Bug Finding:
