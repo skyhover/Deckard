@@ -277,11 +277,11 @@ primary:
 		    yychar = YYLEX;
 		  $$ = build_external_ref ($1, yychar == '(');
 		}
-	| IDENTIFIER STRING
-	| IDENTIFIER STRING IDENTIFIER
-	| STRING IDENTIFIER
+	| IDENTIFIER multistrings
+	| IDENTIFIER multistrings IDENTIFIER
+	| multistrings IDENTIFIER
 	| CONSTANT
-	| STRING
+	| multistrings
 	| FUNC_NAME
 		{ $$ = fname_decl (C_RID_CODE ($$), $$); }
 	| '(' typename ')' '{'
@@ -365,6 +365,11 @@ primary:
 		{ $$ = build_unary_op (POSTINCREMENT_EXPR, $1, 0); }
 	| primary MINUSMINUS
 		{ $$ = build_unary_op (POSTDECREMENT_EXPR, $1, 0); }
+	;
+
+multistrings:
+	    STRING
+	| multistrings STRING
 	;
 
 old_style_parm_decls:
@@ -1004,7 +1009,7 @@ notype_initdecls:
 maybeasm:
 	  /* empty */
 		{ $$ = NULL_TREE; }
-	| ASM_KEYWORD '(' STRING ')'
+	| ASM_KEYWORD '(' multistrings ')'
 		{ $$ = $3; }
 	;
 
@@ -2043,18 +2048,18 @@ nonnull_asm_operands:
 	;
 
 asm_operand:
-	  STRING '(' expr ')'
+	  multistrings '(' expr ')'
 		{ $$ = build_tree_list (build_tree_list (NULL_TREE, $1), $3); }
-	| '[' identifier ']' STRING '(' expr ')'
+	| '[' identifier ']' multistrings '(' expr ')'
 		{ $2 = build_string (IDENTIFIER_LENGTH ($2),
 				     IDENTIFIER_POINTER ($2));
 		  $$ = build_tree_list (build_tree_list ($2, $4), $6); }
 	;
 
 asm_clobbers:
-	  STRING
+	  multistrings
 		{ $$ = tree_cons (NULL_TREE, $1, NULL_TREE); }
-	| asm_clobbers ',' STRING
+	| asm_clobbers ',' multistrings
 		{ $$ = tree_cons (NULL_TREE, $3, $1); }
 	;
 

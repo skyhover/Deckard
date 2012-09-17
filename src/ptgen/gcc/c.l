@@ -145,7 +145,17 @@ default		{
 		count();
 		yylvalp->t = new Terminal(name2id["TYPENAME"],yytext,line);
 		return(TYPENAME); }
-"__init"|"__iomem"|"__user"|"__exit"|"__devexit"|"__devinit"|"__cpuinit"|"__cpuexit"|"__INLINE__"|"__kprobes"|"__inline__"|"__lockfunc"|"__force"|"__sched"|"__deprecated"|"__memzero"|"__pminit"|"__weak"|"__xipram"|"__attribute_used__"|"__apicdebuginit"|"__unused"|"__initdata" {count();}
+"__init"|"__iomem"|"__user"|"__exit"|"__devexit"|"__devinit"|"__devinitdata"|"__cpuinit"|"__cpuexit"|"__INLINE__"|"__kprobes"|"__inline__"|"__lockfunc"|"__force"|"__sched"|"__deprecated"|"__memzero"|"__pminit"|"__weak"|"__xipram"|"__attribute_used__"|"__apicdebuginit"|"__unused"|"__initdata" {count();}
+
+"__"{L}+({D})+	{
+		count();
+		yylvalp->t = new Terminal(name2id["TYPENAME"],yytext,line);
+		return(TYPENAME); }
+
+"u"({D})*	{
+		count();
+		yylvalp->t = new Terminal(name2id["TYPENAME"],yytext,line);
+		return(TYPENAME); }
 
 {L}({L}|{D})*		{
 		count();
@@ -379,7 +389,8 @@ void macro()
 	again:
 	last= 0;
 	while ((c = yyinput()) != '\n' && c != 0 && c!=EOF) {
-		last= c;
+		if ( c == '\\' )
+			last= c;
 	}
 	if (c == '\n' && last == '\\')  {
 		line++;
