@@ -1,5 +1,7 @@
 #include "token-tree-map.h"
 
+using namespace std;
+
 /**************************************************
  * Implementation of ClonePointT
  *

@@ -34,8 +34,11 @@ Tree* TraVecOutput::
 evaluateInheritedAttribute(Tree* astNode, Tree* inh)
 {
   TreeVector* tv = TreeAccessor::get_node_vector(astNode);
-  tv->output(vecGen_outfile);
-  nNodeVectors++;
+  if ( tv->output(vecGen_outfile) )
+    nNodeVectors++;
+  else {
+    fprintf(stderr, "Warning: non-empty vector but output failed for node type %d at node %p\n", astNode->type, astNode);
+  }
 
   return astNode;
 }

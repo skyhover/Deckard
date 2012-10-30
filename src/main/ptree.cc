@@ -56,11 +56,11 @@ int ParseTree::getTypeID( const string &name)
     }
 }
 
-bool ParseTree::dumpParseTree(bool toOveride)
+bool ParseTree::dumpParseTree(const char* fn, bool toOveride)
 {
     ifstream inp;
     ofstream out;
-    string outputfn = filename + ".grp";
+    string outputfn = (fn==NULL ? filename : string(fn)) + ".grp";
 
     // prepare the output file:
     if(!toOveride) {

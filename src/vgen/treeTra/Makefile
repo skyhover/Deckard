@@ -1,7 +1,7 @@
-CC=gcc #-g -pg
-CFLAGS:=${CFLAGS} -O3
-CXX=g++ #-g -pg
-CXXFLAGS:=${CXXFLAGS} -O3
+CC=gcc
+CFLAGS:=${CFLAGS}
+CXX=g++
+CXXFLAGS:=${CXXFLAGS}
 
 treeheaders = ../../include/ptree.h
 traversalsrc = tree-traversal.C tra-gen.C vgen-utils.c tree-vector.C vgen-config.C \
@@ -18,7 +18,7 @@ traversallib = libvgen.a
 all: $(traversalmakefiles) $(traversalobjs) $(traversallib)
 
 $(traversallib): $(traversalobjs)
-	ar -qcs libvgen.a $(traversalobjs)
+	ar -rcsv libvgen.a $(traversalobjs)
 
 # currently, this Makefile has problems if *.h (not *.c/*.C) is
 # changed to include (other) different header files. At such cases, we

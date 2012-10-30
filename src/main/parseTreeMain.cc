@@ -87,9 +87,9 @@ int main( int argc, char **argv )
   }
 
   if(argc>=6) {
-    pt->dumpParseTree(true);  // to overide existing file
+    pt->dumpParseTree(NULL, true);  // to overide existing file
   } else {
-    pt->dumpParseTree(false);
+    pt->dumpParseTree(NULL, false);
   }
 
   Tree* node = pt->tokenRange2Tree(tbid, teid);

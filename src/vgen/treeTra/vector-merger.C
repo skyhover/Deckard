@@ -42,19 +42,27 @@ outputAllMergedVectors(FILE * out)
   // handle the case when the serialized tree is too short, but is
   // this really needed? TODO
   if ( moveForward()==false ) {
-    mergeTreeVectors(&tv);
-    tv.output(out);
+    if ( mergeTreeVectors(&tv) ) {
+      if ( tv.output(out) )
+        nOutputedVectors++;
+      else {
+        fprintf(stderr, "Warning: non-empty vector but output failed for merged vector.\n");
+      }
+    }
     moved_steps++;
-    nOutputedVectors++;
     goto return_check;
   }
 
   do {
     if ( moved_steps % vecGen_config.moveStride == 0 ) { // TODO: maybe not a good condition
       tv.clearVector();
-      mergeTreeVectors(&tv);
-      tv.output(out);
-      nOutputedVectors++;
+      if ( mergeTreeVectors(&tv) ) {
+        if ( tv.output(out) )
+          nOutputedVectors++;
+       	else {
+          fprintf(stderr, "Warning: non-empty vector but output failed for merged vector.\n");
+        }
+      }
     }
     moved_steps++;
   }  while ( moveForward()==true );
@@ -136,7 +144,7 @@ mergeTreeVectors(TreeVector * mv) /* merge tree vectors into mv */
     }
 
 #ifdef checkmergedtokens
-    fprintf(stderr, "Merging %d tokens\n", mergeable_counts);
+    fprintf(stderr, "Merging %d tokens; new [minLine,maxLine]=[%d,%d]\n", mergeable_counts, mv->minLine, mv->maxLine);
 #endif
     return true;
   } else
@@ -388,7 +396,7 @@ mergeTreeVectors(TreeVector * mv) /* merge tree vectors into mv */
     }
 
 #ifdef checkmergedtokens
-    fprintf(stderr, "Merging %d tokens\n", mergeable_counts);
+    fprintf(stderr, "Merging %d tokens; new [minLine,maxLine]=[%d,%d]\n", mergeable_counts, mv->minLine, mv->maxLine);
 #endif
 
     return true;

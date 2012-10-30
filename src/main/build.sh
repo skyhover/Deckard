@@ -1,9 +1,9 @@
 #!/bin/sh
 
-#export CXXFLAGS="-pg -g"
-#export CFLAGS="-pg -g"
-export CXXFLAGS="-O3"
-export CFLAGS="-O3"
+export CXXFLAGS="-pg -g"
+export CFLAGS="-pg -g"
+#export CXXFLAGS="-O3"
+#export CFLAGS="-O3"
 
 (
 cd ../ptgen/ || exit 1

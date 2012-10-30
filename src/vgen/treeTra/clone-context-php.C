@@ -1,5 +1,7 @@
 #include "clone-context-php.h"
 
+using namespace std;
+
 /**************************************************
  * Implementation of ContextInconsistency_PHP
  *

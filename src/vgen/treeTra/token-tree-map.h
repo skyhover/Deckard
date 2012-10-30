@@ -42,10 +42,10 @@ typedef struct _ClonePointT {
   int uni_var_number;
 
   bool parse(char * line, regex_t patterns[], int dim=ENUM_CLONE_THE_END);
-  ostream & out2html(ostream & os);
-  ostream & out2html0(ostream & os);
-  ostream & out2xml(ostream & os);
-  friend ostream & operator<< (ostream& os, const struct _ClonePointT & cp);
+  std::ostream & out2html(std::ostream & os);
+  std::ostream & out2html0(std::ostream & os);
+  std::ostream & out2xml(std::ostream & os);
+  friend std::ostream & operator<< (std::ostream& os, const struct _ClonePointT & cp);
 } ClonePointT, *PClonePointT;
 typedef std::vector<ClonePointT*> ClonePointGroupT, *PClonePointGroupT;	/* Q: why can't use "ClonePointT&"? */
 
@@ -89,7 +89,7 @@ class TokenTreeMap {
  public:
   TokenTreeMap();		/* all nodes are contexual by default. */
   ~TokenTreeMap();
-  ostream & outputCluster(ostream & out);
+  std::ostream & outputCluster(std::ostream & out);
 
   bool initNodes(const char ** nodeconfig);
   ParseTree* parseFile(const char * fn);

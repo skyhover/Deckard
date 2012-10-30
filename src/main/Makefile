@@ -19,8 +19,8 @@ CHEADERS=../ptgen/gcc/crelevantNodes.h ../ptgen/gcc/catomicNodes.h ../ptgen/gcc/
 JHEADERS=../ptgen/java/jrelevantNodes.h ../ptgen/java/jatomicNodes.h ../ptgen/java/jparentNodes.h ../ptgen/java/jcontextualNodes.h
 PHPHEADERS=../ptgen/php5/phprelevantNodes.h ../ptgen/php5/phpatomicNodes.h ../ptgen/php5/phpparentNodes.h ../ptgen/php5/phpcontextualNodes.h
 
-CXX= g++ -I../include -I../vgen/treeTra # -g
-CXXFLAGS= -O3
+CXX= g++ -I../include -I../vgen/treeTra
+CXXFLAGS:= ${CXXFLAGS}
 
 EXES=cvecgen jvecgen cbugfilters jbugfilters out2html \
      phpvecgen phpbugfilters out2xml \

@@ -3,6 +3,8 @@
 #include "tra-gen.h"
 #include "tree-accessor.h"
 
+using namespace std;
+
 #define VGDEBUG
 
 /******************************************

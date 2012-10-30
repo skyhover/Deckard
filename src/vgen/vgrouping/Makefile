@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS:=${CFLAGS} -O3
+CFLAGS:=${CFLAGS}
 EXEFILES=vectorsort dispatchvectors computeranges
 SRCFILES=$(addsuffix .c, $(EXEFILES))
 

@@ -10,18 +10,17 @@
 #include <fstream>
 #include <sstream>
 #include <list>
+#include <set>
 #include <limits.h>
-
-/* better NOT use this in header files for the sake of large programs with lots of components. */
-using namespace std;
 
 /** A Tree Node or a tree */
 class Tree;
 
 /** A whole parse tree */
 class ParseTree {
+   const static int DEBUG_LEVEL = 1;
   public:
-    ParseTree(Tree *root, int nTypes, map<int,string> *typeNames, map<string,int> *typeIds);
+    ParseTree(Tree *root, int nTypes, std::map<int, std::string> *typeNames, std::map<std::string,int> *typeIds);
     ~ParseTree();
 
     Tree *getRoot();
@@ -29,28 +28,28 @@ class ParseTree {
     int typeCount();
 
     /** Valid type values range from 0 to typeCount-1 */
-    const string & getTypeName(int);
+    const std::string & getTypeName(int);
 
-    int getTypeID( const string& );  /* "IDENTIFER" for identifiers. */
+    int getTypeID( const std::string& );  /* "IDENTIFER" for identifiers. */
 
-    string filename;
+    std::string filename;
 
     /** relevantNodes, are those that shouold be counted within the vector */
-    vector<int> relevantNodes;
+    std::vector<int> relevantNodes;
 
     /** leafNodes are the smallest nodes which are used to advance the
      * sliding window */
-    vector<int> leafNodes;
+    std::vector<int> leafNodes;
 
     /** validParents are the nodes from which we will generate vectors if they
      * have the required counts */
-    vector<int> validParents;
+    std::vector<int> validParents;
 
     /** this's something similar to relevantNodes??? just because of a different vector merging strategy. */
-    vector<int> mergeableNodes;
+    std::vector<int> mergeableNodes;
 
     /** dump the whole tree in a graph-like format; output filename is the 'filename'+'.grp' */ 
-    bool dumpParseTree(bool toOveride);
+    bool dumpParseTree(const char* fn, bool toOveride);
 
     /** return the smallest tree containing all elements from the line number */
     Tree* line2Tree(int ln);
@@ -63,6 +62,9 @@ class ParseTree {
     Tree* getContextualNode(Tree* node);
     Tree* getContextualNode(long startTokenId, long endTokenId);
 
+    /** set node ids from a given set of node names */
+    int setNodeIDs(std::vector<int>&, const std::set<std::string>&);
+    
     /** return the path from the root to the token: */
     std::list<Tree*>* root2Token(long tid); 
     bool root2TokenAux(long tid, Tree* node, std::list<Tree*>& path);
@@ -81,18 +83,19 @@ class ParseTree {
     Tree *root;  /* the root tree node */
 
     /** map node type ids to type names */
-    map<int,string> *typeNames;
+    std::map<int, std::string> *typeNames;
 
     /** map node type names to type ids */
-    map<string,int> *typeIDs;
+    std::map<std::string, int> *typeIDs;
 };
 
 /* Valid type ids range from 0 to typeCount-1 */
 int typeCount(std::map<int, std::string>& id2name);
 int typeCount(std::map<std::string, int>& name2id);
-const string & getTypeName(std::map<int, std::string>& id2name, int id);
-int getTypeID(std::map<std::string, int>& name2id, const string& name); /* "IDENTIFER" for identifiers. */
+const std::string & getTypeName(std::map<int, std::string>& id2name, int id);
+int getTypeID(std::map<std::string, int>& name2id, const std::string& name); /* "IDENTIFER" for identifiers. */
 bool isContextualNode(Tree* node);  // language-dependent operation 
+bool setContextualNodes(const std::set<std::string>& nodenames);
 
 /** create a parse tree from a file: */
 ParseTree* parseFile(const char * fn);
@@ -114,7 +117,7 @@ class Tree {
     int type;  /* need to rely on getTypeName to get its type name */
 
     /** the child nodes of this node */
-    vector<Tree*> children;
+    std::vector<Tree*> children;
 
     virtual bool isTerminal() { return false;}
     virtual bool isNonTerminal() { return false;}
@@ -135,11 +138,11 @@ class Tree {
     }
 
     virtual void print() {
-        cout << "[ " << type << " ";
+        std::cout << "[ " << type << " ";
         for (int i= 0; i < children.size(); i++) {
             children[i]->print();
         }
-        cout << "]";
+        std::cout << "]";
     }
 
     virtual void printTok() {
@@ -152,24 +155,24 @@ class Tree {
 
     ~Tree()
     {
-      /* tree nodes can not be shared: */
-        for (int i= 0; i < children.size(); i++) {
-	  if ( children[i]!=NULL ) {
-            delete children[i];
-	    children[i] = NULL;
-	  }
-        }
-	nextSibbling = NULL;
-	parent = NULL;
+       /* tree nodes can not be shared: */
+       for (int i= 0; i < children.size(); i++) {
+          if ( children[i]!=NULL ) {
+             delete children[i];
+             children[i] = NULL;
+          }
+       }
+       nextSibbling = NULL;
+       parent = NULL;
 
-      /* TODO: possible mem leak from the elements in attributes. */
-	attributes.clear();
+       /* TODO: possible mem leak from the elements in attributes. */
+       attributes.clear();
     }
     
     Tree() {
-        nextSibbling= NULL;
-        parent= NULL;
-        type= -1;
+       nextSibbling= NULL;
+       parent= NULL;
+       type= -1;
     }
 
     /** calculate the range of line numbers for this tree node, store results in [min, max].
@@ -189,12 +192,26 @@ class Tree {
         }
     }
 
+    /** update the range of line numberrs for this tree node, assuming every node has previously set max/min already */
+    virtual void lineRangeUpdate()
+    {
+       for (int i= 0; i < children.size(); i++ ) {
+          // no recursion needed, assuming every node has previously set max/min
+          if (max < children[i]->max) {
+             max= children[i]->max;
+          }
+          if (min > children[i]->min) {
+             min= children[i]->min;
+          }
+       }
+    }
+
     Tree *nextSibbling;
     Tree *parent;
     int terminal_number; /* The number of terminals under *this* node */
 
     /** output the nodes and the edges under this tree: */
-    long dumpTree(ofstream & out, long n);
+    long dumpTree(std::ofstream & out, long n);
 
     /** get the order number of a tree node under this tree.
      * The order number is based on depth-first traversal and starts with 'n'.
@@ -209,7 +226,7 @@ class Terminal : public Tree {
 public:
     Terminal( int type, char *s, int line ) {
         this->type= type;
-        value= new string(s);
+        value= new std::string(s);
         this->line= line;
     }
     int line;
@@ -227,15 +244,15 @@ public:
 
     virtual void print()
     {
-        cout << "<" << *value << ">";
+       std::cout << "<" << *value << ">";
     }
 
     virtual void printTok()
     {
-        cout << *value << ", " << line << endl;
+       std::cout << *value << ", " << line << std::endl;
     }
 
-    string *value;
+    std::string *value;
 
 };
 
