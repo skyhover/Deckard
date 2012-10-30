@@ -1,0 +1,247 @@
+
+#include <namemap.h>
+#include <utils.h>
+#include <cassert>
+
+using namespace std;
+
+/***********************
+ * class NameMap
+ *
+ * ********************/
+
+const string NameMap::invalidName = "<none>";
+
+NameMap::NameMap(int startID):
+      m_name2id(), m_id2name(), lastUsedID(startID)
+{
+   if ( DEBUG_LEVEL>1 ) {
+      cout << "--> new NameMap: " << m_name2id.size() << "-" << m_id2name.size() << endl;
+      printNamesIDs();
+      printIDsNames();
+      cout << "<--done new NameMap." << endl;
+   }
+}
+
+NameMap::NameMap(const NameMap& r):
+      m_name2id(r.m_name2id), m_id2name(r.m_id2name), lastUsedID(r.lastUsedID)
+{
+   
+}
+
+NameMap::~NameMap()
+{
+}
+
+int NameMap::currentLastID()
+{
+   return lastUsedID;
+}
+
+int NameMap::nextAvailableID()
+{
+   return ++lastUsedID;
+}
+
+bool NameMap::hasNameId(string n)
+{
+   map<string, int>::const_iterator it = m_name2id.find(n);
+   if ( it!=m_name2id.end() )
+      return true;
+   else
+      return false;
+}
+
+int NameMap::getNameId(string name)
+{
+   map<string, int>::const_iterator it = m_name2id.find(name);
+   if ( it!=m_name2id.end() )
+      return it->second;
+   else
+      return -1;
+}
+
+string NameMap::getIDName(int id)
+{
+   map<int, string>::const_iterator it = m_id2name.find(id);
+   if ( it!=m_id2name.end() )
+      return it->second;
+   else
+      return invalidName;
+}
+
+int NameMap::getOrAddNameId(string n)
+{
+   if ( hasNameId(n) )
+      return getNameId(n);
+   int id = nextAvailableID();
+   m_name2id[n] = id;
+   m_id2name[id] = n;
+   return id;
+}
+
+bool NameMap::setNameId(string name, int id)
+{
+   if ( hasNameId(name) ) {
+      return false;
+   }
+   if ( id>lastUsedID )
+      lastUsedID = id;
+   m_name2id[name] = id;
+   m_id2name[id] = name;
+   return true;
+}
+
+map<string, int> NameMap::getNameIDMap()
+{
+   return m_name2id;
+}
+
+map<int, string> NameMap::getIDNameMap()
+{
+   return m_id2name;
+}
+
+void NameMap::setNameIDMap(map<string, int>& m)
+{
+   m_name2id = m;
+}
+
+void NameMap::setIDNameMap(map<int, string>& m)
+{
+   m_id2name = m;
+}
+
+bool NameMap::isIDValid(int id)
+{
+   if ( id>=0 && id<=lastUsedID )
+      return true;
+   else
+      return false;
+}
+
+int NameMap::printNamesIDs()
+{
+   for(map<string, int>::const_iterator it = m_name2id.begin();
+         it!=m_name2id.end(); ++it) {
+      cout << it->first << "\t" << it->second << endl;
+   }
+   assert(m_name2id.size()==m_id2name.size());
+   return m_name2id.size();
+}
+
+int NameMap::printIDsNames()
+{
+   for(map<int, string>::const_iterator it = m_id2name.begin();
+         it!=m_id2name.end(); ++it) {
+      cout << it->first << "\t" << it->second << endl;
+   }
+   assert(m_name2id.size()==m_id2name.size());
+   return m_id2name.size();
+}
+
+NameMap NameMap::combineNameMap(const NameMap& lhs, const NameMap& rhs)
+{
+   NameMap rsl(lhs);
+   // combine m_name2id and m_id2name
+   for(map<string, int>::const_iterator ritr = rhs.m_name2id.begin();
+         ritr!=rhs.m_name2id.end(); ++ritr) {
+      map<string, int>::const_iterator litr = lhs.m_name2id.find(ritr->first);
+      if ( litr!=lhs.m_name2id.end() ) {
+         if ( litr->second!=ritr->second ) {
+            cerr << "Warning: different IDs for the same attribute-" << litr->first << "? Continue anyway..." << endl;
+         }
+      } else {
+         rsl.m_name2id.insert(*ritr);
+         rsl.m_id2name.insert(make_pair(ritr->second, ritr->first));
+      }
+   }
+   // combine lastUsedID
+   rsl.lastUsedID = max(lhs.lastUsedID, rhs.lastUsedID);
+   
+   return rsl;
+}
+
+NameMap NameMap::readNamesIDs(const char* fn)
+{
+   NameMap m;
+   if ( fn == NULL )
+      return m;
+   string line;
+   ifstream ifs(fn);
+   int lcount = 0;
+   while ( ifs.good() ) {
+      lcount++;
+      string name;
+      int id;
+      getline(ifs, line);
+      stringstream ss(line);
+      ss >> name;
+      if ( !ss ) {
+         continue;
+      }
+      if ( name.find("//")==0 || name.find('#')==0 )
+         continue;
+      ss >> id;
+      if ( !ss ) {
+         cerr << "Warning: invalid type id at line " << lcount << ". Default is usded: ";
+         id = m.getOrAddNameId(name);
+         cerr << id << endl;
+      } else {
+         if ( ! m.setNameId(name, id) ) {
+            cerr << "Warning: failed to set type name id for line " << lcount << ". Skipped." << endl;
+         }
+      }
+   }
+   return m;
+}
+
+set<string> NameMap::readNames(const char * fn)
+{
+   set<string> m;
+   if ( fn == NULL )
+      return m;
+   string line;
+   ifstream ifs(fn);
+   int lcount = 0;
+   while ( ifs.good() ) {
+      lcount++;
+      getline(ifs, line);
+      trim(line);
+      if ( line.empty() || line.find("//")==0 || line.find('#')==0 )
+         continue;
+      m.insert(line);
+   }
+   return m;
+}
+
+vector<int> NameMap::name2id(map<string, int>& maps, vector<string>& names)
+{
+   vector<int> ids;
+   for (vector<string>::const_iterator s = names.begin();
+         s!=names.end(); ++s) {
+      map<string, int>::const_iterator i = maps.find(*s);
+      if (i == maps.end()) {
+         cerr << "ERROR: NameMap::name2id: unknown node type name: " << *s << endl;
+         continue;
+      }
+      ids.push_back(i->second);
+   }
+   return ids;
+}
+
+vector<string> NameMap::id2name(map<int, string>& maps, vector<int>& ids)
+{
+   vector<string> names;
+   for (vector<int>::const_iterator i = ids.begin();
+         i!=ids.end(); ++i) {
+      map<int, string>::const_iterator s = maps.find(*i);
+      if (s == maps.end()) {
+         cerr << "ERROR: NameMap::id2name: unknown node type id: " << *i << endl;
+         continue;
+      }
+      names.push_back(s->second);
+   }
+   return names;
+}
+

@@ -1,0 +1,63 @@
+#############################################################
+# Configuration file for clone detection.
+#
+
+############################################################ 
+# Often, need to change these common parameters:
+# - SRC_DIR : the root directory containing the source files
+# - DECKARD_DIR : Where is the home directory of DECKARD
+# - clone detection parameters: c.f. DECKARD's paper
+#   -- MIN_TOKENS
+#   -- STRIDE
+#   -- SIMILARITY
+#
+# only dot is supported now
+FILE_PATTERN='*.dot' # used in the 'find' command below
+# where are the source files?
+SRC_DIR='/cygdrive/d/Users/lxjiang/Documents/Research/projects/Deckard-Related/api-imitation/narcisa-data/graphs-namematch'
+PDG_DIR="ddgs" # used for 'find $SRC_DIR -ipath "*/$PDG_DIR/$FILE_PATTERN"'
+AST_DIR="asts" # each pdg should have an ast with the same name in a different folder
+# where are node definition files?
+TYPE_FILE='/cygdrive/d/Users/lxjiang/Documents/Research/projects/Deckard-Related/api-imitation/narcisa-data/AstNodeTypeNamesIDs.txt'
+RELEVANT_NODEFILE='/cygdrive/d/Users/lxjiang/Documents/Research/projects/Deckard-Related/api-imitation/narcisa-data/AstRelevantNodes.txt'
+LEAF_NODEFILE='/cygdrive/d/Users/lxjiang/Documents/Research/projects/Deckard-Related/api-imitation/narcisa-data/AstLeafNodes.txt'
+PARENT_NODEFILE='/cygdrive/d/Users/lxjiang/Documents/Research/projects/Deckard-Related/api-imitation/narcisa-data/AstParentNodes.txt'
+
+# where is Deckard?
+DECKARD_DIR='/cygdrive/d/Users/lxjiang/Documents/Research/projects/Deckard/CodeInProgress'
+# clone parameters; refer to paper.
+MIN_TOKENS='30 50 80'  # can be a sequence of integers
+STRIDE='2 0'  # can be a sequence of integers
+SIMILARITY='1.0 0.95'  # can be a sequence of values <= 1
+#DISTANCE='0 0.70711 1.58114 2.236'
+
+###########################################################
+# Where to store result files?
+#
+# where to output generated vectors?
+VECTOR_DIR='vectors'
+# where to output detected clone clusters?
+CLUSTER_DIR='clusters'
+# where to output timing/debugging info?
+TIME_DIR='times'
+
+##########################################################
+# where are several programs we need?
+#
+# where is the vector generator?
+VGEN_EXEC="$DECKARD_DIR/src/dot2d/dotvgen"
+# how to divide the vectors into groups?
+GROUPING_EXEC="$DECKARD_DIR/src/vgen/vgrouping/runvectorsort"
+# where is the lsh for vector clustering?
+CLUSTER_EXEC="$DECKARD_DIR/src/lsh/bin/enumBuckets"
+# how to post process clone groups?
+POSTPRO_EXEC="$DECKARD_DIR/scripts/clonedetect/post_process_groupfile"
+
+##################################################################
+# Some additional, internal parameters; can be ignored
+#
+# the maximal vector size for the first group; not really useful
+GROUPING_S='30'  # should be a single value
+#GROUPING_D
+#GROUPING_C
+

@@ -1,0 +1,104 @@
+#!/bin/bash
+
+check_or_create_dir()
+{
+  if [[ ! -d "${!1}" ]]; then
+  if [[ -e "${!1}" ]]; then
+    echo "Error: $1 should be a directory. Check your config"
+    exit 1
+  else
+    mkdir "${!1}"
+    if [[ $? -ne 0 ]]; then
+      echo "Error: $1 doesn't exist and cannot be created. Check your config"
+      exit 1
+    fi
+  fi
+fi
+}
+
+check_file()
+{
+	if [[ ! -f $1 ]]; then
+		echo "Error: missing file $1. Check your config"
+		exit 1
+	fi
+}
+
+check_var()
+{
+	if [[ -z ${!1} ]];
+	then
+		echo "Error: $1 not set in config. Check your config"
+		exit 1
+	fi
+
+	export $1
+}
+
+check_exe()
+{
+	if (which "$1" >& /dev/null); then
+		return 0
+	else
+		echo "Error: missing required program: $1"
+		exit 1
+	fi
+}
+
+if [[ -e config ]];
+then
+	. config
+else
+	echo "Error: no config file in current directory"
+	exit 0
+fi
+
+check_var "DECKARD_DIR"
+check_var "FILE_PATTERN"
+check_var "SRC_DIR"
+check_var "PDG_DIR"
+check_var "AST_DIR"
+check_var "TYPE_FILE"
+check_var "RELEVANT_NODEFILE"
+check_var "LEAF_NODEFILE"
+check_var "PARENT_NODEFILE"
+
+check_var "VECTOR_DIR"
+check_or_create_dir "VECTOR_DIR"
+check_var "CLUSTER_DIR"
+check_or_create_dir "CLUSTER_DIR"
+check_var "TIME_DIR"
+check_or_create_dir "TIME_DIR"
+
+check_var "VGEN_EXEC"
+check_file "$VGEN_EXEC"
+check_var "GROUPING_EXEC"
+check_file "$GROUPING_EXEC"
+check_var "CLUSTER_EXEC"
+check_file "$CLUSTER_EXEC"
+check_var "POSTPRO_EXEC"
+check_file "$POSTPRO_EXEC"
+
+check_var "MIN_TOKENS"
+check_var "STRIDE"
+#check_var "DISTANCE"
+check_var "SIMILARITY"
+check_var "GROUPING_S"
+#check_var "GROUPING_D"
+#check_var "GROUPING_C"
+
+check_exe "which"
+check_exe "env"
+check_exe "python"
+check_exe "awk"
+check_exe "sed"
+check_exe "grep"
+check_exe "find"
+check_exe "bash"
+check_exe "cat"
+check_exe "touch"
+check_exe "head"
+check_exe "tail"
+#check_exe "time"
+
+
