@@ -1,9 +1,9 @@
 #!/bin/sh
 
-export CXXFLAGS="-pg -g"
-export CFLAGS="-pg -g"
-#export CXXFLAGS="-O3"
-#export CFLAGS="-O3"
+#export CXXFLAGS="-pg -g"
+#export CFLAGS="-pg -g"
+export CXXFLAGS="-O3"
+export CFLAGS="-O3"
 
 (
 cd ../ptgen/ || exit 1
@@ -49,7 +49,41 @@ make clean_all
 make
 errcode=$?
 if [ $errcode -ne 0 ]; then
-	echo "Error: lsh make failed. Exit."
+	echo "error: lsh make failed. exit."
+	exit $errcode
+fi
+)
+
+(
+# assume antlr has been run; otherwise, run antlrworks-1.4.3 in the repository first
+cd ../dot2d/grammars/output || exit 1
+make clean
+make
+errcode=$?
+if [ $errcode -ne 0 ]; then
+	echo "error: dot parser make failed. exit."
+	exit $errcode
+fi
+)
+
+(
+cd ../lib || exit 1
+make clean
+make
+errcode=$?
+if [ $errcode -ne 0 ]; then
+	echo "error: lib make failed. exit."
+	exit $errcode
+fi
+)
+
+(
+cd ../dot2d || exit 1
+make clean
+make
+errcode=$?
+if [ $errcode -ne 0 ]; then
+	echo "error: dot2d make failed. exit."
 	exit $errcode
 fi
 )
