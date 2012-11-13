@@ -202,7 +202,7 @@ int main( int argc, char **argv )
    GraphTreeMapper::fakeTypeID = nmap.getOrAddNameId(GraphTreeMapper::fakeTypeName);
    name2id = nmap.getNameIDMap();
    id2name = nmap.getIDNameMap();
-   if ( DEBUG_LEVEL>1 ) {
+   if ( DEBUG_LEVEL>2 ) {
       nmap.printNamesIDs();
       nmap.printIDsNames();
    }
@@ -214,13 +214,13 @@ int main( int argc, char **argv )
 
    // parse the pdg-dot file
    Graph* dotPDG = pDotTreeCParserGraph(pdgdotfilename);
-   if ( DEBUG_LEVEL>1 ) {
+   if ( DEBUG_LEVEL>2 ) {
       dotPDG->outputGraph2Dot((string(pdgdotfilename)+".pdg").c_str(), true);
    }
    
    // parse the ast-dot file
    Graph* dotASTGraph = pDotTreeCParserGraph(astdotfilename);
-   if ( DEBUG_LEVEL>1 ) {
+   if ( DEBUG_LEVEL>2 ) {
       dotASTGraph->outputGraph2Dot((string(astdotfilename)+".ast").c_str(), true);
    }
    
@@ -247,7 +247,7 @@ int main( int argc, char **argv )
       stcount++;
 
       Graph* st = *it;
-      if ( DEBUG_LEVEL>0 ) {
+      if ( DEBUG_LEVEL>1 ) {
          cerr << "DEBUG: writing to dot file ST#" << stcount << endl;
          stringstream ofname;
          ofname << pdgdotfilename << ".pdg.st." << stcount;
@@ -274,7 +274,7 @@ int main( int argc, char **argv )
        */
       ASTTraGenMain t(&p, mergeTokens, mergeStride, mergeLists, typefilename, outfile);
       t.run(startline, endline); // also, update token counts for the nodes.
-      if ( DEBUG_LEVEL>0 ) {
+      if ( DEBUG_LEVEL>1 ) {
          cerr << "DEBUG: writing the tree to dot file for ST#" << stcount << endl;
          stringstream ofname;
          ofname << pdgdotfilename << ".pdg.st." << stcount << ".ast";
