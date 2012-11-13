@@ -1,13 +1,16 @@
 
-DEBUGFLAGS= #-g -pg
+# '?=' gives environment variables (if any) higher priority than definitions in the file
+# So, it would be easier to re-define DEBUGFLAGS to be '-g -pg' to enable debugging
+DEBUGFLAGS?=-O3
+
 LIBRARIES=
 LIBNAME=deckarddata
-INCLUDES=-I. -I../include 
+CPPFLAGS+=-I. -I../include 
 CC=g++
-CFLAGS:=$(DEBUGFLAGS) ${CFLAGS} $(INCLUDES) 
+CFLAGS+=$(DEBUGFLAGS)
 CXX=g++
-CXXFLAGS:=$(DEBUGFLAGS) ${CXXFLAGS} $(INCLUDES) 
-LDFLAGS:=$(DEBUGFLAGS) ${LDFLAGS}
+CXXFLAGS+=$(DEBUGFLAGS)
+LDFLAGS+=$(DEBUGFLAGS)
 
 LIBSRCS=namemap.cpp graph.cpp graphslicer.cpp graphptreemap.cpp utils.cpp
 SRCS=$(LIBSRCS)

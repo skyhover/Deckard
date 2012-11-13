@@ -1,13 +1,17 @@
 
-DEBUGFLAGS= #-g -pg
+# '?=' gives environment variables (if any) higher priority than definitions in the file
+# So, it would be easier to re-define DEBUGFLAGS to be '-g -pg' to enable debugging
+DEBUGFLAGS?=-O3
+
 LIBRARIES=../../../lib/libdeckarddata.a
 LIBNAME=dotparserc
-INCLUDES=-I. -I../../../include 
+# 'make' uses CPPFLAGS for preprocessors
+CPPFLAGS+=-I. -I../../../include 
 CC=g++
-CFLAGS:=$(DEBUGFLAGS) ${CFLAGS} $(INCLUDES) 
+CFLAGS+=$(DEBUGFLAGS)
 CXX=g++
-CXXFLAGS:=$(DEBUGFLAGS) ${CXXFLAGS} $(INCLUDES) 
-LDFLAGS:=$(DEBUGFLAGS) ${LDFLAGS} -L/usr/local/lib -L. -L../../../lib -l$(LIBNAME) -lantlr3c -ldeckarddata
+CXXFLAGS+=$(DEBUGFLAGS)
+LDFLAGS+=$(DEBUGFLAGS) -L/usr/local/lib -L. -L../../../lib -l$(LIBNAME) -lantlr3c -ldeckarddata
 
 LIBSRCS=DotCLexer.c DotCParser.c DotTreeCGraph.c
 MAINSRCS=DotTreeCTest.c

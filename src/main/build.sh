@@ -1,9 +1,11 @@
 #!/bin/sh
 
-#export CXXFLAGS="-pg -g"
-#export CFLAGS="-pg -g"
-export CXXFLAGS="-O3"
-export CFLAGS="-O3"
+# Define the following DEBUGFLAGS to enable debug build
+# The default value for DEBUGFLAGS may be conditionally defined in the makefile for each module
+#export DEBUGFLAGS="-g -pg"
+# This way is similar to enable the following two (depending on the way invoked makefiles are defined): 
+#export CFLAGS="-g -pg"
+#export CXXFLAGS="-g -pg"
 
 # re-compile parse tree generators
 (

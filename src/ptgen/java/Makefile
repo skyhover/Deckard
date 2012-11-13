@@ -1,4 +1,10 @@
-CXX= g++ -I../../include
+
+DEBUGFLAGS?=-O3
+
+CPPFLAGS+=-I../../include
+CXX=g++
+CXXFLAGS+=$(DEBUGFLAGS)
+LDFLAGS+=$(DEBUGFLAGS)
 OBJS= lex.yy.o pt_j.tab.o head.o
 #TARGET=j_ptgen # this is just a test driver
 TARGET=javaptgen.a
@@ -6,10 +12,10 @@ TARGET=javaptgen.a
 all: $(TARGET)
 
 javaptgen.a: $(OBJS)
-	ar -qcs $@ $(OBJS)
+	ar -csrv $@ $(OBJS)
 
 j_ptgen: $(OBJS) main.o
-	$(CXX) -o $@ $(OBJS) main.o
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o $@ $(OBJS) main.o
 
 #${TARGET}: ${OBJS} main.o
 #	$(CXX) -o ${TARGET} ${OBJS} main.o

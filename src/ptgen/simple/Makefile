@@ -1,11 +1,16 @@
 # This is a testing directory; may have a lot of errors in the grammar files
 
-CXXFLAGS= -I../../include -g
+DEBUGFLAGS?=-g -pg
+
+CPPFLAGS+=-I../../include
+CXX=g++
+CXXFLAGS+=$(DEBUGFLAGS)
+LDFLAGS+=$(DEBUGFLAGS)
 OBJS= lex.yy.o pt_c.tab.o main.o head.o
 TARGET= c_ptgen
 
 TARGET: ${OBJS}
-	g++ -o ${TARGET} ${OBJS}
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o ${TARGET} ${OBJS}
 
 lex.yy.cc: c.l pt_c.tab.cc
 	flex -olex.yy.cc c.l

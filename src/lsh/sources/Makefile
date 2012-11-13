@@ -1,9 +1,14 @@
+
+# '?=' gives environment variables (if any) higher priority than definitions in the file
+# So, it would be easier to re-define DEBUGFLAGS to be '-g -pg' to enable debugging
+DEBUGFLAGS?=-O3
+
 # DEFINE_FLOAT should be set by a configure script (using testFloat.cpp)
 # if this doesn't work, try REAL_DOUBLE instead
 DEFINE_FLOAT	= REAL_FLOAT
 
-CPP_OPTS	= -O3 -D$(DEFINE_FLOAT) # -Wunused-variable
-LINK_OPTS	= -O3 -lm
+CPP_OPTS	= $(DEBUGFLAGS) -D$(DEFINE_FLOAT) # -Wunused-variable
+LINK_OPTS	= $(DEBUGFLAGS) -lm
 OUT_DIR		= ../bin
 
 LSH_SRC		= BucketHashing.cpp \

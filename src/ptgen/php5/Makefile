@@ -1,4 +1,10 @@
-CXX= g++ -I../../include
+
+DEBUGFLAGS?=-O3
+
+CPPFLAGS+=-I../../include
+CXX=g++
+CXXFLAGS+=$(DEBUGFLAGS)
+LDFLAGS+=$(DEBUGFLAGS)
 OBJS= lex.yy.o pt_zend_language_parser.tab.o head.o
 #TARGET=php_ptgen # this is just a test driver
 TARGET=phpptgen.a
@@ -6,10 +12,10 @@ TARGET=phpptgen.a
 all: $(TARGET)
 
 phpptgen.a: $(OBJS)
-	ar -qcs $@ $(OBJS)
+	ar -csrv $@ $(OBJS)
 
 php_ptgen: $(OBJS) main.o
-	$(CXX) -o $@ $(OBJS) main.o
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o $@ $(OBJS) main.o
 
 #${TARGET}: ${OBJS} main.o
 #	$(CXX) -o ${TARGET} ${OBJS} main.o
@@ -27,3 +33,4 @@ head.cc pt_zend_language_parser.y: zend_language_parser.y zend_language_parser.y
 .PHONY: clean
 clean:
 	rm -f *.o lex.yy.cc pt_zend_language_parser.tab* pt_zend_language_parser.y head.cc $(TARGET)
+

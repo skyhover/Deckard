@@ -1,3 +1,8 @@
+
+# '?=' gives environment variables (if any) higher priority than definitions in the file
+# So, it would be easier to re-define DEBUGFLAGS to be '-g -pg' to enable debugging
+DEBUGFLAGS?=-O3
+
 TREEHEADER=../include/ptree.h
 TREESRC=ptree.cc
 
@@ -19,8 +24,12 @@ CHEADERS=../ptgen/gcc/crelevantNodes.h ../ptgen/gcc/catomicNodes.h ../ptgen/gcc/
 JHEADERS=../ptgen/java/jrelevantNodes.h ../ptgen/java/jatomicNodes.h ../ptgen/java/jparentNodes.h ../ptgen/java/jcontextualNodes.h
 PHPHEADERS=../ptgen/php5/phprelevantNodes.h ../ptgen/php5/phpatomicNodes.h ../ptgen/php5/phpparentNodes.h ../ptgen/php5/phpcontextualNodes.h
 
-CXX= g++ -I../include -I../vgen/treeTra
-CXXFLAGS:= ${CXXFLAGS}
+CC=g++
+CXX=g++ 
+CPPFLAGS+=-I../include -I../vgen/treeTra
+CFLAGS+=$(DEBUGFLAGS)
+CXXFLAGS+=$(DEBUGFLAGS)
+LDFLAGS+=$(DEBUGFLAGS)
 
 EXES=cvecgen jvecgen cbugfilters jbugfilters out2html \
      phpvecgen phpbugfilters out2xml \
@@ -33,52 +42,52 @@ TARGET:${EXES}
 #      because intermediate files may be overwritten.
 
 ${CTREEOBJS}:${TREESRC} ${TREEHEADER}
-	$(CXX) -o $@ $(CXXFLAGS) -c -DCLANG ${TREESRC}
+	$(CXX) -o $@ $(CXXFLAGS) $(CPPFLAGS) -c -DCLANG ${TREESRC}
 
 ${JTREEOBJS}:${TREESRC} ${TREEHEADER}
-	$(CXX) -o $@ $(CXXFLAGS) -c -DJAVA ${TREESRC}
+	$(CXX) -o $@ $(CXXFLAGS) $(CPPFLAGS) -c -DJAVA ${TREESRC}
 
 ${PHPTREEOBJS}:${TREESRC} ${TREEHEADER}
-	$(CXX) -o $@ $(CXXFLAGS) -c -DPHP ${TREESRC}
+	$(CXX) -o $@ $(CXXFLAGS) $(CPPFLAGS) -c -DPHP ${TREESRC}
 
 cvecgen:${COBJS} ${CHEADERS} main.cc
-	$(CXX) $(CXXFLAGS) -c -DCLANG main.cc
-	$(CXX) -o $@ $(CXXFLAGS) main.o ${COBJS}
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -DCLANG main.cc
+	$(CXX) -o $@ $(LDFLAGS) main.o ${COBJS}
 
 jvecgen:${JOBJS} ${JHEADERS} main.cc
-	$(CXX) $(CXXFLAGS) -c -DJAVA main.cc
-	$(CXX) -o $@ $(CXXFLAGS) main.o ${JOBJS}
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -DJAVA main.cc
+	$(CXX) -o $@ $(LDFLAGS) main.o ${JOBJS}
 
 phpvecgen:${PHPOBJS} ${PHPHEADERS} main.cc
-	$(CXX) $(CXXFLAGS) -c -DPHP main.cc
-	$(CXX) -o $@ $(CXXFLAGS) main.o ${PHPOBJS}
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -DPHP main.cc
+	$(CXX) -o $@ $(LDFLAGS) main.o ${PHPOBJS}
 
 cbugfilters:${COBJS} ${CHEADERS} bugmain.cc
-	${CXX} ${CXXFLAGS} -c -DCLANG bugmain.cc
-	${CXX} ${CXXFLAGS} -o $@ bugmain.o ${COBJS}
+	${CXX} ${CXXFLAGS} $(CPPFLAGS) -c -DCLANG bugmain.cc
+	${CXX} ${LDFLAGS} -o $@ bugmain.o ${COBJS}
 
 jbugfilters:${JOBJS} ${JHEADERS} bugmain.cc
-	${CXX} ${CXXFLAGS} -c -DJAVA bugmain.cc
-	${CXX} ${CXXFLAGS} -o $@ bugmain.o ${JOBJS}
+	${CXX} ${CXXFLAGS} $(CPPFLAGS) -c -DJAVA bugmain.cc
+	${CXX} ${LDFLAGS} -o $@ bugmain.o ${JOBJS}
 
 phpbugfilters:${PHPOBJS} ${PHPHEADERS} bugmain.cc
-	${CXX} ${CXXFLAGS} -c -DPHP bugmain.cc
-	${CXX} ${CXXFLAGS} -o $@ bugmain.o ${PHPOBJS}
+	${CXX} ${CXXFLAGS} $(CPPFLAGS) -c -DPHP bugmain.cc
+	${CXX} ${LDFLAGS} -o $@ bugmain.o ${PHPOBJS}
 
 out2html:${COBJS} out2html.C  # don't matter to use COBJS or others
-	${CXX} ${CXXFLAGS} -o $@ out2html.C ${COBJS}
+	${CXX} ${CXXFLAGS} $(CPPFLAGS) -o $@ out2html.C ${COBJS}
 
 out2xml:${COBJS} out2xml.C  # don't matter to use COBJS or others
-	${CXX} ${CXXFLAGS} -o $@ out2xml.C ${COBJS}
+	${CXX} ${CXXFLAGS} $(CPPFLAGS) -o $@ out2xml.C ${COBJS}
 	
 cParseTreeMain:${COBJS} ${CHEADERS} parseTreeMain.cc
-	${CXX} ${CXXFLAGS} -DCLANG -o $@ parseTreeMain.cc ${COBJS}
+	${CXX} ${CXXFLAGS} $(CPPFLAGS) -DCLANG -o $@ parseTreeMain.cc ${COBJS}
 
 jParseTreeMain:${JOBJS} ${JHEADERS} parseTreeMain.cc
-	${CXX} ${CXXFLAGS} -DJAVA -o $@ parseTreeMain.cc ${JOBJS}
+	${CXX} ${CXXFLAGS} $(CPPFLAGS) -DJAVA -o $@ parseTreeMain.cc ${JOBJS}
 
 phpParseTreeMain:${PHPOBJS} ${PHPHEADERS} parseTreeMain.cc
-	${CXX} ${CXXFLAGS} -DPHP -o $@ parseTreeMain.cc ${PHPOBJS}
+	${CXX} ${CXXFLAGS} $(CPPFLAGS) -DPHP -o $@ parseTreeMain.cc ${PHPOBJS}
 
 .PHONY: clean
 clean:

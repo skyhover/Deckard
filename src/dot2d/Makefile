@@ -1,13 +1,16 @@
 
-DEBUGFLAGS= #-g -pg
+# '?=' gives environment variables (if any) higher priority than definitions in the file
+# So, it would be easier to re-define DEBUGFLAGS to be '-g -pg' to enable debugging
+DEBUGFLAGS?=-O3
+
 LIBRARIES=../lib/libdeckarddata.a
 LIBNAME=dotparserc
-INCLUDES=-I. -I../include -I../vgen/treeTra -I./grammars/output
+CPPFLAGS+=-I. -I../include -I../vgen/treeTra -I./grammars/output
 CC=g++
-CFLAGS:=$(DEBUGFLAGS) ${CFLAGS} $(INCLUDES) 
+CFLAGS+=$(DEBUGFLAGS)
 CXX=g++
-CXXFLAGS:=$(DEBUGFLAGS) ${CXXFLAGS} $(INCLUDES) 
-LDFLAGS:=$(DEBUGFLAGS) ${LDFLAGS} -L/usr/local/lib -L. -L../lib -L./grammars/output -L../vgen/treeTra -l$(LIBNAME) -lantlr3c -ldeckarddata -lvgen
+CXXFLAGS+=$(DEBUGFLAGS)
+LDFLAGS+=$(DEBUGFLAGS) -L/usr/local/lib -L. -L../lib -L./grammars/output -L../vgen/treeTra -l$(LIBNAME) -lantlr3c -ldeckarddata -lvgen
 
 LIBSRCS=ptree.cc node-counter.cc
 MAINSRCS=dotvgen.cc
