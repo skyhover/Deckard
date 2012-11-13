@@ -282,15 +282,16 @@ moveForward()
     moveForwardOneStep(front);
   }
 
+//#define outputmovementofslidingwindow
 #ifdef outputmovementofslidingwindow
-  fprintf(stdout, "SW from id %d to id %d\n", front==NULL ? -1 : TreeAccessor::get_serialized_id(front), tail==NULL ? -1 : TreeAccessor::get_serialized_id(tail));
+  fprintf(stderr, "SW from id %d to id %d\n", front==NULL ? -1 : TreeAccessor::get_serialized_id(front), tail==NULL ? -1 : TreeAccessor::get_serialized_id(tail));
 #endif
   // move tail forward until the next mergeable sliding window or end.
   while ( enoughForMerge()<0 ) {
     if ( moveForwardOneStep(tail)==false )
       return false;
 #ifdef outputmovementofslidingwindow
-    fprintf(stdout, "SW from id %d to id %d\n", front==NULL ? -1 : TreeAccessor::get_serialized_id(front), tail==NULL ? -1 : TreeAccessor::get_serialized_id(tail));
+    fprintf(stderr, "SW from id %d to id %d\n", front==NULL ? -1 : TreeAccessor::get_serialized_id(front), tail==NULL ? -1 : TreeAccessor::get_serialized_id(tail));
 #endif
   }
 

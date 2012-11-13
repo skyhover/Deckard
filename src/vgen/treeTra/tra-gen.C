@@ -157,10 +157,11 @@ run(int startln, int endln)
 #ifdef VGDEBUG
   fprintf(stderr, "Total nodes > %ld (some children of atomic nodes are skipped), # nodes in the Sq tree:%ld\n", tree_serializer->id, tree_serializer->sqtree_length());
 #endif
+//#define outputnodeids
 #ifdef outputnodeids
   Tree* tree_itr = tree_serializer->serialized_tree.chain_header;
   while ( tree_itr!=NULL ) {
-    fprintf(stdout, "Tree %p id=%ld (%s), tokens = %ld, low_id = %ld, value=`%s'\n", tree_itr, TreeAccessor::get_serialized_id(tree_itr), parse_tree->getTypeName(tree_itr->type).c_str(), tree_itr->terminal_number, TreeAccessor::get_serialized_low_id(tree_itr), tree_itr->isTerminal()?tree_itr->toTerminal()->value->c_str():"<NULL>");
+    fprintf(stderr, "Tree %p id=%ld (%s), tokens = %ld, low_id = %ld, value=`%s'\n", tree_itr, TreeAccessor::get_serialized_id(tree_itr), parse_tree->getTypeName(tree_itr->type).c_str(), tree_itr->terminal_number, TreeAccessor::get_serialized_low_id(tree_itr), tree_itr->isTerminal()?tree_itr->toTerminal()->value->c_str():"<NULL>");
     tree_itr = TreeAccessor::get_serialized_next_neighbor(tree_itr);
   }
 #endif

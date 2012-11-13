@@ -72,7 +72,7 @@ evaluateSynthesizedAttribute(Tree* node, Tree* in,
   return pair<long, long>(id-1, low_id);
 }
 
-// mush pass low_ids from children to parents to accumulate. ids do
+// must pass low_ids from children to parents to accumulate. ids do
 // not need to be passed because they are an accumulative attribute.
 pair<long, long> TreeSerializer::
 defaultSynthesizedAttribute(Tree* node, Tree* inh,

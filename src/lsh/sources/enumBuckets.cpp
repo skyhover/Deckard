@@ -267,6 +267,7 @@ void readDataSetFromFile2(char *filename)
   } // end of file
   fclose(f);
 
+  FAILIFWR(nPoints<=0, "No data point in the input file?");
   // put the points in the array and free the point list
   FAILIF(NULL == (dataSetPoints = (PPointT*)MALLOC(nPoints * sizeof(PPointT))));
   for(IntT i = 0; i < nPoints; i++) {

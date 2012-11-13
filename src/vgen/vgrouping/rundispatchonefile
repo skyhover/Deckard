@@ -43,7 +43,7 @@ done
 #echo $nameprefix
 
 if [[ ! -s $vecfile ]]; then
-    echo "Vector file $vecfile doesn't exist."
+    echo "Vector file $vecfile doesn't exist or has zero size."
     exit 127
 fi
 
