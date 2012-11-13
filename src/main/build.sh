@@ -5,6 +5,7 @@
 export CXXFLAGS="-O3"
 export CFLAGS="-O3"
 
+# re-compile parse tree generators
 (
 cd ../ptgen/ || exit 1
 make clean
@@ -16,6 +17,7 @@ if [ $errcode -ne 0 ]; then
 fi
 )
 
+# re-compile vector generator and vector grouping code
 (
 cd ../vgen/treeTra/ || exit 1
 make clean
@@ -35,6 +37,7 @@ if [ $errcode -ne 0 ]; then
 fi
 )
 
+# re-compile code for main entries
 make clean
 make
 errcode=$?
@@ -43,6 +46,7 @@ if [ $errcode -ne 0 ]; then
 	exit $errcode
 fi
 
+# re-compile LSH
 (
 cd ../lsh/ || exit 1
 make clean_all
@@ -54,18 +58,7 @@ if [ $errcode -ne 0 ]; then
 fi
 )
 
-(
-# assume antlr has been run; otherwise, run antlrworks-1.4.3 in the repository first
-cd ../dot2d/grammars/output || exit 1
-make clean
-make
-errcode=$?
-if [ $errcode -ne 0 ]; then
-	echo "error: dot parser make failed. exit."
-	exit $errcode
-fi
-)
-
+# re-compile additional library code for trees and graphs
 (
 cd ../lib || exit 1
 make clean
@@ -77,6 +70,20 @@ if [ $errcode -ne 0 ]; then
 fi
 )
 
+# re-compile .dot parser generator
+(
+# assume antlr has been run; otherwise, please manually run antlrworks-1.4.3 in the repository first
+cd ../dot2d/grammars/output || exit 1
+make clean
+make
+errcode=$?
+if [ $errcode -ne 0 ]; then
+	echo "error: dot parser make failed. exit."
+	exit $errcode
+fi
+)
+
+# re-compile main entries for deckard 2.x
 (
 cd ../dot2d || exit 1
 make clean

@@ -1,13 +1,13 @@
 
-DEBUGFLAGS=-g -pg
+DEBUGFLAGS= #-g -pg
 LIBRARIES=
 LIBNAME=deckarddata
 INCLUDES=-I. -I../include 
-CC=gcc $(DEBUGFLAGS)
-CFLAGS:=${CFLAGS} $(INCLUDES) 
-CXX=g++ $(DEBUGFLAGS)
-CXXFLAGS:=${CXXFLAGS} $(INCLUDES) 
-LDFLAGS:=${LDFLAGS}
+CC=g++
+CFLAGS:=$(DEBUGFLAGS) ${CFLAGS} $(INCLUDES) 
+CXX=g++
+CXXFLAGS:=$(DEBUGFLAGS) ${CXXFLAGS} $(INCLUDES) 
+LDFLAGS:=$(DEBUGFLAGS) ${LDFLAGS}
 
 LIBSRCS=namemap.cpp graph.cpp graphslicer.cpp graphptreemap.cpp utils.cpp
 SRCS=$(LIBSRCS)

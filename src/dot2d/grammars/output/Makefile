@@ -1,13 +1,13 @@
 
-DEBUGFLAGS=-g -pg
+DEBUGFLAGS= #-g -pg
 LIBRARIES=../../../lib/libdeckarddata.a
 LIBNAME=dotparserc
 INCLUDES=-I. -I../../../include 
-CC=g++ $(DEBUGFLAGS)
-CFLAGS:=${CFLAGS} $(INCLUDES) 
-CXX=g++ $(DEBUGFLAGS)
-CXXFLAGS:=${CXXFLAGS} $(INCLUDES) 
-LDFLAGS:=${LDFLAGS} -L/usr/local/lib -L. -L../../../lib -l$(LIBNAME) -lantlr3c -ldeckarddata
+CC=g++
+CFLAGS:=$(DEBUGFLAGS) ${CFLAGS} $(INCLUDES) 
+CXX=g++
+CXXFLAGS:=$(DEBUGFLAGS) ${CXXFLAGS} $(INCLUDES) 
+LDFLAGS:=$(DEBUGFLAGS) ${LDFLAGS} -L/usr/local/lib -L. -L../../../lib -l$(LIBNAME) -lantlr3c -ldeckarddata
 
 LIBSRCS=DotCLexer.c DotCParser.c DotTreeCGraph.c
 MAINSRCS=DotTreeCTest.c

@@ -1,13 +1,13 @@
 
-DEBUGFLAGS=-g -pg
+DEBUGFLAGS= #-g -pg
 LIBRARIES=../lib/libdeckarddata.a
 LIBNAME=dotparserc
 INCLUDES=-I. -I../include -I../vgen/treeTra -I./grammars/output
-CC=g++ $(DEBUGFLAGS)
-CFLAGS:=${CFLAGS} $(INCLUDES) 
-CXX=g++ $(DEBUGFLAGS)
-CXXFLAGS:=${CXXFLAGS} $(INCLUDES) 
-LDFLAGS:=${LDFLAGS} -L/usr/local/lib -L. -L../lib -L./grammars/output -L../vgen/treeTra -l$(LIBNAME) -lantlr3c -ldeckarddata -lvgen
+CC=g++
+CFLAGS:=$(DEBUGFLAGS) ${CFLAGS} $(INCLUDES) 
+CXX=g++
+CXXFLAGS:=$(DEBUGFLAGS) ${CXXFLAGS} $(INCLUDES) 
+LDFLAGS:=$(DEBUGFLAGS) ${LDFLAGS} -L/usr/local/lib -L. -L../lib -L./grammars/output -L../vgen/treeTra -l$(LIBNAME) -lantlr3c -ldeckarddata -lvgen
 
 LIBSRCS=ptree.cc node-counter.cc
 MAINSRCS=dotvgen.cc
