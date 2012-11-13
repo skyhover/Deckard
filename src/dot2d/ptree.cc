@@ -92,6 +92,41 @@ bool ParseTree::dumpParseTree(const char* fn, bool toOveride)
    return true;
 }
 
+bool ParseTree::outputParseTree2Dot(const char* fn, bool toOveride)
+{
+   bool flag = true;
+   ifstream inp;
+   ofstream out;
+   string outputfn = (fn==NULL ? filename : string(fn)) + ".dot";
+
+   // prepare the output file:
+   if(!toOveride) {
+      inp.open(outputfn.c_str(), ifstream::in);
+      inp.close();
+      if(!inp.fail()) {
+         cerr << "Warning: parse tree dot file exists already: " << outputfn << " ...skip" << endl;
+         return false;
+      }
+      inp.clear(ios::failbit);
+   }
+   out.open(outputfn.c_str(), ofstream::out);
+   if(out.fail()) {
+      cerr << "Error: cannot open dot file: " << outputfn << endl;
+      return false;
+   }
+
+   // Write the tree to the dot file:
+   cerr << "# Writing the parse tree to dot file: " << outputfn << endl;
+   out << "# This graph is supposed to be a parse tree." << endl;
+   out << "digraph " << filename << " {" << endl;
+   flag = flag && root->outputTree2Dot(out, 1);
+   out << "}" << endl;
+
+   // close the file:
+   out.close();
+   return true;
+}
+
 Tree* ParseTree::line2Tree(int ln)
 {
    // precondition: the line range of each node is set, and the line range of a parent node contains the line ranges of all of its children
@@ -282,6 +317,19 @@ long Tree::dumpTree(ofstream & out, long n)
         n = children[i]->dumpTree(out, n);
     }
     return n;
+}
+
+long Tree::outputTree2Dot(ofstream & out, long n)
+{
+   bool flag = true;
+   long c = n++;
+   out << "nodeid" << c << " [ type=" << type << ", typeName=\"" << getTypeName(id2name, type)
+       << "\", min=" << min << ", max=" << max << ", tokenCount=" << terminal_number << " ] ;" << endl;
+   for (int i= 0; i < children.size(); i++) {
+      out << "nodeid" << c << " -> " << "nodeid" << n << endl;
+      n = children[i]->outputTree2Dot(out, n);
+   }
+   return n;
 }
 
 long Tree::tree2sn(Tree* t, long& n)

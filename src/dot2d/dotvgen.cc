@@ -214,12 +214,15 @@ int main( int argc, char **argv )
 
    // parse the pdg-dot file
    Graph* dotPDG = pDotTreeCParserGraph(pdgdotfilename);
-   if ( DEBUG_LEVEL>0 ) {
-      dotPDG->dumpGraph((string(pdgdotfilename)+".pdg").c_str(), true);
+   if ( DEBUG_LEVEL>1 ) {
+      dotPDG->outputGraph2Dot((string(pdgdotfilename)+".pdg").c_str(), true);
    }
    
    // parse the ast-dot file
    Graph* dotASTGraph = pDotTreeCParserGraph(astdotfilename);
+   if ( DEBUG_LEVEL>1 ) {
+      dotASTGraph->outputGraph2Dot((string(astdotfilename)+".ast").c_str(), true);
+   }
    
    assert(dotPDG!=NULL && dotASTGraph!=NULL);
 
@@ -227,25 +230,28 @@ int main( int argc, char **argv )
    string outfilestring = outputfilename==NULL ? (dotPDG->graph_functionSig + ".vec") : outputfilename;
    FILE * outfile = NULL;
    outfile = fopen(outfilestring.c_str(), "w");
-   if(outfile==NULL) {
+   if( outfile==NULL ) {
       cerr << "Warning: Can't open file for writing vectors; stop: " << outfilestring << endl;
       return 65;
    }
 
    // construct semantic threads
-   vector<Graph*> st = GraphSlicer::semanticThread(dotPDG, SlicingCriteriaAcceptAll::instance(), gamma);
+   vector<Graph*> st = GraphSlicer::semanticThreads(dotPDG, SlicingCriteriaAcceptAll::instance(), gamma);
    GraphTreeMapper gmapper("line");
    int stcount = 0;
+   if ( DEBUG_LEVEL>0 ) {
+      cerr << "INFO: Total # of ST: " << st.size() << endl;
+   }
    for(vector<Graph*>::const_iterator it = st.begin();
          it!=st.end(); ++it) {
       stcount++;
 
       Graph* st = *it;
-      if (DEBUG_LEVEL>1) {
-         cerr << "DEBUG: dumping ST#" << stcount << endl;
+      if ( DEBUG_LEVEL>0 ) {
+         cerr << "DEBUG: writing to dot file ST#" << stcount << endl;
          stringstream ofname;
-         ofname << st->graph_functionSig << "." << stcount;
-         st->dumpGraph(ofname.str().c_str(), true);
+         ofname << pdgdotfilename << ".pdg.st." << stcount;
+         st->outputGraph2Dot(ofname.str().c_str(), true);
       }
       Tree* stast = gmapper.graph2tree(st, dotASTGraph); // a new tree is constructed for the 'st'
       
@@ -267,12 +273,12 @@ int main( int argc, char **argv )
        * - no linenumber (to set line ranges for nodes)!
        */
       ASTTraGenMain t(&p, mergeTokens, mergeStride, mergeLists, typefilename, outfile);
-      t.run(startline, endline);
-      if ( DEBUG_LEVEL>1 ) {
-         cerr << "DEBUG: dumping the tree for ST#" << stcount << endl;
+      t.run(startline, endline); // also, update token counts for the nodes.
+      if ( DEBUG_LEVEL>0 ) {
+         cerr << "DEBUG: writing the tree to dot file for ST#" << stcount << endl;
          stringstream ofname;
-         ofname << st->graph_functionSig << "." << stcount;
-         p.dumpParseTree(ofname.str().c_str(), true);
+         ofname << pdgdotfilename << ".pdg.st." << stcount << ".ast";
+         p.outputParseTree2Dot(ofname.str().c_str(), true);
       }
       global_tree_for_debugging = NULL;
    }

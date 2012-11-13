@@ -25,7 +25,7 @@ public:
 
 public:
    NameMap attributeIDs;
-   GraphNode* graphEntry; /** assumed starting point of a graph; used to identify the root for trees. TODO: need to be vector for graphs? */
+   GraphNode* graphEntry; /** assumed starting point of a graph; used to identify the root for TREES. TODO: need to be vector for graphs? */
    std::map<std::string, GraphNode*> graphNodes;
    std::string graphName;
    std::string graph_functionSig; /** The signature of the function from which the graph is generated */
@@ -42,9 +42,13 @@ public:
    GraphNode* getNode(std::string);
    bool addNode(GraphNode*);
    bool addNode(std::string);
+   /** add an edge into the graph; the nodes are also added into the graph if they are not yet */
    bool addEdge(GraphNode*, GraphNode*);
    /** update the 'graphEntry' based on 'graphNodes': nodes with no parents are entries */
    GraphNode* updateEntries();
+   /** update the 'graphNodes' based on 'graphNodes', assuming the graph is a TREE.
+    *  Fake root node may be added into 'graphNodes' if multiple entries are found. */
+   GraphNode* updateEntriesForTree();
    
    std::string getGraphName();
    bool setGraphName(std::string);
@@ -67,6 +71,7 @@ public: /** auxiliary functions */
    int printAttributesWithNames(const std::map<int, std::string>*, std::string prefix="", std::ostream & out=std::cout);
    static int printAttributesWithIDs(const std::map<int, std::string>*, std::string prefix="", std::ostream & out=std::cout);
    bool dumpGraph(const char* ofname=NULL, bool toOverride=false);
+   bool outputGraph2Dot(const char* ofname=NULL, bool toOverride=false);
    
 public: /** graph operations */
    std::vector<GraphNode*> reorderNodes(std::string attr="line"); /** sort nodes by their line numbers */

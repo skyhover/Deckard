@@ -96,8 +96,40 @@ GraphNode* Graph::updateEntries()
       }
    }
    if ( count>1 ) {
-      cerr << "Warning: " << count << " graph entires found in Graph::updateEntries(). Only support one for AST now." << endl;
+      cerr << "Warning: " << count << " graph entries found in Graph::updateEntries(). Only the first one will be used for AST." << endl;
+   } else if ( count<=0 ) {
+      cerr << "Warning: NO graph entry found in Graph::updateEntries(). The graph may not be an AST." << endl;
+      graphEntry = NULL;
    }
+
+   return graphEntry;
+}
+
+GraphNode* Graph::updateEntriesForTree()
+{
+   vector<GraphNode*> entries;
+   for(map<string, GraphNode*>::const_iterator nitr = graphNodes.begin();
+         nitr!=graphNodes.end(); ++nitr) {
+      if ( nitr->second->parents.size()<=0 ) {
+         entries.push_back(nitr->second);
+      }
+   }
+   int count = entries.size();
+   if ( count<=0 ) {
+      cerr << "Warning: NO graph entry found in Graph::updateEntries(). The graph may not be an AST." << endl;
+      graphEntry = NULL;
+   } else if ( count==1 ) {
+      graphEntry = entries[0];
+   } else if ( count>1 ) {
+      cerr << "Warning: " << count << " graph entries found in Graph::updateEntriesForTree(). Fake root node would be added to connect all entries." << endl;
+      GraphNode* newroot = new GraphNode("<FakeASTRoot>");
+      graphEntry = newroot;
+      for(vector<GraphNode*>::const_iterator eitr = entries.begin();
+            eitr!=entries.end(); ++eitr) {
+         addEdge(newroot, *eitr);
+      }
+   }
+
    return graphEntry;
 }
 
@@ -257,6 +289,80 @@ bool Graph::dumpGraph(const char * ofname, bool toOverride)
    cerr << "# Dumping the graph into file: " << outputfn << endl;
    out << "# " << graph_functionSig << endl;
    printGraph(out);
+
+   // close the file:
+   out.close();
+   return true;
+}
+
+bool Graph::outputGraph2Dot(const char * ofname, bool toOverride)
+{
+   ifstream inp;
+   ofstream out;
+   string outputfn = (ofname==NULL ? graph_functionSig : ofname) + ".dot";
+
+   // prepare the output file:
+   if(!toOverride) {
+      inp.open(outputfn.c_str(), ifstream::in);
+      inp.close();
+      if(!inp.fail()) {
+         cerr << "Warning: graph dot file exists already: " << outputfn << " ...skip" << endl;
+         return false;
+      }
+      inp.clear(ios::failbit);
+   }
+   out.open(outputfn.c_str(), ofstream::out);
+   if(out.fail()) {
+      cerr << "Error: cannot open graph dot file: " << outputfn << endl;
+      return false;
+   }
+
+   // print the graph to the file:
+   cerr << "# Writing the graph into dot file: " << outputfn << endl;
+   out << "# This graph is supposed to be a digraph: " << graphName << " " << graph_functionSig << endl;
+   out << "digraph " << graphName << " {" << endl;
+   // output graph attributes:
+   if ( attributes.size()>0 ) {
+      out << "graph [ ";
+      for(map<int, string>::const_iterator it = attributes.begin();
+            it != attributes.end(); ++it) {
+         out << "attrID=" << it->first << " " << attributeIDs.getIDName(it->first) << "=" << it->second << " ";
+      }
+      out << "] ;" << endl;
+   }
+   // output graph nodes:
+   for(map<string, GraphNode*>::const_iterator it = graphNodes.begin();
+         it!=graphNodes.end(); ++it) {
+      GraphNode* n = it->second;
+      if ( hasNode(n) ) {
+         out << n->nodeName;
+         if ( attributes.size()>0 ) {
+            out << " [ ";
+            for(map<int, string>::const_iterator ait = n->attributes.begin();
+                  ait!=n->attributes.end(); ++ait) {
+               out << "attrID=" << ait->first << " "
+                   << attributeIDs.getIDName(ait->first) << "=" << ait->second << " ";
+            }
+            out << " ] ";
+         }
+         out << endl;
+      }
+   }
+   // output graph edges:
+   for(map<string, GraphNode*>::const_iterator it = graphNodes.begin();
+         it!=graphNodes.end(); ++it) {
+      GraphNode* n = it->second;
+      if ( hasNode(n) ) {
+         for(vector<GraphNode*>::const_iterator e = n->children.begin();
+            e!=n->children.end(); ++e) {
+            if ( hasNode(*e) ) {
+               out << n->nodeName << " -> " << (*e)->nodeName << endl;
+            }
+         }
+      }
+   }
+
+   out << "}" << endl;
 
    // close the file:
    out.close();

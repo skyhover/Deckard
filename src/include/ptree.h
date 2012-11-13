@@ -50,6 +50,8 @@ class ParseTree {
 
     /** dump the whole tree in a graph-like format; output filename is the 'filename'+'.grp' */ 
     bool dumpParseTree(const char* fn, bool toOveride);
+    /** dump the tree in the dot format; output filename is the 'filename'+'.dot' */
+    bool outputParseTree2Dot(const char* fn, bool toOveride);
 
     /** return the smallest tree containing all elements from the line number */
     Tree* line2Tree(int ln);
@@ -175,7 +177,7 @@ class Tree {
        type= -1;
     }
 
-    /** calculate the range of line numbers for this tree node, store results in [min, max].
+    /** recursively calculate the range of line numbers for this tree node from bottom-up, and store results in [min, max].
      * For performance concerns, this function should only be called once from the root node. */
     int max, min;
     virtual void lineRange() {
@@ -192,7 +194,8 @@ class Tree {
         }
     }
 
-    /** update the range of line numberrs for this tree node, assuming every node has previously set max/min already */
+    /** update the range of line numbers for this tree node based its direct children (i.e., no recursive updates),
+     *  assuming every node has previously set max/min correctly already. */
     virtual void lineRangeUpdate()
     {
        for (int i= 0; i < children.size(); i++ ) {
@@ -212,6 +215,8 @@ class Tree {
 
     /** output the nodes and the edges under this tree: */
     long dumpTree(std::ofstream & out, long n);
+    /** output the nodes and the edges under this tree to a dot file: */
+    long outputTree2Dot(std::ofstream & out, long n);
 
     /** get the order number of a tree node under this tree.
      * The order number is based on depth-first traversal and starts with 'n'.

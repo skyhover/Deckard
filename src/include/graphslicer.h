@@ -34,7 +34,7 @@ public:
    static Graph* semanticThread(Graph*, GraphNode*, ISlicingCriteria* sc, float gamma=3.0);
    static Graph* semanticThread(Graph*, std::vector<GraphNode*>*, ISlicingCriteria* sc, float gamma=3.0);
    /** find a set of STs */
-   static std::vector<Graph*> semanticThread(Graph*, ISlicingCriteria* sc, float gamma=3.0);
+   static std::vector<Graph*> semanticThreads(Graph*, ISlicingCriteria* sc, float gamma=3.0);
    static std::vector<Graph*> addSemanticThread(std::vector<Graph*>&, Graph*, ISlicingCriteria* sc, float gamma=3.0);
    
    static Graph* depthFirstTraverse(Graph*, GraphNode*, ISlicingCriteria* sc, bool forward=true);

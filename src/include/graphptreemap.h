@@ -25,20 +25,23 @@ public:
 private:
    std::string mappingAttr;
 public:
-   // TODO: may (or not) need to modify TraGenConfiguration's constructor to allow construction without a ParseTree object
    
    /** convert a graph to a tree, if possible:
-    * - no cyclic paths
-    * - each node has a type ID */
+    * - no cyclic paths (TODO: add validity check)
+    * - each node has a type ID.
+    * Additional fake root would be added only if there are more than one entry in the graph. */
    Tree* graph2tree(Graph*);
    
    /** convert a graph to a tree (always with a fake root node) based on line numbers:
-    * - one input: pdg-graph, the other: ast-graph
+    * - frist input: pdg-graph, the second: ast-graph. The first is mapped onto second, and a new Tree is constructed.
     * - the tree nodes are copied since Deckard's vgen may modify node states; better to separate .  */
    Tree* graph2tree(Graph*, Graph*);
    Graph* tree2graph(Graph*, Graph*); // No need for now.
 private:
-   std::vector<Tree*> copySubtrees(GraphNode*, Graph* ast, std::set<std::string>& lines);
+   /** construct a Tree rooted at 'astroot' in 'ast'. Every node in 'ast' is kept. */
+   std::vector<Tree*> copySubtrees(GraphNode* astroot, Graph* ast);
+   /** construct a Tree rooted at 'astroot' in 'ast'. Nodesin 'ast' are kept only if they are contained in 'lines'. */
+   std::vector<Tree*> copySubtrees(GraphNode* astroot, Graph* ast, std::set<std::string>& lines);
 };
 
 #endif /* _DECKARD_GRAPH_PTREE_MAP_H_ */

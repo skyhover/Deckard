@@ -23,7 +23,7 @@ Graph* GraphSlicer::semanticThread(Graph* g, GraphNode* node, ISlicingCriteria* 
    return depthFirstTraverse(g, node, sc);
 }
 
-vector<Graph*> GraphSlicer::semanticThread(Graph* g, ISlicingCriteria* sc, float gamma)
+vector<Graph*> GraphSlicer::semanticThreads(Graph* g, ISlicingCriteria* sc, float gamma)
 {
    vector<Graph*> ists;
    set<GraphNode*> seen;
