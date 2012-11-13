@@ -65,6 +65,7 @@ vgen()
 	if [[ -s "$VECTOR_DIR/vdb_$1_$2" ]]; then
 		return 0
 	else
+		echo "Warning: empty vector file for vgen $1 $2"
 		return 1
 	fi
 }
@@ -92,7 +93,7 @@ if [[ $# -ge 1 ]]; then
 	esac
 fi
 
-errcode=0
+errcode=1
 echo "$VGEN_EXEC $SRC_DIR/$PDGFILES"
 echo 
 
@@ -102,8 +103,9 @@ do
 	do
 		vgen $t $s
 		retcode=$?
-		if [[ $errcode -eq 0 ]]; then
-			errcode=$retcode
+		# return 0 if any vector gen is successful
+		if [[ $retcode -eq 0 ]]; then
+			errcode=0
 		fi
 		clean # remove .vec so not to intervene with the following vgens
 		echo

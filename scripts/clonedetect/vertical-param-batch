@@ -107,6 +107,11 @@ paramsetting()
     fi
 # use the largest group file for paramter tuning:
 # "head -n 1" may break the pipe coming from "ls", causing signal 13 (no more reader, while writer's still writing), but should not matter here:
+    grptuningid=`find "$VECTOR_DIR" -type f -name "vdb_${t}_${s}_g[0-9]*_${i}_${GROUPING_S}*" -not -name '*.param' | wc -l`
+    if [[ $grptuningid -le 0 ]]; then
+	    echo "Error: $FUNCNAME failure: no vector group found: $t $s $sim" | tee -a "${TIME_DIR}/paramsetting_${t}_${s}_${sim}_${GROUPING_S}"
+	    exit 1
+    fi
     groupfortuning=`find "$VECTOR_DIR" -type f -name "vdb_${t}_${s}_g[0-9]*_${i}_${GROUPING_S}*" -not -name '*.param' -print0 | xargs -0 ls -S | head -n 1`
     grptuningid=`echo ${groupfortuning} | sed "s/.*vdb_${t}_${s}_g\([0-9]*\)_${i}_${GROUPING_S}.*/\1/"`
     grpal=0
@@ -123,7 +128,7 @@ paramsetting()
 	grpdist=`echo "$sim ${grpal}" | awk '{printf( "%.7g\n", sqrt((1-$1)*2*$2) )}'`
     fi
     echo -n "Looking for optimal parameters by " | tee -a "${TIME_DIR}/paramsetting_${t}_${s}_${sim}_${GROUPING_S}"
-    cluster $groupfortuning $grpdist -c | tee -a "${TIME_DIR}/paramsetting_${t}_${s}_${sim}_${GROUPING_S}"
+    cluster $groupfortuning $grpdist -c >> "${TIME_DIR}/paramsetting_${t}_${s}_${sim}_${GROUPING_S}"
     errcode=$?
 
     if [[ $errcode -ne 0 || ! -s "${groupfortuning}.param" ]]; then
@@ -176,7 +181,7 @@ cluster()
 	    flag=
 	fi
 
-	echo -n "Clustering '${vdb}' ${grpdist} ..." | tee -a "$TIME_DIR/cluster_${vfile}"
+	echo "Clustering '${vdb}' ${grpdist} ..." | tee -a "$TIME_DIR/cluster_${vfile}"
 
 	if [[ "$TOOVERWRITE" != "true" &&
 	      -s "$CLUSTER_DIR/cluster_${vfile}_$2" &&
@@ -219,6 +224,7 @@ cluster()
 		echo "Error: Parameter File missing for '$vdb' $dist...Exit" | tee -a "$TIME_DIR/cluster_${vfile}"
 		exit 65
 	fi
+	echo "$CLUSTER_EXEC" -R $dist -M $mem -b 2 -A -f "$vdb" ${flag} -p "${vdb}.param" " > " "$CLUSTER_DIR/cluster_${vfile}" | tee -a "$TIME_DIR/cluster_${vfile}"
 	( time \
 	  "$CLUSTER_EXEC" -R $dist -M $mem -b 2 -A -f "$vdb" ${flag} -p "${vdb}.param" \
 	  > "$CLUSTER_DIR/cluster_${vfile}" \
@@ -226,7 +232,7 @@ cluster()
 	errcode=$?
 
 	if [[ $errcode -ne 0 ]]; then
-		echo "$FUNCNAME: Possible errors occurred. Check log: $TIME_DIR/cluster_${vfile}" | tee -a "$TIME_DIR/cluster_${vfile}"
+		echo "$FUNCNAME: Possible errors occurred with LSH. Check log: $TIME_DIR/cluster_${vfile}" | tee -a "$TIME_DIR/cluster_${vfile}"
 	else
 		echo "Done clustering '${vdb}' ${grpdist}. Log: $TIME_DIR/cluster_${vfile}" | tee -a "$TIME_DIR/cluster_${vfile}"
 	fi
@@ -309,7 +315,8 @@ do
   do
     for sim in $SIMILARITY;
     do
-	echo "Vector clustering w/ MIN_TOKENS=$t, STRIDE=$s, SIMILARITY=$sim ..."
+	echo
+	echo "= Vector clustering w/ MIN_TOKENS=$t, STRIDE=$s, SIMILARITY=$sim ..."
 	echo
 
 # convert SIMILARITY to DISTANCE used by LSH:
@@ -318,12 +325,20 @@ do
 # Grouping:
 	grouping $t $s $i
 	errcode=$?
+	if [[ $errcode -ne 0 ]]; then
+		echo "Error: grouping $t $s $sim. There may be no vectors or permission denied for the setting."
+		continue
+	fi
 	# NOTE:
 	#   range file name:  ranges_${i}_${GROUPING_S}
 	#   group file names: vdb_${t}_${s}_g[0-9]+_${i}_${GROUPING_S}
 # Set parameter files for LSH:
 	paramsetting $t $s $sim
 	errcode=$?
+	if [[ $errcode -ne 0 ]]; then
+		echo "Error: paramsetting $t $s $sim. There may be no vectors or permission denied for the setting."
+		continue
+	fi
 # Clustering:
 	echo "Cluster every vector groups..." | tee "$TIME_DIR/cluster_vdb_${t}_${s}_allg_${i}_${GROUPING_S}"
 	find "$VECTOR_DIR" -type f -name "vdb_${t}_${s}_g[0-9]*_${i}_${GROUPING_S}*" -not -name '*.param' | while read vdb;
