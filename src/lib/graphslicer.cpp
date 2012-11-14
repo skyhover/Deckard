@@ -57,6 +57,9 @@ vector<Graph*> GraphSlicer::semanticThreads(Graph* g, ISlicingCriteria* sc, floa
 vector<Graph*> GraphSlicer::addSemanticThread(vector<Graph*>& ists, Graph* slice, ISlicingCriteria* sc, float gamma)
 {
    Graph* conflicts = new Graph();
+   conflicts->graphName = slice->graphName;
+   conflicts->graph_functionSig = slice->graph_functionSig;
+   
    vector<Graph*> newists;
    for(vector<Graph*>::const_iterator it = ists.begin();
          it!=ists.end(); ++it) {
@@ -80,7 +83,6 @@ vector<Graph*> GraphSlicer::addSemanticThread(vector<Graph*>& ists, Graph* slice
 Graph* GraphSlicer::depthFirstTraverse(Graph* g, GraphNode* node, ISlicingCriteria* sc, bool forward)
 {
    Graph* slice = new Graph();
-   slice->graphEntry = node;
    // copy names
    slice->graphName = g->graphName;
    slice->graph_functionSig = g->graph_functionSig;
@@ -88,42 +90,46 @@ Graph* GraphSlicer::depthFirstTraverse(Graph* g, GraphNode* node, ISlicingCriter
    slice->attributeIDs = g->attributeIDs;
    // copy attributes
    slice->attributes = g->attributes;
+   // cannot copy graphNodes
 
    set<GraphNode*> seen;
-   return depthFirstTraverse(g, node, sc, seen, slice, forward);
+   Graph* rsl = depthFirstTraverse(g, node, sc, seen, slice, forward);
+   // set graphEntry
+   if ( rsl!=NULL && rsl->graphNodes.size()>0 )
+      rsl->graphEntry = node;
+
+   return rsl;
 }
 
 Graph* GraphSlicer::depthFirstTraverse(Graph* g, GraphNode* node, ISlicingCriteria* sc, std::set<GraphNode*>& seen, Graph* slice, bool forward)
 {
+   // The result value isn't really useful for now - 2012/11/13
+
    if ( ! (sc->inSlice(node)) )
       return slice;
 
+   if ( seen.find(node)==seen.end() )
+      return slice;
+   
    seen.insert(node);
-   slice->addNode(node);
-   if ( forward ) {
-      for(vector<GraphNode*>::const_iterator citr = node->children.begin();
-            citr!=node->children.end(); ++citr) {
-         if ( g->hasNode(*citr) ) { // this is to work even if 'g' is a graph slice itself
-            if ( seen.find(*citr)==seen.end() ) {
-               slice = depthFirstTraverse(g, *citr, sc, seen, slice, forward);
-               /* no need since we're using the pointers to nodes and the edges are kept in the nodes:
-               slice->addEdge(node, *citr); */
-               // This way (compared with a new copy of GraphNode) saves memory, but be careful with the way we traverse graphs: we need to make sure we don't follow edges that are out of the graph scope.
-            }
-         } else {
-            seen.insert(*citr);
-         }
-      }
-   } else {
-      for(vector<GraphNode*>::const_iterator citr = node->parents.begin();
-            citr!=node->parents.end(); ++citr) {
-         if ( g->hasNode(*citr) && seen.find(*citr)==seen.end() ) {
+   if ( g->hasNode(node) ) { // this is to work even if 'g' is a graph slice itself
+      slice->addNode(node);
+      if ( forward ) {
+         for(vector<GraphNode*>::const_iterator citr = node->children.begin();
+               citr!=node->children.end(); ++citr) {
             slice = depthFirstTraverse(g, *citr, sc, seen, slice, forward);
-         } else {
-            seen.insert(*citr);
+            /* no need since we're using the pointers to nodes and the edges are kept in the nodes:
+            slice->addEdge(node, *citr); */
+            // This way (compared with a new copy of GraphNode) saves memory, but be careful with the way we traverse graphs: we need to make sure we don't follow edges that are out of the graph scope.
+         }
+      } else {
+         for(vector<GraphNode*>::const_iterator citr = node->parents.begin();
+               citr!=node->parents.end(); ++citr) {
+            slice = depthFirstTraverse(g, *citr, sc, seen, slice, forward);
          }
       }
    }
+   
    return slice;
 }
 

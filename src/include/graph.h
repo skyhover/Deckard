@@ -19,6 +19,7 @@ class GraphNode;
 class Graph {
 public:
    Graph();
+   Graph(const Graph*);
    ~Graph();
    
    /** whole-graph level info */

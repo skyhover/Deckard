@@ -124,7 +124,7 @@ bool ParseTree::outputParseTree2Dot(const char* fn, bool toOveride)
 
    // close the file:
    out.close();
-   return true;
+   return flag;
 }
 
 Tree* ParseTree::line2Tree(int ln)
@@ -321,7 +321,6 @@ long Tree::dumpTree(ofstream & out, long n)
 
 long Tree::outputTree2Dot(ofstream & out, long n)
 {
-   bool flag = true;
    long c = n++;
    out << "nodeid" << c << " [ type=" << type << ", typeName=\"" << getTypeName(id2name, type)
        << "\", min=" << min << ", max=" << max << ", tokenCount=" << terminal_number << " ] ;" << endl;

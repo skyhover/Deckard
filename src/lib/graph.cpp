@@ -11,8 +11,15 @@ using namespace std;
  *
  * *****************/
 Graph::Graph():
-      attributeIDs(), graphName("no name"), graph_functionSig("no signature"),
-      graphNodes(), attributes(), graphEntry(NULL) {
+      attributeIDs(), graphEntry(NULL), graphNodes(),
+      graphName("no name"), graph_functionSig("no signature"),
+      attributes() {
+}
+
+Graph::Graph(const Graph* init):
+      attributeIDs(init->attributeIDs), graphEntry(init->graphEntry), graphNodes(init->graphNodes), 
+      graphName(init->graphName), graph_functionSig(init->graph_functionSig),
+      attributes(init->attributes) {
 }
 
 Graph::~Graph() {
@@ -386,11 +393,13 @@ Graph* Graph::combine(Graph* lhs, Graph* rhs)
 {
    Graph* rsl = new Graph();
    if ( lhs->graphName!=rhs->graphName ) {
-      cerr << "Warning: different graph? Really can intersect? Continue anyway..." << endl;
+      cerr << "Warning: different graph names: " << lhs->graphName << " vs. " << rhs->graphName << endl
+           << " -> Really can combine? Continue anyway..." << endl;
       rsl->setGraphName(lhs->graphName);
    }
    if ( lhs->graph_functionSig!=rhs->graph_functionSig ) {
-      cerr << "Warning: different function signature? Really can intersect? Continue anyway..." << endl;
+      cerr << "Warning: different function signature: " << lhs->graph_functionSig << " vs. " << rhs->graph_functionSig << endl
+           << " -> Really can combine? Continue anyway..." << endl;
       rsl->graph_functionSig = lhs->graph_functionSig;
    }
    // combine graphNodes
@@ -415,12 +424,14 @@ Graph* Graph::combine(Graph* lhs, Graph* rhs)
       map<int, string>::const_iterator aitr = lhs->attributes.find(ritr->first);
       if ( aitr!=lhs->attributes.end() ) {
          if ( aitr->second!=ritr->second ) {
-            cerr << "Warning: different attribute values when combing attribute ID-" << aitr->first << "? Continue anyway..." << endl;
+            cerr << "Warning: different attribute values when combing attribute ID-" << aitr->first << ": " << aitr->second << " vs. " << ritr->second << endl
+                 << " -> Really can combine? Continue anyway..." << endl;
          }
       } else {
          rsl->attributes.insert(*ritr);
       }
    }
+   // ignore graphEntry for now and leave it to updateEntries... if needed. TODO: optimize it.
    
    return rsl;
 }
@@ -429,11 +440,13 @@ Graph* Graph::intersect(Graph* lhs, Graph* rhs)
 {
    Graph* rsl = new Graph();
    if ( lhs->graphName!=rhs->graphName ) {
-      cerr << "Warning: different graph? Really can intersect? Continue anyway..." << endl;
+      cerr << "Warning: different graph names: " << lhs->graphName << " vs. " << rhs->graphName << endl
+           << " -> Really can intersect? Continue anyway..." << endl;
       rsl->setGraphName(lhs->graphName);
    }
    if ( lhs->graph_functionSig!=rhs->graph_functionSig ) {
-      cerr << "Warning: different function signature? Really can intersect? Continue anyway..." << endl;
+      cerr << "Warning: different function signature: " << lhs->graph_functionSig << " vs. " << rhs->graph_functionSig << endl
+           << " -> Really can intersect? Continue anyway..." << endl;
       rsl->graph_functionSig = lhs->graph_functionSig;
    }
    // intersect graphNodes
@@ -456,10 +469,12 @@ Graph* Graph::intersect(Graph* lhs, Graph* rhs)
       if ( ritr==rhs->attributes.end() )
          continue;
       if ( litr->second!=ritr->second ) {
-         cerr << "Warning: different attribute values for attribute ID-" << litr->first << "? Really can intersect? Continue anyway..." << endl;
+         cerr << "Warning: different attribute values for attribute ID-" << litr->first << ": " << litr->second << " vs. " << ritr->second << endl
+              << " -> Really can intersect? Continue anyway..." << endl;
       }
       rsl->attributes.insert(*litr);
    }
+   // ignore graphEntry for now and leave it to updateEntries... if needed. TODO: optimize it.
    
    return rsl;
 }
@@ -542,6 +557,7 @@ bool GraphNode::isParentOf(GraphNode* n)
       if ( *it==n )
          return true;
    }
+   return false;
 }
 
 bool GraphNode::addChild(GraphNode* n)
