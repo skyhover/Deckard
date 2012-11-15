@@ -11,7 +11,8 @@ CC=g++
 CFLAGS+=$(DEBUGFLAGS)
 CXX=g++
 CXXFLAGS+=$(DEBUGFLAGS)
-LDFLAGS+=$(DEBUGFLAGS) -L/usr/local/lib -L. -L../../../lib -l$(LIBNAME) -lantlr3c -ldeckarddata
+LDFLAGS+=$(DEBUGFLAGS) -L/usr/local/lib -L. -L../../../lib
+LDLIBS+=-l$(LIBNAME) -lantlr3c -ldeckarddata
 
 LIBSRCS=DotCLexer.c DotCParser.c DotTreeCGraph.c
 MAINSRCS=DotTreeCTest.c
@@ -31,7 +32,7 @@ $(LIBARC): $(LIBOBJS)
 	ar -csrv $(LIBARC) $(LIBOBJS)
 
 $(EXE): $(LIBARC) $(MAINOBJS) $(LIBRARIES)
-	$(CXX) $(MAINOBJS) $(LDFLAGS) -o $(EXE)
+	$(CXX) $(MAINOBJS) $(LDFLAGS) $(LDLIBS) -o $(EXE)
 
 clean:
 	rm -f $(OBJS) $(LIBARC) $(EXE)

@@ -10,7 +10,11 @@ CC=g++
 CFLAGS+=$(DEBUGFLAGS)
 CXX=g++
 CXXFLAGS+=$(DEBUGFLAGS)
-LDFLAGS+=$(DEBUGFLAGS) -L/usr/local/lib -L. -L../lib -L./grammars/output -L../vgen/treeTra -l$(LIBNAME) -lantlr3c -ldeckarddata -lvgen
+# NOTE: 'make' uses the command "$(CC) $(LDFLAGS) x.o $(LOADLIBES) $(LDLIBS)" when linking
+# pay attention to the ordering of the linked libraries. E.g., -lm should come after x.o
+# This behavior is compiler-depedent; some newer versions of g++ (not all versions of gcc) work well no matter what the ordering is.
+LDFLAGS+=$(DEBUGFLAGS) -L/usr/local/lib -L. -L../lib -L./grammars/output -L../vgen/treeTra
+LDLIBS+=-l$(LIBNAME) -lantlr3c -ldeckarddata -lvgen
 
 LIBSRCS=ptree.cc node-counter.cc
 MAINSRCS=dotvgen.cc
@@ -26,7 +30,7 @@ EXE = dotvgen
 all: $(OBJS) $(EXE)
 
 $(EXE): $(OBJS) $(LIBRARIES)
-	$(CXX) $(OBJS) $(LDFLAGS) -o $(EXE)
+	$(CXX) $(OBJS) $(LDFLAGS) $(LDLIBS) -o $(EXE)
 
 clean:
 	rm -f $(OBJS) $(EXE)

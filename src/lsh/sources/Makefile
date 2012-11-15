@@ -8,7 +8,8 @@ DEBUGFLAGS?=-O3
 DEFINE_FLOAT	= REAL_FLOAT
 
 CPP_OPTS	= $(DEBUGFLAGS) -D$(DEFINE_FLOAT) # -Wunused-variable
-LINK_OPTS	= $(DEBUGFLAGS) -lm
+LINK_OPTS	= $(DEBUGFLAGS)
+LDLIBS+=-lm
 OUT_DIR		= ../bin
 
 LSH_SRC		= BucketHashing.cpp \
@@ -36,7 +37,7 @@ TEST_BUILDS	= $(addprefix $(OUT_DIR)/,$(TEST_SRC:.cpp=))
 all: $(TEST_BUILDS)
 
 $(OUT_DIR)/%: %.o $(LSH_OBJS)
-	g++ -o $@ $(LINK_OPTS) $^
+	g++ -o $@ $(LINK_OPTS) $^ $(LDLIBS)
 
 clean:  # remove intermediate files
 	-rm -f *~ *.o .depend

@@ -33,6 +33,9 @@ OPTIONS:=-DREAL_FLOAT
 # -march=athlon -msse -mfpmath=sse
 CFLAGS+=$(DEBUGFLAGS) $(OPTIONS)
 CXXFLAGS+=$(DEBUGFLAGS) $(OPTIONS)
+# NOTE: 'make' uses the command "$(CC) $(LDFLAGS) x.o $(LOADLIBES) $(LDLIBS)" when linking
+# pay attention to the ordering of the linked libraries. E.g., -lm should come after x.o
+# This behavior is compiler-depedent; some newer versions of g++ (not all versions of gcc) work well no matter what the ordering is.
 LIBRARIES:=-lm 
 #-ldmalloc
 
