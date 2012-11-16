@@ -114,7 +114,8 @@ main   (int argc, char *argv[])
     //
     if ( input == NULL )
     {
-           ANTLR3_FPRINTF(stderr, "Unable to open file %s due to malloc() failure1\n", (char *)fName);
+           ANTLR3_FPRINTF(stderr, "Unable to open file %s; malloc() failure1\n", (char *)fName);
+	   exit(1);
     }
 
     // Our input stream is now open and all set to go, so we can create a new instance of our
