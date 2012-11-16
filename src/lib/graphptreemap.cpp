@@ -112,7 +112,7 @@ Tree* GraphTreeMapper::graph2tree(Graph* pdg, Graph* ast)
          nitr!=pdg->graphNodes.end(); ++nitr) {
       // TODO: check with .dot whether 'line' could be a range. Currently assume each attribute is ONE line number?
       string attr = nitr->second->getAttribute(id);
-      if ( attr!=NameMap::invalidName ) {
+      if ( attr!=NameMap::getInvalidName() ) {
 //         stringstream ss(attr);
 //         int line = 0;
 //         if ( !(ss>>line) )
@@ -147,7 +147,7 @@ vector<Tree*> GraphTreeMapper::copySubtrees(GraphNode* astroot, Graph* ast, set<
    // TODO: this may have a BUG: if 'astroot' is ignored, all its children are ignored; but we may need to keep their children!
    if ( ast->hasNode(astroot) ) {
       string attr = ast->getNodeAttribute(mappingAttr, astroot);
-      if ( attr!=NameMap::invalidName ) {
+      if ( attr!=NameMap::getInvalidName() ) {
          set<string>::const_iterator it = lines.find(attr);
          if ( it!=lines.end() ) {
             // when the node is contained in the 'lines', check its type:

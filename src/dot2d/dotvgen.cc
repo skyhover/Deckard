@@ -15,9 +15,13 @@
 using namespace std;
 
 /** declare some global variables/functions */
-map<string, int> name2id;
-map<int, string> id2name;
+map<string, int> name2id; // default to call map's constructor without parameters.
+map<int, string> id2name = map<int, string>(); // either way is ok
+/* BUG: due to "initialization order fiasco" (http://www.parashift.com/c++-faq-lite/static-init-order.html): NameMap::invalidName may not be initialized yet.
 string identifierTypeName = NameMap::invalidName;
+ <- fixed it through an additional function that initializes invalidName (as a constructor for invalidName).
+ cf. http://www.parashift.com/c++-faq-lite/static-init-order-on-intrinsics.html */
+string identifierTypeName = NameMap::getInvalidName();
 /* For debugging use only */
 ParseTree* global_tree_for_debugging;
 static int DEBUG_LEVEL = 1;

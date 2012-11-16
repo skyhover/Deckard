@@ -163,7 +163,7 @@ attr_stmt
         	obj->mergeGraphAttributes($a.attributes);
         	delete $a.attributes;
             	std::string funSig = obj->getGraphAttribute("label");
-            	if ( funSig!=NameMap::invalidName )
+            	if ( funSig!=NameMap::getInvalidName() )
             	   obj->graph_functionSig = funSig;
            }
           )

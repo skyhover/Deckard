@@ -3,8 +3,7 @@
 # So, it would be easier to re-define DEBUGFLAGS to be '-g -pg' to enable debugging
 DEBUGFLAGS?=-O3
 
-LIBRARIES=../lib/libdeckarddata.a
-LIBNAME=dotparserc
+LIBRARIES=./grammars/output/libdotparserc.a ../vgen/treeTra/libvgen.a ../lib/libdeckarddata.a
 CPPFLAGS+=-I. -I../include -I../vgen/treeTra -I./grammars/output
 CC=g++
 CFLAGS+=$(DEBUGFLAGS)
@@ -14,11 +13,11 @@ CXXFLAGS+=$(DEBUGFLAGS)
 # pay attention to the ordering of the linked libraries. E.g., -lm should come after x.o
 # This behavior is compiler-depedent; some newer versions of g++ (not all versions of gcc) work well no matter what the ordering is.
 LDFLAGS+=$(DEBUGFLAGS) -L/usr/local/lib -L. -L../lib -L./grammars/output -L../vgen/treeTra
-LDLIBS+=-l$(LIBNAME) -lantlr3c -ldeckarddata -lvgen
+LDLIBS+=-ldotparserc -lvgen -ldeckarddata -lantlr3c
 
 LIBSRCS=ptree.cc node-counter.cc
 MAINSRCS=dotvgen.cc
-SRCS=$(LIBSRCS) $(MAINSRCS)
+SRCS=$(MAINSRCS) $(LIBSRCS)
 HEADERS:=$(LIBSRCS:.cc=.h)
 LIBOBJS:=$(LIBSRCS:.cc=.o)
 MAINOBJS:=$(MAINSRCS:.cc=.o)
@@ -27,7 +26,7 @@ EXE = dotvgen
 
 .PHONY: all clean
 
-all: $(OBJS) $(EXE)
+all: $(EXE)
 
 $(EXE): $(OBJS) $(LIBRARIES)
 	$(CXX) $(OBJS) $(LDFLAGS) $(LDLIBS) -o $(EXE)

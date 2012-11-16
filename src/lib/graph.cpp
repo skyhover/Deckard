@@ -166,7 +166,7 @@ string Graph::getGraphAttribute(string n) {
       if ( attr!=attributes.end() )
          return attr->second;
    }
-   return NameMap::invalidName;
+   return NameMap::getInvalidName();
 }
 
 string Graph::getNodeAttribute(string name, GraphNode* node) {
@@ -499,7 +499,7 @@ string GraphNode::getAttribute(int id) const
    map<int, string>::const_iterator attr = attributes.find(id);
    if ( attr!=attributes.end() )
       return attr->second;
-   return NameMap::invalidName;
+   return NameMap::getInvalidName();
 }
 
 bool GraphNode::addAttribute(int id, string n)
@@ -639,10 +639,10 @@ bool CompareGraphNode::operator()(const GraphNode* lhs, const GraphNode* rhs)
    if(lhs==NULL) return true;
    if(rhs==NULL) return false;
    string lstr = lhs->getAttribute(compareFieldID);
-   if ( lstr==NameMap::invalidName )
+   if ( lstr==NameMap::getInvalidName() )
       return true;
    string rstr = rhs->getAttribute(compareFieldID);
-   if ( rstr==NameMap::invalidName )
+   if ( rstr==NameMap::getInvalidName() )
       return false;
 
    stringstream lss(lstr);

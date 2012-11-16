@@ -61,7 +61,8 @@ public:
    static std::vector<std::string> id2name(std::map<int, std::string>& maps, std::vector<int>&);
    std::vector<std::string> id2name(std::vector<int>&);
 public:
-   static const std::string invalidName;
+   static const std::string& getInvalidName();
+//   static const std::string invalidName; // C++: can only initialize static members if they are of an integral or enum types AND declared as const. cf. http://www.parashift.com/c++-faq-lite/static-const-with-initializers.html
 private:
    std::map<std::string, int> m_name2id;
    std::map<int, std::string> m_id2name;

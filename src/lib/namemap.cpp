@@ -10,7 +10,25 @@ using namespace std;
  *
  * ********************/
 
-const string NameMap::invalidName = "<none>";
+/* BUG: This simple way of initialization of global variables may lead to initialization order fiasco: http://www.parashift.com/c++-faq-lite/static-init-order.html
+ * more: http://stackoverflow.com/questions/2373859/c-static-const-and-initialization-is-there-a-fiasco
+ * more: http://www.parashift.com/c++-faq-lite/static-const-with-initializers.html
+ * more: http://stackoverflow.com/questions/2373859/c-static-const-and-initialization-is-there-a-fiasco */
+//const string NameMap::invalidName = "<none>";
+/* The fix makes 'invalidName' to be a static LOCAL variable which is guaranteed to be initialized before the function is called;
+ * It requires all references to invalidName to go through this function (sort of singleton pattern, which is mentioned on wikipedia: http://en.wikipedia.org/wiki/Singleton_pattern)
+However, the code is not thread-safe in C++: http://blogs.msdn.com/b/oldnewthing/archive/2004/03/08/85901.aspx
+(I'd consider this and the whole "initialization order fiasco" as a compiler bug/misfeature:
+ - C++ has no guarantee a GLOBAL (or static member) variable is initialized even when an object is loaded
+ - Java has such a guarantee...
+)
+For our case, the code should still almost always "work" even though it's NOT thread-safe and may take more memory/time.
+*/
+const std::string& NameMap::getInvalidName()
+{
+   static const string invalidName = "<none>";
+   return invalidName;
+}
 
 NameMap::NameMap(int startID):
       m_name2id(), m_id2name(), lastUsedID(startID)
@@ -67,7 +85,7 @@ string NameMap::getIDName(int id)
    if ( it!=m_id2name.end() )
       return it->second;
    else
-      return invalidName;
+      return getInvalidName();
 }
 
 int NameMap::getOrAddNameId(string n)
