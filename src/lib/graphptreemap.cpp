@@ -8,8 +8,19 @@ using namespace std;
  * class GraphTreeMapper
  */
 
-string GraphTreeMapper::fakeTypeName = "<FAKE_TYPE>";
-int GraphTreeMapper::fakeTypeID = -1;
+// FIX for Potential BUG due to "initialization order fiasco", although the code is NOT thread-safe.
+//string GraphTreeMapper::fakeTypeName = "<FAKE_TYPE>";
+//int GraphTreeMapper::fakeTypeID = -1;
+string& GraphTreeMapper::getFakeTypeName()
+{
+   static string fakeTypeName = "<FAKE_TYPE>";
+   return fakeTypeName;
+}
+int& GraphTreeMapper::getFakeTypeID()
+{
+   static int fakeTypeID = -1;
+   return fakeTypeID;
+}
 
 GraphTreeMapper::GraphTreeMapper(const std::string& attr)
 {
@@ -31,7 +42,7 @@ Tree* GraphTreeMapper::graph2tree(Graph* ast)
    else if (count==1)
       return trees[0];
    else {
-      Tree* fakeroot = new NonTerminal(fakeTypeID);
+      Tree* fakeroot = new NonTerminal(getFakeTypeID());
       for(vector<Tree*>::const_iterator subitr = trees.begin();
             subitr!=trees.end(); ++subitr) {
          fakeroot->addChild(*subitr);
@@ -56,9 +67,9 @@ vector<Tree*> GraphTreeMapper::copySubtrees(GraphNode* astroot, Graph* ast)
       string attr = ast->getNodeAttribute("line", astroot);
       string tname = ast->getNodeAttribute("type", astroot);
       stringstream ss(tname);
-      int type = fakeTypeID;
+      int type = getFakeTypeID();
       if ( !(ss>>type) )
-         type = fakeTypeID;
+         type = getFakeTypeID();
       root = new NonTerminal(type); // treat every node as NonTerminal due to limited info from the .dot file
       // set max, min lines in tree node for Deckard
       int line = 0;
@@ -125,7 +136,7 @@ Tree* GraphTreeMapper::graph2tree(Graph* pdg, Graph* ast)
    // Top-down traverse the tree to find "maximal" trees containing all of the lines
    // Or, bottom-up...No need since we assume we want all nodes with the lines so the results should be "maximal"
    GraphNode* astroot = ast->updateEntriesForTree();
-   Tree* fakeroot = new NonTerminal(fakeTypeID);
+   Tree* fakeroot = new NonTerminal(getFakeTypeID());
    vector<Tree*> trees = copySubtrees(astroot, ast, lines);
    for(vector<Tree*>::const_iterator subitr = trees.begin();
          subitr!=trees.end(); ++subitr) {
@@ -153,9 +164,9 @@ vector<Tree*> GraphTreeMapper::copySubtrees(GraphNode* astroot, Graph* ast, set<
             // when the node is contained in the 'lines', check its type:
             string tname = ast->getNodeAttribute("type", astroot);
             stringstream ss(tname);
-            int type = fakeTypeID;
+            int type = getFakeTypeID();
             if ( !(ss>>type) )
-               type = fakeTypeID;
+               type = getFakeTypeID();
             root = new NonTerminal(type); // treat every node as NonTerminal due to limited info from the .dot file
             subtrees.push_back(root); // add this root to the returned subtrees (will be the only root).
             // set max, min lines in tree node for Deckard

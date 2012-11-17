@@ -20,8 +20,14 @@ class GraphTreeMapper {
 public:
    GraphTreeMapper(const std::string& mappingAttr="line");
    ~GraphTreeMapper();
-   static std::string fakeTypeName;
-   static int fakeTypeID;
+public:
+//   static std::string fakeTypeName;
+//   static int fakeTypeID;
+   /* Potential BUG: due to "initialization order fiasco", replace the above static members with static local variables in functions
+    * return non-const reference to allow changes to the static local variables.
+    */
+   static std::string& getFakeTypeName();
+   static int& getFakeTypeID();
 private:
    std::string mappingAttr;
 public:

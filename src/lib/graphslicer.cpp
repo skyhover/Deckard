@@ -32,13 +32,16 @@ vector<Graph*> GraphSlicer::semanticThreads(Graph* g, ISlicingCriteria* sc, floa
          it!=orderedNodes.end(); ++it) {
       if ( seen.find(*it)==seen.end() && sc->inSlice(*it) ) {
          Graph* slice = semanticThread(g, *it, sc, gamma);
+         if ( slice->nodeCount()<=0 )
+            continue;
+
          for(map<string, GraphNode*>::const_iterator nitr = slice->graphNodes.begin();
                nitr!=slice->graphNodes.end(); ++nitr) {
             seen.insert(nitr->second);
          }
          ists = addSemanticThread(ists, slice, sc, gamma);
 
-         // to prevent memory leaks:
+         // to reduce memory leaks:
          bool used = false;
          for(vector<Graph*>::const_iterator sitr = ists.begin();
                sitr!=ists.end(); ++sitr) {
@@ -56,6 +59,9 @@ vector<Graph*> GraphSlicer::semanticThreads(Graph* g, ISlicingCriteria* sc, floa
 
 vector<Graph*> GraphSlicer::addSemanticThread(vector<Graph*>& ists, Graph* slice, ISlicingCriteria* sc, float gamma)
 {
+   if ( slice->nodeCount()<=0 )
+      return ists;
+
    Graph* conflicts = new Graph();
    conflicts->graphName = slice->graphName;
    conflicts->graph_functionSig = slice->graph_functionSig;
@@ -72,12 +78,16 @@ vector<Graph*> GraphSlicer::addSemanticThread(vector<Graph*>& ists, Graph* slice
          newists.push_back(*it);
       delete gi;
    }
+   // if no conflicts, newists = old ists + slice:
    if ( conflicts->nodeCount()<=0 ) {
       newists.push_back(slice);
       return newists;
    }
    slice = Graph::combine(slice, conflicts);
-   return addSemanticThread(newists, slice, sc, gamma);
+   delete conflicts;
+   newists = addSemanticThread(newists, slice, sc, gamma);
+   delete slice;
+   return newists;
 }
 
 Graph* GraphSlicer::depthFirstTraverse(Graph* g, GraphNode* node, ISlicingCriteria* sc, bool forward)

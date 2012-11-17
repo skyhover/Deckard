@@ -203,7 +203,7 @@ int main( int argc, char **argv )
    
    // read the type-file and initialize some global variables
    NameMap nmap = NameMap::readNamesIDs(typefilename);
-   GraphTreeMapper::fakeTypeID = nmap.getOrAddNameId(GraphTreeMapper::fakeTypeName);
+   GraphTreeMapper::getFakeTypeID() = nmap.getOrAddNameId(GraphTreeMapper::getFakeTypeName());
    name2id = nmap.getNameIDMap();
    id2name = nmap.getIDNameMap();
    if ( DEBUG_LEVEL>2 ) {

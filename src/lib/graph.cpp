@@ -392,16 +392,17 @@ vector<GraphNode*> Graph::reorderNodes(string attr)
 Graph* Graph::combine(Graph* lhs, Graph* rhs)
 {
    Graph* rsl = new Graph();
+   // set graph names
    if ( lhs->graphName!=rhs->graphName ) {
       cerr << "Warning: different graph names: " << lhs->graphName << " vs. " << rhs->graphName << endl
            << " -> Really can combine? Continue anyway..." << endl;
-      rsl->setGraphName(lhs->graphName);
    }
+   rsl->setGraphName(lhs->graphName);
    if ( lhs->graph_functionSig!=rhs->graph_functionSig ) {
       cerr << "Warning: different function signature: " << lhs->graph_functionSig << " vs. " << rhs->graph_functionSig << endl
            << " -> Really can combine? Continue anyway..." << endl;
-      rsl->graph_functionSig = lhs->graph_functionSig;
    }
+   rsl->graph_functionSig = lhs->graph_functionSig;
    // combine graphNodes
    rsl->graphNodes = lhs->graphNodes;
    for(map<string, GraphNode*>::const_iterator ritr = rhs->graphNodes.begin();
@@ -439,16 +440,17 @@ Graph* Graph::combine(Graph* lhs, Graph* rhs)
 Graph* Graph::intersect(Graph* lhs, Graph* rhs)
 {
    Graph* rsl = new Graph();
+   // set graph names
    if ( lhs->graphName!=rhs->graphName ) {
       cerr << "Warning: different graph names: " << lhs->graphName << " vs. " << rhs->graphName << endl
            << " -> Really can intersect? Continue anyway..." << endl;
-      rsl->setGraphName(lhs->graphName);
    }
+   rsl->setGraphName(lhs->graphName);
    if ( lhs->graph_functionSig!=rhs->graph_functionSig ) {
       cerr << "Warning: different function signature: " << lhs->graph_functionSig << " vs. " << rhs->graph_functionSig << endl
            << " -> Really can intersect? Continue anyway..." << endl;
-      rsl->graph_functionSig = lhs->graph_functionSig;
    }
+   rsl->graph_functionSig = lhs->graph_functionSig;
    // intersect graphNodes
    for(map<string, GraphNode*>::const_iterator litr = lhs->graphNodes.begin();
          litr!=lhs->graphNodes.end(); ++litr) {
