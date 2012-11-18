@@ -638,22 +638,38 @@ CompareGraphNode::CompareGraphNode(int attrID)
 
 bool CompareGraphNode::operator()(const GraphNode* lhs, const GraphNode* rhs)
 {
-   if(lhs==NULL) return true;
-   if(rhs==NULL) return false;
-   string lstr = lhs->getAttribute(compareFieldID);
-   if ( lstr==NameMap::getInvalidName() )
-      return true;
-   string rstr = rhs->getAttribute(compareFieldID);
-   if ( rstr==NameMap::getInvalidName() )
-      return false;
-
-   stringstream lss(lstr);
-   stringstream rss(rstr);
-   int lnum, rnum;
-   if ( !(lss >> lnum) || !(rss >> rnum) ) {
-      return lstr < rstr;
-   } else {
-      return lnum < rnum;
+   /* NOTE: 'x==y' is implemented by '!(x<y) && !(y<x)'
+    * So, this operator must be strict:
+    * - (x<y)==true => (y<x)==false
+    * - (x==y)==true => (x<y)==false && (y<x)==false
+    * otherwise, there may be subtle bugs caused if 'sort' is used.
+    */
+   // NULL < invalidName < invalid lines < valid lines
+   if(lhs==NULL && rhs==NULL) return false;
+   else if (lhs==NULL) return true;
+   else if (rhs==NULL) return false;
+   else {
+      string lstr = lhs->getAttribute(compareFieldID);
+      string rstr = rhs->getAttribute(compareFieldID);
+      if ( lstr==NameMap::getInvalidName() && rstr==NameMap::getInvalidName() )
+         return false;
+      else if ( lstr==NameMap::getInvalidName() )
+         return true;
+      else if ( rstr==NameMap::getInvalidName() )
+         return false;
+      else {
+         stringstream lss(lstr);
+         stringstream rss(rstr);
+         int lnum, rnum;
+         bool linvalid = !(lss >> lnum);
+         bool rinvalid = !(rss >> rnum);
+         if ( linvalid && rinvalid )
+            return lstr < rstr;
+         else if ( linvalid ) return true;
+         else if ( rinvalid ) return false;
+         else
+            return lnum < rnum;
+      }
    }
 }
 
