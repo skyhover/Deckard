@@ -113,7 +113,7 @@ run(int startln, int endln)
   // count token nnumbers and assign token IDs (and, optionally, set parent pointers for e)
   token_counter->traverse(parse_tree->getRoot(), initial_inh);
 #ifdef VGDEBUG
-  fprintf(stderr, "Total counted terminals:%ld\n", parse_tree->getRoot()->terminal_number);
+  fprintf(stderr, "Total counted terminals:%d\n", parse_tree->getRoot()->terminal_number);
 #endif
   // count token ranges for each node: mainly for bug finding purpose so far
   token_range_counter->traverse(parse_tree->getRoot(), initial_inh);

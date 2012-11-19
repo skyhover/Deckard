@@ -280,7 +280,7 @@ output(FILE * buf)
     // TODO
     fprintf (buf, "NUM_DECL:0, NUM_STMT:0, NUM_EXPR:0, ");
     // output token range:
-    fprintf(buf, "TBID:%d, TEID:%d, ", token_begin_id, token_end_id);
+    fprintf(buf, "TBID:%ld, TEID:%ld, ", token_begin_id, token_end_id);
 #define outputidentifiersforbugdetection
 #ifdef outputidentifiersforbugdetection
     // output identifiers for bug detection

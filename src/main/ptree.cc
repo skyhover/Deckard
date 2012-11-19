@@ -5,9 +5,11 @@
 
 using namespace std;
 
+/*******************************
+ * class ParseTree
+ */
 ParseTree::ParseTree(Tree *root, int nTypes,
-	map<int,string> *typeNames,
-        map<string,int> *typeIds )
+      map<int,string> *typeNames, map<string,int> *typeIds )
 {
     this->root= root;
     this->nTypes= nTypes;
@@ -36,10 +38,10 @@ int ParseTree::typeCount()
 
 const string & ParseTree::getTypeName(int id)
 {
-    assert(id<nTypes && id >=0);
+    assert(id < nTypes && id >= 0);
     map<int,string>::iterator i= typeNames->find(id);
     if (i== typeNames->end()) {
-        throw "not found";
+        throw "node type id not found";
     } else {
         return i->second;
     }
@@ -58,74 +60,110 @@ int ParseTree::getTypeID( const string &name)
 
 bool ParseTree::dumpParseTree(const char* fn, bool toOveride)
 {
-    ifstream inp;
-    ofstream out;
-    string outputfn = (fn==NULL ? filename : string(fn)) + ".grp";
+   ifstream inp;
+   ofstream out;
+   string outputfn = (fn==NULL ? filename : string(fn)) + ".grp";
 
-    // prepare the output file:
-    if(!toOveride) {
-        inp.open(outputfn.c_str(), ifstream::in);
-	inp.close();
-	if(!inp.fail()) {
-	    cerr << "Warning: parse tree dump file exists already: " << outputfn << " ...skip" << endl;
-	    return false;
-	}
-	inp.clear(ios::failbit);
-    }
-    out.open(outputfn.c_str(), ofstream::out);
-    if(out.fail()) {
-        cerr << "Error: cannot open dump file: " << outputfn << endl;
-	return false;
-    }
+   // prepare the output file:
+   if(!toOveride) {
+      inp.open(outputfn.c_str(), ifstream::in);
+      inp.close();
+      if(!inp.fail()) {
+         cerr << "Warning: parse tree dump file exists already: " << outputfn << " ...skip" << endl;
+         return false;
+      }
+      inp.clear(ios::failbit);
+   }
+   out.open(outputfn.c_str(), ofstream::out);
+   if(out.fail()) {
+      cerr << "Error: cannot open dump file: " << outputfn << endl;
+      return false;
+   }
 
-    // dump the tree to the file:
-    out << "# " << filename << endl;
-    long ncount = 1;
-    ncount = root->dumpTree(out, ncount);
+   // dump the tree to the file:
+   cerr << "# Dumping the parse tree to file: " << outputfn << endl;
+   out << "# " << filename << endl;
+   long ncount = 1;
+   ncount = root->dumpTree(out, ncount);
 
-    // close the file:
-    out.close();
-    return true;
+   // close the file:
+   out.close();
+   return true;
+}
+
+bool ParseTree::outputParseTree2Dot(const char* fn, bool toOveride)
+{
+   bool flag = true;
+   ifstream inp;
+   ofstream out;
+   string outputfn = (fn==NULL ? filename : string(fn)) + ".dot";
+
+   // prepare the output file:
+   if(!toOveride) {
+      inp.open(outputfn.c_str(), ifstream::in);
+      inp.close();
+      if(!inp.fail()) {
+         cerr << "Warning: parse tree dot file exists already: " << outputfn << " ...skip" << endl;
+         return false;
+      }
+      inp.clear(ios::failbit);
+   }
+   out.open(outputfn.c_str(), ofstream::out);
+   if(out.fail()) {
+      cerr << "Error: cannot open dot file: " << outputfn << endl;
+      return false;
+   }
+
+   // Write the tree to the dot file:
+   cerr << "# Writing the parse tree to dot file: " << outputfn << endl;
+   out << "# This graph is supposed to be a parse tree." << endl;
+   out << "digraph " << filename << " {" << endl;
+   flag = flag && root->outputTree2Dot(out, 1);
+   out << "}" << endl;
+
+   // close the file:
+   out.close();
+   return flag;
 }
 
 Tree* ParseTree::line2Tree(int ln)
 {
-  // precondition: the line range of each node is set, and the line range of a parent node contains the line ranges of all of its children
-  // Note that there may be more than one token in the same line
-  return line2Tree(ln, ln);
+   // precondition: the line range of each node is set, and the line range of a parent node contains the line ranges of all of its children
+   // Note that there may be more than one token in the same line
+   return line2Tree(ln, ln);
 }
 
 Tree* ParseTree::line2Tree(int startln, int endln)
 {
-  // precondition: the line range of each node is set, and the line range of a parent node contains the line ranges of all of its children
-  if(startln>endln || startln<0)
-    return NULL;
-  if(startln==0)
-    return root;
-  //else
-  Tree* itr = root;
-  while(itr!=NULL) {
+   // precondition: the line range of each node is set, and the line range of a parent node contains the line ranges of all of its children
+   if(startln>endln || startln<0)
+      return NULL;
+   if(startln==0)
+      return root;
+   //else
+   Tree* itr = root;
+   while(itr!=NULL) {
 //    cerr << "children size: " << itr->children.size() << ". Comparing with line range: " << itr->min << ":" << itr->max << endl;
-    if(itr->min<=endln && startln<=itr->max) {
-      int inRangeCount = 0;
-      Tree* inRangeNode = NULL;
-      for(int i=0; i<itr->children.size(); i++) {
-//        cerr << "comparing with children " << i << "'s line range: " << itr->children[i]->min << ":" << itr->children[i]->max << endl;
-        if(itr->children[i]->min<=endln && startln<=itr->children[i]->max) {
-          inRangeCount++;
-          if(inRangeCount>=2)
+      if(itr->min<=endln && startln<=itr->max) {
+         int inRangeCount = 0;
+         Tree* inRangeNode = NULL;
+         for(int i=0; i<itr->children.size(); i++) {
+//          cerr << "comparing with children " << i << "'s line range: " << itr->children[i]->min << ":" << itr->children[i]->max << endl;
+            if(itr->children[i]->min<=endln && startln<=itr->children[i]->max) {
+               inRangeCount++;
+               if(inRangeCount>=2)
+                  break;
+               inRangeNode = itr->children[i];
+            }
+         }
+         if(inRangeCount==1)
+            itr = inRangeNode;
+         else
             break;
-          inRangeNode = itr->children[i];
-        }
-      }
-      if(inRangeCount==1)
-        itr = inRangeNode;
-      else
-        break;
-    } else
-      itr = NULL;
-  }
-  return itr;
+      } else
+         itr = NULL;
+   }
+   return itr;
 }
 
 Tree* ParseTree::tokenRange2Tree(long startTokenId, long endTokenId)
@@ -174,18 +212,15 @@ Tree* ParseTree::getContextualNode(Tree* node)
    if ( node==NULL )
       return root;
 
-   map<NodeAttributeName_t, void*>::iterator attr_itr = node->attributes.find(NODE_TOKEN_ID);
-   assert ( attr_itr != node->attributes.end() );
-   pair<long, long>* startrange = (pair<long, long>*)(*attr_itr).second;
    if (node->parent==NULL)
       return root;
 
    Tree* startnode = node->parent;
    while ( startnode!=NULL ) {
       if ( isContextualNode(startnode) ) { // this condition is language-dependant
-	 break;
+         break;
       } else
-	 startnode = startnode->parent;
+         startnode = startnode->parent;
    }
    if ( startnode==NULL )
       return root;
@@ -196,6 +231,30 @@ Tree* ParseTree::getContextualNode(long startTokenId, long endTokenId)
 {
    Tree* node = tokenRange2Tree(startTokenId, endTokenId);
    return getContextualNode(node);
+}
+
+int ParseTree::setNodeIDs(vector<int>& nids, const set<string>& nnames)
+{
+   int c = 0;
+   for (set<string>::const_iterator nitr = nnames.begin();
+         nitr!=nnames.end(); ++nitr) {
+       map<string, int>::iterator i= name2id.find(*nitr);
+       if (i == name2id.end()) {
+           cerr << "ERROR: ParseTree::setNodeIDs: unknown node type name: " << *nitr << endl;
+           if ( DEBUG_LEVEL>0 ) {
+              for(map<string, int>::const_iterator it = name2id.begin();
+                    it!=name2id.end(); ++it) {
+                 cerr << it->first << "\t" << it->second << endl;
+              }
+              assert(name2id.size()>0);
+              assert(name2id.size()==id2name.size());
+           }
+           continue;
+       }
+       nids.push_back(i->second);
+       c++;
+   }
+   return c;
 }
 
 list<Tree*>* ParseTree::root2Token(long tid)
@@ -243,15 +302,76 @@ long ParseTree::tree2sn(Tree* nd)
 }
 
 
+/*******************************************
+ * class Tree
+ */
+
+Tree::~Tree()
+{
+   /* tree nodes can not be shared: */
+   for (int i= 0; i < children.size(); i++) {
+      if ( children[i]!=NULL ) {
+         delete children[i];
+         children[i] = NULL;
+      }
+   }
+   nextSibbling = NULL;
+   parent = NULL;
+
+   /* clear up the attributes, but the types used may depend on other files, increasing chances of circular dependency.
+    * We need to include "tree vector" since we use its 'delete' operator, and simple forward declaration isn't enough of the types used.
+    * TODO: break the circular dependence in a better way.
+    */
+   std::map<NodeAttributeName_t, void*>::iterator attr_itr;
+   attr_itr = attributes.find(NODE_VECTOR);
+   if ( attr_itr!=attributes.end() ) {
+      TreeVector* attr = (TreeVector*)(*attr_itr).second;
+      if ( attr!=NULL )
+         delete attr;
+   }
+   attr_itr = attributes.find(NODE_ID);
+   if ( attr_itr!=attributes.end() ) {
+      std::pair<long, long>* attr = (std::pair<long, long>*)(*attr_itr).second;
+      if ( attr!=NULL )
+         delete attr;
+   }
+   attr_itr = attributes.find(NODE_TOKEN_ID);
+   if ( attr_itr!=attributes.end() ) {
+      std::pair<long, long>* attr = (std::pair<long, long>*)(*attr_itr).second;
+      if ( attr!=NULL )
+         delete attr;
+   }
+   attr_itr = attributes.find(NODE_SERIALIZED_NEIGHBOR);
+   if ( attr_itr!=attributes.end() ) {
+      std::pair<Tree*, Tree*>* attr = (std::pair<Tree*, Tree*>*)(*attr_itr).second;
+      if ( attr!=NULL )
+         delete attr;
+   }
+   attributes.clear();
+}
+
 long Tree::dumpTree(ofstream & out, long n)
 {
     long c = n++;
-    out << "n " << c << " " << getTypeName(id2name, type) << endl;
+    out << "n " << c << " " << getTypeName(id2name, type)
+        << " [min,max]=[" << min << "," << max << "] TC=" << terminal_number << endl;
     for (int i= 0; i < children.size(); i++) {
         out << "e " << c << " " << n << endl;
         n = children[i]->dumpTree(out, n);
     }
     return n;
+}
+
+long Tree::outputTree2Dot(ofstream & out, long n)
+{
+   long c = n++;
+   out << "nodeid" << c << " [ type=" << type << ", typeName=\"" << getTypeName(id2name, type)
+       << "\", min=" << min << ", max=" << max << ", tokenCount=" << terminal_number << " ] ;" << endl;
+   for (int i= 0; i < children.size(); i++) {
+      out << "nodeid" << c << " -> " << "nodeid" << n << endl;
+      n = children[i]->outputTree2Dot(out, n);
+   }
+   return n;
 }
 
 long Tree::tree2sn(Tree* t, long& n)
@@ -281,10 +401,10 @@ int typeCount(map<string, int>& name2id)
 
 const string & getTypeName(map<int, string>& id2name, int id)
 {
-  assert( id<id2name.size() && id >=0 );
+  assert( id < typeCount(id2name) && id >= 0 );
   map<int,string>::iterator i= id2name.find(id);
   if (i == id2name.end()) {
-    throw "not found";
+    throw "node type id not found";
   } else {
     return i->second;
   }
@@ -329,9 +449,8 @@ ParseTree* parseFile(const char * fn)
   if (!yyin) {
     cerr << "Error: Can't open file for yyin: " << fn << endl;
   }
-  yyrestart(yyin); // This may be unnecessary because BISON's manual
-		   // says this is equivalent to (but I doubt it)
-		   // changing yyin directly.
+  yyrestart(yyin); /* This may be unnecessary because BISON's manual says
+                      this is equivalent to (but I doubt it) changing yyin directly. */
   yyparse();
   fclose(yyin);
   yyin = NULL;
@@ -367,12 +486,12 @@ static const char * contextualNodes[] = {
 bool setContextualNodes() /* internal use only */
 {
   bool errflag = false;
-  assert ( name2id.size() > 0 );
-  ctxNodes = vector<bool>(id2name.size(), false);
+  assert ( ! name2id.empty() );
+  ctxNodes = vector<bool>(typeCount(id2name), false);
   for (const char **s= contextualNodes; *s != NULL; s++) {
     map<string,int>::iterator i= name2id.find(*s);
     if (i == name2id.end()) {
-      cerr << "unknown node type when setting contextual nodes: " << *s << endl;
+      cerr << "ERROR: setContextualNodes: unknown node type name when setting contextual nodes: " << *s << endl;
       errflag = true;
       continue;
     }
@@ -383,7 +502,7 @@ bool setContextualNodes() /* internal use only */
 
 bool isContextualNode(Tree* node)
 {
-  assert( node->type >= 0 && node->type < id2name.size() );
+  assert( node->type >= 0 && node->type < typeCount(id2name) );
   if ( ctxNodes.empty() )
     setContextualNodes();
   return ctxNodes[node->type];

@@ -261,9 +261,9 @@ int main( int argc, char **argv )
       
       // call vgen with the tree stast
       ParseTree p(stast, nmap.currentLastID()+1, &id2name, &name2id);
-      p.setNodeIDs(p.relevantNodes, relevantNodes);
-      p.setNodeIDs(p.leafNodes, leafNodes);
-      p.setNodeIDs(p.validParents, parentNodes);
+      ParseTree::setNodeIDs(p.relevantNodes, relevantNodes);
+      ParseTree::setNodeIDs(p.leafNodes, leafNodes);
+      ParseTree::setNodeIDs(p.validParents, parentNodes);
       //p.setNodeIDs(p.mergeableNodes, mergeableNodes);
 
       p.filename = dotPDG->graph_functionSig;
@@ -289,7 +289,6 @@ int main( int argc, char **argv )
       global_tree_for_debugging = NULL;
 
       // delete the ST to save memory; may leave it to OS though
-      st->deleteGraphNodes();
       delete st;
    }
 

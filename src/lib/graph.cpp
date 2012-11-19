@@ -24,6 +24,7 @@ Graph::Graph(const Graph* init):
 
 Graph::~Graph() {
    // this default destructor does NOT delete graph nodes.
+   // destructors for member objects and base class objects are automagically called.
 }
 
 int Graph::deleteGraphNodes()

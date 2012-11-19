@@ -66,7 +66,7 @@ class ParseTree {
     Tree* getContextualNode(long startTokenId, long endTokenId);
 
     /** set node ids from a given set of node names */
-    int setNodeIDs(std::vector<int>&, const std::set<std::string>&);
+    static int setNodeIDs(std::vector<int>&, const std::set<std::string>&);
     
     /** return the path from the root to the token: */
     std::list<Tree*>* root2Token(long tid); 
@@ -108,10 +108,10 @@ class NonTerminal;
 
 /* enum type used as "subscripts" of tree attributes. */
 typedef enum {
-  NODE_VECTOR,			/* the vector */
-  NODE_ID,			/* range of node IDs in the serialized tree */
-  NODE_TOKEN_ID,		/* range of token IDs */
-  NODE_SERIALIZED_NEIGHBOR,
+  NODE_VECTOR,			/** pointer to the tree vector */
+  NODE_ID,			/** pointer to the min/max range of node IDs in the serialized tree */
+  NODE_TOKEN_ID,		/** pointer to the min/max range of token IDs */
+  NODE_SERIALIZED_NEIGHBOR, /** pointer to pointers to the previous and next nodes in the serialized chain */
 } NodeAttributeName_t;
 
 class Tree {
@@ -156,21 +156,7 @@ class Tree {
 
     std::map<NodeAttributeName_t, void* > attributes;
 
-    ~Tree()
-    {
-       /* tree nodes can not be shared: */
-       for (int i= 0; i < children.size(); i++) {
-          if ( children[i]!=NULL ) {
-             delete children[i];
-             children[i] = NULL;
-          }
-       }
-       nextSibbling = NULL;
-       parent = NULL;
-
-       /* TODO: possible mem leak from the elements in attributes. */
-       attributes.clear();
-    }
+    virtual ~Tree();
     
     Tree() {
        nextSibbling= NULL;
@@ -237,7 +223,7 @@ public:
     }
     int line;
 
-    ~Terminal() {
+    virtual ~Terminal() {
         delete value;
     }
 

@@ -307,6 +307,50 @@ long ParseTree::tree2sn(Tree* nd)
  * class Tree
  */
 
+Tree::~Tree()
+{
+   /* tree nodes can not be shared: */
+   for (int i= 0; i < children.size(); i++) {
+      if ( children[i]!=NULL ) {
+         delete children[i];
+         children[i] = NULL;
+      }
+   }
+   nextSibbling = NULL;
+   parent = NULL;
+
+   /* clear up the attributes, but the types used may depend on other files, increasing chances of circular dependency.
+    * We need to include "tree vector" since we use its 'delete' operator, and simple forward declaration isn't enough of the types used.
+    * TODO: break the circular dependence in a better way.
+    */
+   std::map<NodeAttributeName_t, void*>::iterator attr_itr;
+   attr_itr = attributes.find(NODE_VECTOR);
+   if ( attr_itr!=attributes.end() ) {
+      TreeVector* attr = (TreeVector*)(*attr_itr).second;
+      if ( attr!=NULL )
+         delete attr;
+   }
+   attr_itr = attributes.find(NODE_ID);
+   if ( attr_itr!=attributes.end() ) {
+      std::pair<long, long>* attr = (std::pair<long, long>*)(*attr_itr).second;
+      if ( attr!=NULL )
+         delete attr;
+   }
+   attr_itr = attributes.find(NODE_TOKEN_ID);
+   if ( attr_itr!=attributes.end() ) {
+      std::pair<long, long>* attr = (std::pair<long, long>*)(*attr_itr).second;
+      if ( attr!=NULL )
+         delete attr;
+   }
+   attr_itr = attributes.find(NODE_SERIALIZED_NEIGHBOR);
+   if ( attr_itr!=attributes.end() ) {
+      std::pair<Tree*, Tree*>* attr = (std::pair<Tree*, Tree*>*)(*attr_itr).second;
+      if ( attr!=NULL )
+         delete attr;
+   }
+   attributes.clear();
+}
+
 long Tree::dumpTree(ofstream & out, long n)
 {
     long c = n++;

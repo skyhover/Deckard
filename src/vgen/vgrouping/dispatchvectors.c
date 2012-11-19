@@ -167,7 +167,8 @@ bool read_size_ranges(FILE* rf, long **lows, long ** highs, int* num_ranges,
 		      double * d, long * lo, long * hi)
 {
   long fhi = 0, llo = 0;
-  char * line=NULL; int llen1 = 0;
+  char * line=NULL;
+  size_t llen1 = 0;
   int rid = 0, rcounter = 0;
   int negative_range = 0;
 
@@ -205,7 +206,7 @@ bool read_size_ranges(FILE* rf, long **lows, long ** highs, int* num_ranges,
     assert( ++rcounter==rid );
   }
   if ( rcounter!=*num_ranges ) {
-    fprintf(stderr, "ERROR in the range file: 'num_ranges' does not match line counters: %d vs. %d\n", num_ranges, rcounter);
+    fprintf(stderr, "ERROR in the range file: 'num_ranges' does not match line counters: %d vs. %d\n", *num_ranges, rcounter);
     return FALSE;
   } else if ( negative_range<1 ) {
     fprintf(stderr, "ERROR: no -1 in the ranges?\n");

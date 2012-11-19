@@ -83,13 +83,25 @@ vector<Graph*> GraphSlicer::addSemanticThread(vector<Graph*>& ists, Graph* slice
    // if no conflicts, newists = old ists + slice:
    if ( conflicts->nodeCount()<=0 ) {
       newists.push_back(slice);
+      delete conflicts;
+      return newists;
+   } else {
+      slice = Graph::combine(slice, conflicts);
+      delete conflicts;
+      newists = addSemanticThread(newists, slice, sc, gamma);
+      // to reduce memory leaks:
+      bool used = false;
+      for(vector<Graph*>::const_iterator sitr = newists.begin();
+            sitr!=newists.end(); ++sitr) {
+         if ( *sitr==slice ) {
+            used = true;
+            break;
+         }
+      }
+      if ( !used )
+         delete slice;
       return newists;
    }
-   slice = Graph::combine(slice, conflicts);
-   delete conflicts;
-   newists = addSemanticThread(newists, slice, sc, gamma);
-   delete slice;
-   return newists;
 }
 
 Graph* GraphSlicer::depthFirstTraverse(Graph* g, GraphNode* node, ISlicingCriteria* sc, bool forward)
@@ -120,7 +132,7 @@ Graph* GraphSlicer::depthFirstTraverse(Graph* g, GraphNode* node, ISlicingCriter
    if ( ! (sc->inSlice(node)) )
       return slice;
 
-   if ( seen.find(node)==seen.end() )
+   if ( seen.find(node)!=seen.end() )
       return slice;
    
    seen.insert(node);
