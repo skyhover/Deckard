@@ -42,14 +42,15 @@ vgen()
 #NOTE: "for .. in .." has trouble when a filename contains spaces; use "while read .." instead:
 	  ( time \
 	    find "$SRC_DIR" -ipath "*/$PDG_DIR/$FILE_PATTERN" | while read pdgfile;
-#	    for file in `find "$SRC_DIR" -iname "$FILE_PATTERN"`;
+#	    for pdgfile in `find "$SRC_DIR" -iname "$FILE_PATTERN"`;
 	    do
-		echo "Parsing $pdgfile" >> "$TIME_DIR/vgen_$1_$2"
+		echo "Parsing $pdgfile ..."
 		outfile=${pdgfile}.vec
 		if [[ ! -s "${outfile}" || "$TOOVERWRITE" = "true" ]];
 		then
 			astfile=${pdgfile/$PDG_DIR/$AST_DIR}
 			if [[ ! -s "$astfile" ]]; then
+				echo "Missing AST dot file: $astfile. Skip."
 				continue
 			fi
 			echo "$VGEN_EXEC" --type-file "$TYPE_FILE" --relevant-node-file "$RELEVANT_NODEFILE" --leaf-node-file "$LEAF_NODEFILE" --parent-node-file "$PARENT_NODEFILE" -p "$pdgfile" -a "$astfile" -m $1 -s $2 -o "$outfile"
