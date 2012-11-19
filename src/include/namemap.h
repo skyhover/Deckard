@@ -19,7 +19,11 @@ class NameMap {
 public:
    NameMap(int startID=0);
    NameMap(const NameMap&);
-   ~NameMap();
+   /** assignment operator. Use copy-swap idiom to implement */
+   NameMap& operator=(NameMap);
+   friend void swap(NameMap& lhs, NameMap& rhs);
+
+//   ~NameMap();
    const static int DEBUG_LEVEL = 1;
    
    int currentLastID();

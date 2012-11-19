@@ -21,6 +21,7 @@ class ParseTree {
    const static int DEBUG_LEVEL = 1;
   public:
     ParseTree(Tree *root, int nTypes, std::map<int, std::string> *typeNames, std::map<std::string,int> *typeIds);
+    /** recursively delete all tree nodes */
     ~ParseTree();
 
     Tree *getRoot();

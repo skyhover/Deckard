@@ -47,9 +47,26 @@ NameMap::NameMap(const NameMap& r):
    
 }
 
-NameMap::~NameMap()
+NameMap& NameMap::operator=(NameMap rhs)
 {
+   swap(*this, rhs);
+   return *this;
 }
+
+void swap(NameMap& lhs, NameMap&rhs)
+{
+   using std::swap;
+
+   lhs.m_name2id.swap(rhs.m_name2id);
+   lhs.m_id2name.swap(rhs.m_id2name);
+   swap(lhs.lastUsedID, rhs.lastUsedID);
+}
+
+//NameMap::~NameMap()
+//{ TODO: somehow, it's not the right way to define the destructor
+//   m_name2id.~map();
+//   m_id2name.~map();
+//}
 
 int NameMap::currentLastID()
 {

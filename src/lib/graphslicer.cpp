@@ -32,8 +32,10 @@ vector<Graph*> GraphSlicer::semanticThreads(Graph* g, ISlicingCriteria* sc, floa
          it!=orderedNodes.end(); ++it) {
       if ( seen.find(*it)==seen.end() && sc->inSlice(*it) ) {
          Graph* slice = semanticThread(g, *it, sc, gamma);
-         if ( slice->nodeCount()<=0 )
+         if ( slice->nodeCount()<=0 ) {
+            delete slice;
             continue;
+         }
 
          for(map<string, GraphNode*>::const_iterator nitr = slice->graphNodes.begin();
                nitr!=slice->graphNodes.end(); ++nitr) {
@@ -103,12 +105,12 @@ Graph* GraphSlicer::depthFirstTraverse(Graph* g, GraphNode* node, ISlicingCriter
    // cannot copy graphNodes
 
    set<GraphNode*> seen;
-   Graph* rsl = depthFirstTraverse(g, node, sc, seen, slice, forward);
+   depthFirstTraverse(g, node, sc, seen, slice, forward);
    // set graphEntry
-   if ( rsl!=NULL && rsl->graphNodes.size()>0 )
-      rsl->graphEntry = node;
+   if ( slice!=NULL && slice->graphNodes.size()>0 )
+      slice->graphEntry = node;
 
-   return rsl;
+   return slice;
 }
 
 Graph* GraphSlicer::depthFirstTraverse(Graph* g, GraphNode* node, ISlicingCriteria* sc, std::set<GraphNode*>& seen, Graph* slice, bool forward)
@@ -127,7 +129,7 @@ Graph* GraphSlicer::depthFirstTraverse(Graph* g, GraphNode* node, ISlicingCriter
       if ( forward ) {
          for(vector<GraphNode*>::const_iterator citr = node->children.begin();
                citr!=node->children.end(); ++citr) {
-            slice = depthFirstTraverse(g, *citr, sc, seen, slice, forward);
+            depthFirstTraverse(g, *citr, sc, seen, slice, forward);
             /* no need since we're using the pointers to nodes and the edges are kept in the nodes:
             slice->addEdge(node, *citr); */
             // This way (compared with a new copy of GraphNode) saves memory, but be careful with the way we traverse graphs: we need to make sure we don't follow edges that are out of the graph scope.
@@ -135,7 +137,7 @@ Graph* GraphSlicer::depthFirstTraverse(Graph* g, GraphNode* node, ISlicingCriter
       } else {
          for(vector<GraphNode*>::const_iterator citr = node->parents.begin();
                citr!=node->parents.end(); ++citr) {
-            slice = depthFirstTraverse(g, *citr, sc, seen, slice, forward);
+            depthFirstTraverse(g, *citr, sc, seen, slice, forward);
          }
       }
    }
@@ -148,8 +150,6 @@ Graph* GraphSlicer::depthFirstTraverse(Graph* g, GraphNode* node, ISlicingCriter
  * SlicingCriteriaAcceptAll
  */
 
-SlicingCriteriaAcceptAll* SlicingCriteriaAcceptAll::scSingleton = NULL;
-
 bool SlicingCriteriaAcceptAll::inSlice(GraphNode*)
 {
    return true;
@@ -157,8 +157,9 @@ bool SlicingCriteriaAcceptAll::inSlice(GraphNode*)
 
 SlicingCriteriaAcceptAll* SlicingCriteriaAcceptAll::instance()
 {
-   if ( scSingleton==NULL )
-      scSingleton = new SlicingCriteriaAcceptAll();
-   return scSingleton;
+   // NOTE: the code is NOT thread-safe
+   static SlicingCriteriaAcceptAll scSingleton;
+
+   return &scSingleton;
 }
 

@@ -20,7 +20,9 @@ class Graph {
 public:
    Graph();
    Graph(const Graph*);
+   /** the default constructor does NOT delete graph nodes */
    ~Graph();
+   int deleteGraphNodes();
    
    /** whole-graph level info */
 
@@ -85,6 +87,7 @@ class GraphNode {
 public:
    GraphNode();
    GraphNode(std::string);
+   /** this default destructor does NOT delete parents/children nodes */
    ~GraphNode();
 
    std::vector<GraphNode*> children; // performance should be ok assuming the sizes of vectors are small

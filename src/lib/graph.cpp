@@ -23,6 +23,18 @@ Graph::Graph(const Graph* init):
 }
 
 Graph::~Graph() {
+   // this default destructor does NOT delete graph nodes.
+}
+
+int Graph::deleteGraphNodes()
+{
+   int c = 0;
+   for(map<string, GraphNode*>::const_iterator it = graphNodes.begin();
+         it!=graphNodes.end(); ++it) {
+      delete it->second;
+      c++;
+   }
+   return c;
 }
 
 int Graph::nodeCount()
@@ -494,6 +506,7 @@ GraphNode::GraphNode(string n):children(), parents(), attributes(), nodeName(n)
 
 GraphNode::~GraphNode()
 {
+   // leave things to default destruction
 }
 
 string GraphNode::getAttribute(int id) const

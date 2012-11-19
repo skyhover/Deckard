@@ -167,8 +167,14 @@ attr_stmt
             	   obj->graph_functionSig = funSig;
            }
           )
-    |   ^( NODE a=attr_list )
-    |   ^( EDGE a=attr_list )
+    |   ^( NODE a=attr_list {
+    		delete $a.attributes;
+    	   }
+    	  )
+    |   ^( EDGE a=attr_list {
+    		delete $a.attributes;
+    	   }
+          )
     ;
 
 attr_list returns [std::map<int, std::string>* attributes]
@@ -210,13 +216,21 @@ edge_stmt
            	if ( rhs!=NULL )
            	    obj->addEdge(lhs, rhs);
            }
-           attr_list? // ignore edge attribute for now
+           a=attr_list? { // ignore edge attribute for now
+           	if ( $a.tree!=NULL ) {
+           		delete $a.attributes;
+           	}
+           }
        )
     |
         ^(EDGE_STMT 
             s=subgraph // ignore subgraphs for now
             edgeRHS
-            attr_list?
+            a=attr_list? {
+           		if ( $a.tree!=NULL ) {
+           			delete $a.attributes;
+           		}
+           	}
         )
         
     ;
@@ -247,8 +261,10 @@ node_stmt
                 node=new GraphNode($n.id);
                 obj->addNode(node);
             }
-            node->mergeAttributes($a.attributes);
-            delete $a.attributes;
+            if ( $a.tree!=NULL ) {
+	            node->mergeAttributes($a.attributes);
+	            delete $a.attributes;
+	        }
         })
     ;
 

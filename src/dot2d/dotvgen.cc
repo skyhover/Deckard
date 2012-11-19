@@ -270,11 +270,13 @@ int main( int argc, char **argv )
 
       // for debugging use only in vector generator.
       global_tree_for_debugging = &p;
-      cerr << "typeCount before init() = " << p.typeCount() << endl;
+      if ( DEBUG_LEVEL>1 ) {
+         cerr << "INFO: typeCount before init() = " << p.typeCount() << endl;
+      }
 
       /* TODO: why vectors are empty? possible reason:
        * - no token (no Terminal) (fixed);
-       * - no linenumber (to set line ranges for nodes)!
+       * - no linenumber (to set line ranges for nodes) (partially fixed; to deal with line ranges)
        */
       ASTTraGenMain t(&p, mergeTokens, mergeStride, mergeLists, typefilename, outfile);
       t.run(startline, endline); // also, update token counts for the nodes.
@@ -285,10 +287,21 @@ int main( int argc, char **argv )
          p.outputParseTree2Dot(ofname.str().c_str(), true);
       }
       global_tree_for_debugging = NULL;
+
+      // delete the ST to save memory; may leave it to OS though
+      st->deleteGraphNodes();
+      delete st;
    }
 
    fclose(outfile);
    cerr << "Check vectors (if any) in output file: " << outfilestring << endl;
+
+   // clear up memory; not that necessary: could leave it to OS
+   dotPDG->deleteGraphNodes();
+   delete dotPDG;
+   dotASTGraph->deleteGraphNodes();
+   delete dotASTGraph;
+
    return 0;
 }
 

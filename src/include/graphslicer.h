@@ -52,8 +52,16 @@ public:
 
 class SlicingCriteriaAcceptAll : public ISlicingCriteria {
 private:
-   SlicingCriteriaAcceptAll() { }
+   /* Replace this with a static local var in 'instance()' to avoid possible "initialization order fiasco"
    static SlicingCriteriaAcceptAll* scSingleton;
+   * Also, more discussion about singleton pattern in C++:
+   * - possibly mem leak if using pointers, unless some clean up 'atexit'
+   * - cf. stackoverflow.com/questions/2496918/singleton-pattern-in-c
+   */
+   /** prevent external calls to the big three: */
+   SlicingCriteriaAcceptAll() { }
+   SlicingCriteriaAcceptAll(const SlicingCriteriaAcceptAll&) { }
+   SlicingCriteriaAcceptAll& operator=(const SlicingCriteriaAcceptAll&) { }
 public:
    virtual bool inSlice(GraphNode*);
    static SlicingCriteriaAcceptAll* instance();
