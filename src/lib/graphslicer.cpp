@@ -76,6 +76,7 @@ vector<Graph*> GraphSlicer::addSemanticThread(vector<Graph*>& ists, Graph* slice
          Graph* gc = Graph::combine(conflicts, *it);
          delete conflicts;
          conflicts = gc;
+         delete *it;
       } else
          newists.push_back(*it);
       delete gi;
