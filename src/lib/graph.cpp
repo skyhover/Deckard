@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cassert>
 #include <algorithm>
+#include <utils.h>
 
 using namespace std;
 
@@ -658,7 +659,10 @@ bool CompareGraphNode::operator()(const GraphNode* lhs, const GraphNode* rhs)
     * - (x==y)==true => (x<y)==false && (y<x)==false
     * otherwise, there may be subtle bugs caused if 'sort' is used.
     */
-   // NULL < invalidName < invalid lines < valid lines
+   /* NULL < invalidName < invalid lines < valid lines;
+    * Valid lines can be a single number, or a sequence of numbers,
+    * and are compared in the dictionary order.
+    */
    if(lhs==NULL && rhs==NULL) return false;
    else if (lhs==NULL) return true;
    else if (rhs==NULL) return false;
@@ -672,17 +676,29 @@ bool CompareGraphNode::operator()(const GraphNode* lhs, const GraphNode* rhs)
       else if ( rstr==NameMap::getInvalidName() )
          return false;
       else {
-         stringstream lss(lstr);
-         stringstream rss(rstr);
-         int lnum, rnum;
-         bool linvalid = !(lss >> lnum);
-         bool rinvalid = !(rss >> rnum);
-         if ( linvalid && rinvalid )
+         // reply on other parts of code to get line numbers to make it more modular
+         vector<int> lnums = getNumbers(lstr);
+         vector<int> rnums = getNumbers(rstr);
+         if ( lnums.empty() && rnums.empty() )
             return lstr < rstr;
-         else if ( linvalid ) return true;
-         else if ( rinvalid ) return false;
-         else
-            return lnum < rnum;
+         else if ( lnums.empty() ) return true;
+         else if ( rnums.empty() ) return false;
+         else {
+            vector<int>::const_iterator litr, ritr;
+            for( litr=lnums.begin(), ritr=rnums.begin();
+                  litr!=lnums.end() && ritr!=rnums.end(); ++litr, ++ritr) {
+               if ( *litr < *ritr ) return true;
+               else if ( *litr > *ritr ) return false;
+            }
+            if ( litr==lnums.end() && ritr==rnums.end() ) return false;
+            else if ( litr==lnums.end() ) return true;
+            else if ( ritr==rnums.end() ) return false;
+            else {
+               // impossible case
+               cerr << "Error: CompareGraphNode::operator() sees impossible cases." << endl;
+               throw "CompareGraphNode::operator() sees impossible cases.";
+            }
+         }
       }
    }
 }

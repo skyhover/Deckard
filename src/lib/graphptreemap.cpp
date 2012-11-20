@@ -1,6 +1,7 @@
 
 #include <graphptreemap.h>
 #include <cassert>
+#include <utils.h>
 
 using namespace std;
 
@@ -34,6 +35,7 @@ GraphTreeMapper::~GraphTreeMapper()
 Tree* GraphTreeMapper::graph2tree(Graph* ast)
 {
    assert(ast!=NULL);
+
    GraphNode* astroot = ast->updateEntriesForTree();
    vector<Tree*> trees = copySubtrees(astroot, ast);
    int count = trees.size();
@@ -49,7 +51,7 @@ Tree* GraphTreeMapper::graph2tree(Graph* ast)
          (*subitr)->parent = fakeroot;
       }
       fakeroot->min = INT_MAX;
-      fakeroot->max = 0;
+      fakeroot->max = -1;
       fakeroot->lineRangeUpdate();
       return fakeroot;
    }
@@ -57,27 +59,52 @@ Tree* GraphTreeMapper::graph2tree(Graph* ast)
 
 vector<Tree*> GraphTreeMapper::copySubtrees(GraphNode* astroot, Graph* ast)
 {
-   vector<Tree*> subtrees;
-   assert(astroot!=NULL);
+   assert(astroot!=NULL && ast!=NULL);
    
+   vector<Tree*> subtrees;
    Tree* root = NULL;
 
    if ( ast->hasNode(astroot) ) {
       // construct the root Tree node:
-      string attr = ast->getNodeAttribute("line", astroot);
+      // - set node type:
       string tname = ast->getNodeAttribute("type", astroot);
-      stringstream ss(tname);
-      int type = getFakeTypeID();
-      if ( !(ss>>type) )
-         type = getFakeTypeID();
-      root = new NonTerminal(type); // treat every node as NonTerminal due to limited info from the .dot file
-      // set max, min lines in tree node for Deckard
-      int line = 0;
-      stringstream ssline(attr); // could be NameMap::invalidName
-      if ( !(ssline>>line) )
-         line = 0;
-      root->max = line;
-      root->min = line;
+      if ( tname!=NameMap::getInvalidName() ) {
+         stringstream ss(tname);
+         int type;
+         if ( !(ss>>type) ) {
+            type = getFakeTypeID();
+            cerr << "Warning: GraphTreeMapper::copySubtrees: node (" << astroot << ") has invalid type: "
+                 << tname << endl;
+         }
+         root = new NonTerminal(type); // treat every node as NonTerminal due to limited info from the .dot file
+      } else
+         root = new NonTerminal(getFakeTypeID());
+      // - set line numbers:
+      string attr = ast->getNodeAttribute("line", astroot);
+      if ( attr!=NameMap::getInvalidName() ) {
+         // set max, min lines in tree node for Deckard
+         vector<int> linenums = getNumbers(attr);
+         if ( linenums.size()==0 ) {
+            root->max = -1;
+            root->min = INT_MAX;
+            cerr << "Warning: GraphTreeMapper::copySubtrees: node (" << astroot << ") has invalid line numbers: "
+                 << attr << endl;
+         } else if ( linenums.size()==1 ) {
+            root->max = linenums[0];
+            root->min = linenums[0];
+         } else if ( linenums.size()==2 ) {
+            root->max = linenums[1];
+            root->min = linenums[0];
+         } else {
+            root->max = linenums[1];
+            root->min = linenums[0];
+            cerr << "Warning: GraphTreeMapper::copySubtrees: node (" << astroot << ") has more than two line numbers: "
+                 << attr << endl;
+         }
+      } else {
+         root->max = -1;
+         root->min = INT_MAX;
+      }
    }
    
    /* TODO: check more precisely when 'ast' is a real Tree and prevent possible infinite loops if 'ast' has cycles.
@@ -115,24 +142,22 @@ vector<Tree*> GraphTreeMapper::copySubtrees(GraphNode* astroot, Graph* ast)
 Tree* GraphTreeMapper::graph2tree(Graph* pdg, Graph* ast)
 {
    assert(pdg!=NULL && ast!=NULL);
+
    int id = pdg->getAttributeID(mappingAttr);
 
+   // TODO: to allow 'line' to be a set of ranges or individual numbers. Currently can only be a single number of two numbers.
    // collect all line numbers from the graph:
-   set<string> lines;
+   set<int> lines;
    for(map<string, GraphNode*>::const_iterator nitr = pdg->graphNodes.begin();
          nitr!=pdg->graphNodes.end(); ++nitr) {
-      // TODO: check with .dot whether 'line' could be a range. Currently assume each attribute is ONE line number?
       string attr = nitr->second->getAttribute(id);
       if ( attr!=NameMap::getInvalidName() ) {
-//         stringstream ss(attr);
-//         int line = 0;
-//         if ( !(ss>>line) )
-//            lines.insert(line);
-         lines.insert(attr);
+         vector<int> nums = getNumbers(attr);
+         set<int> nodelines = enumerateNumers(nums);
+         lines.insert(nodelines.begin(), nodelines.end());
       }
    }
    
-   // assume each node only has one line for now.
    // Top-down traverse the tree to find "maximal" trees containing all of the lines
    // Or, bottom-up...No need since we assume we want all nodes with the lines so the results should be "maximal"
    GraphNode* astroot = ast->updateEntriesForTree();
@@ -144,38 +169,56 @@ Tree* GraphTreeMapper::graph2tree(Graph* pdg, Graph* ast)
       (*subitr)->parent = fakeroot;
    }
    fakeroot->min = INT_MAX;
-   fakeroot->max = 0;
+   fakeroot->max = -1;
    fakeroot->lineRangeUpdate();
    return fakeroot;
 }
 
-vector<Tree*> GraphTreeMapper::copySubtrees(GraphNode* astroot, Graph* ast, set<string>& lines)
+vector<Tree*> GraphTreeMapper::copySubtrees(GraphNode* astroot, Graph* ast, set<int>& lines)
 {
-   vector<Tree*> subtrees;
-   assert(astroot!=NULL);
+   assert(astroot!=NULL && ast!=NULL);
    
+   vector<Tree*> subtrees;
    Tree* root = NULL;
-   // TODO: this may have a BUG: if 'astroot' is ignored, all its children are ignored; but we may need to keep their children!
+
    if ( ast->hasNode(astroot) ) {
+      // check line matches
       string attr = ast->getNodeAttribute(mappingAttr, astroot);
       if ( attr!=NameMap::getInvalidName() ) {
-         set<string>::const_iterator it = lines.find(attr);
-         if ( it!=lines.end() ) {
+         vector<int> nums = getNumbers(attr);
+         set<int> nodelines = enumerateNumers(nums);
+         if ( ! is_set_intersection_empty<set<int>, set<int> >(nodelines, lines) ) {
             // when the node is contained in the 'lines', check its type:
             string tname = ast->getNodeAttribute("type", astroot);
-            stringstream ss(tname);
-            int type = getFakeTypeID();
-            if ( !(ss>>type) )
-               type = getFakeTypeID();
-            root = new NonTerminal(type); // treat every node as NonTerminal due to limited info from the .dot file
-            subtrees.push_back(root); // add this root to the returned subtrees (will be the only root).
+            if ( tname!=NameMap::getInvalidName() ) {
+               stringstream ss(tname);
+               int type;
+               if ( !(ss>>type) ) {
+                  type = getFakeTypeID();
+                  cerr << "Warning: GraphTreeMapper::copySubtrees: node (" << astroot << ") has invalid type: "
+                       << tname << endl;
+               }
+               root = new NonTerminal(type); // treat every node as NonTerminal due to limited info from the .dot file
+            } else
+               root = new NonTerminal(getFakeTypeID());
             // set max, min lines in tree node for Deckard
-            int line = 0;
-            stringstream ssline(attr);
-            if ( !(ssline>>line) )
-               line = 0;
-            root->max = line;
-            root->min = line;
+            if ( nums.size()==0 ) { // should NOT be reachable
+               root->max = -1;
+               root->min = INT_MAX;
+               cerr << "Error: Unreachable code! GraphTreeMapper::copySubtrees: node (" << astroot << ") has invalid line numbers: "
+                    << attr << endl;
+            } else if ( nums.size()==1 ) {
+               root->max = nums[0];
+               root->min = nums[0];
+            } else if ( nums.size()==2 ) {
+               root->max = nums[1];
+               root->min = nums[0];
+            } else {
+               root->max = nums[1];
+               root->min = nums[0];
+               cerr << "Warning: GraphTreeMapper::copySubtrees: node (" << astroot << ") has more than two line numbers: "
+                    << attr << endl;
+            }
          }
       }
    }
@@ -188,7 +231,7 @@ vector<Tree*> GraphTreeMapper::copySubtrees(GraphNode* astroot, Graph* ast, set<
       cerr << "-> Continue anyway; may cause undefined behavior." << endl;
    }
 
-   // recursively check/copy each child
+   // recursively check/copy every child
    for(vector<GraphNode*>::const_iterator citr = astroot->children.begin();
          citr!=astroot->children.end(); ++citr) {
       vector<Tree*> trees = copySubtrees(*citr, ast, lines);
@@ -206,6 +249,7 @@ vector<Tree*> GraphTreeMapper::copySubtrees(GraphNode* astroot, Graph* ast, set<
    // finish up:
    if ( root!=NULL ) {
       root->lineRangeUpdate();
+      subtrees.push_back(root); // add this root to the returned subtrees (will be the only root).
    }
 
    return subtrees;

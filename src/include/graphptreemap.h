@@ -47,7 +47,7 @@ private:
    /** construct a Tree rooted at 'astroot' in 'ast'. Every node in 'ast' is kept. */
    std::vector<Tree*> copySubtrees(GraphNode* astroot, Graph* ast);
    /** construct a Tree rooted at 'astroot' in 'ast'. Nodesin 'ast' are kept only if they are contained in 'lines'. */
-   std::vector<Tree*> copySubtrees(GraphNode* astroot, Graph* ast, std::set<std::string>& lines);
+   std::vector<Tree*> copySubtrees(GraphNode* astroot, Graph* ast, std::set<int>& lines);
 };
 
 #endif /* _DECKARD_GRAPH_PTREE_MAP_H_ */
