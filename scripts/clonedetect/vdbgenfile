@@ -6,7 +6,7 @@ if (($# != 3));
 then
    echo "Error: wrong parameters for vdbgenfile: $@"
    echo "Usage: $0 min_token stride filename"
-   exit 1
+   exit 65
 fi
 
 echo "Parsing $3" >> "$TIME_DIR/vgen_$1_$2" &&

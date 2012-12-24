@@ -64,8 +64,8 @@ SRC2HTM_OPTS=--line-number-ref
 # For parallel processing
 #
 # the maximal number of processes to be used (by xargs)
-# - 0 means as many as possible
-MAX_PROCS=0
+# - 0 means as many as possible (upto xargs)
+MAX_PROCS=8
 
 ##################################################################
 # Some additional, internal parameters; can be ignored

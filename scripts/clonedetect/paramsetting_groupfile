@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# Usage: $1=min_token, $2=stride, $3=similarity, $4=groupfortuning, $5=vecgroup_filename
+
+# make sure ${GROUPING_S} and ${VECTOR_DIR} are set correctly.
+
+if [[ $# -ne 5 ]]; then
+   echo "Error: wrong parameters for paramsetting_groupfile: $@"
+   echo "Usage: $0 min_token stride similarity vecgroup_filename groupfortuning vecgroup_filename"
+   exit 65
+fi
+
+# TODO: may check whether parameters have been set or not...
+
+t=$1
+s=$2
+sim=$3
+groupfortuning=$4
+vdb=$5
+
+# convert SIMILARITY to DISTANCE:
+i=`echo "$sim ${GROUPING_S}" | awk '{printf( "%.7g\n", sqrt((1-$1)*$2) )}'`
+
+grptuningid=`echo ${groupfortuning} | sed "s/.*vdb_${t}_${s}_g\([0-9]*\)_${i}_${GROUPING_S}.*/\1/"`
+grpfileid=`echo "$vdb" | sed "s/.*vdb_${t}_${s}_g\([0-9]*\)_${i}_${GROUPING_S}.*/\1/"`
+grpal=0
+grpdist=0
+if [[ ${grptuningid} -eq $grpfileid ]]; then
+   exit 0
+elif [[ $grpfileid -eq 1 ]]; then
+   grpal=`head -n $(expr $grpfileid + 1) $(dirname "$vdb")/ranges_${i}_${GROUPING_S} | tail -n 1 | awk '{print $3}'`
+   grpdist=`echo "$sim ${grpal}" | awk '{printf( "%.7g\n", sqrt((1-$1)*$2) )}'`
+else
+   grpal=`head -n $(expr $grpfileid + 1) $(dirname "$vdb")/ranges_${i}_${GROUPING_S} | tail -n 1 | awk '{print $2}'`
+   grpdist=`echo "$sim ${grpal}" | awk '{printf( "%.7g\n", sqrt((1-$1)*2*$2) )}'`
+fi
+lineno=`wc -l "$vdb" | awk '{print $1}'`
+lineno=$(($lineno / 2))
+"`dirname $0`/generateparam" "${groupfortuning}.param" $lineno $grpdist > "${vdb}.param"
+

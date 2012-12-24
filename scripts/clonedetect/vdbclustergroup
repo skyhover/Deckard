@@ -4,8 +4,8 @@
 if (($# != 4));
 then
    echo "Error: wrong parameters for vdbclustergroup: $@"
-   echo "Usage: $0 min_token stride similarity vecgroupfilename"
-   exit 1
+   echo "Usage: $0 min_token stride similarity vecgroup_filename"
+   exit 65
 fi
 
 t=$1
@@ -23,7 +23,7 @@ grpdist=0
 # TODO: what are better distance parameters for the groups?
 if [[ $grpfileid -le 0 ]]; then
    echo "Warning: invalid group id: $grpfileid in group $vdb...Skip." | tee -a "$TIME_DIR/cluster_vdb_${t}_${s}_allg_${i}_${GROUPING_S}"
-   continue
+   exit 1
 elif [[ $grpfileid -eq 1 ]]; then
    grpal=`head -n $(expr $grpfileid + 1) $(dirname "$vdb")/ranges_${i}_${GROUPING_S} | tail -n 1 | awk '{print $3}'`
    grpdist=`echo "$sim ${grpal}" | awk '{printf( "%.7g\n", sqrt((1-$1)*$2) )}'`
