@@ -1,0 +1,19 @@
+#!/bin/bash
+
+#vdbgenfile $1 $2 $3: $1=min_token; $2=stride; $3=file
+
+if (($# != 3));
+then
+   echo "Error: wrong parameters for vdbgenfile: $@"
+   echo "Usage: $0 min_token stride filename"
+   exit 1
+fi
+
+echo "Parsing $3" >> "$TIME_DIR/vgen_$1_$2" &&
+if [[ ! -s "$3.vec" || "$TOOVERWRITE" = "true" ]];
+then
+   "$VGEN_EXEC" -i "$3" -m $1 -t $2 1>>"$TIME_DIR/vgen_$1_$2" 2>&1
+else
+   echo "Warning: $3.vec exists, and no overwrite."
+fi
+

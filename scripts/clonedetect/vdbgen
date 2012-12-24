@@ -1,6 +1,7 @@
 #!/bin/bash
 
 TOOVERWRITE=
+EXEC_DIR=`dirname $0`
 
 clean()
 {
@@ -41,15 +42,11 @@ vgen()
 
 #NOTE: "for .. in .." has trouble when a filename contains spaces; use "while read .." instead:
 	  ( time \
-	    find "$SRC_DIR" -iname "$FILE_PATTERN" | while read file;
+#	    find "$SRC_DIR" -iname "$FILE_PATTERN" | while read file;
 #	    for file in `find "$SRC_DIR" -iname "$FILE_PATTERN"`;
-	    do
-		echo "Parsing $file" >> "$TIME_DIR/vgen_$1_$2"
-		if [[ ! -s "${file}.vec" || "$TOOVERWRITE" = "true" ]];
-		then
-			"$VGEN_EXEC" -i "$file" -m $1 -t $2
-		fi
-	    done \
+#	    do
+	    find "$SRC_DIR" -iname "$FILE_PATTERN" -print0 | xargs -0 -n 1 -P $MAX_PROCS "$EXEC_DIR/vdbgenfile" $1 $2 
+#	    done \
 	  ) 1>>"$TIME_DIR/vgen_$1_$2" 2>&1
 
 	  find "$SRC_DIR" -iname '*.vec' -print0 | xargs -0 --max-args=100 cat > "$VECTOR_DIR/vdb_$1_$2"
@@ -83,7 +80,7 @@ tohtml()
 	  fi
 }
 
-. `dirname $0`/configure
+. "$EXEC_DIR/configure"
 
 if [[ $# -ge 1 ]]; then
 	case "$1" in

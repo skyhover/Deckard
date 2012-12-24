@@ -60,6 +60,13 @@ POSTPRO_EXEC="$DECKARD_DIR/scripts/clonedetect/post_process_groupfile"
 SRC2HTM_EXEC=source-highlight 
 SRC2HTM_OPTS=--line-number-ref
 
+############################################################
+# For parallel processing
+#
+# the maximal number of processes to be used (by xargs)
+# - 0 means as many as possible
+MAX_PROCS=0
+
 ##################################################################
 # Some additional, internal parameters; can be ignored
 #

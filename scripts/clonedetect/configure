@@ -95,5 +95,12 @@ check_exe "head"
 check_exe "tail"
 #check_exe "time"
 
+# For parallel processing
+if [[ -z "${MAX_PROCS}" ]];
+then
+   echo "Warning: MAX_PROCS not set in config. Assume 0"
+   MAX_PROCS=0
+fi
+export MAX_PROCS
 
 

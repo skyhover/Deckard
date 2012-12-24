@@ -7,7 +7,8 @@
 # Feel free to adjust the workflows in the scripts to fit your needs.
 
 TOOVERWRITE=
-coverage=`dirname $0`/cd_coverage
+EXEC_DIR=`dirname $0`
+coverage=$EXEC_DIR/cd_coverage
 GROUPING_H=100000
 
 # Delete intermediate files, but leave times/*, cluster/coverage*, cluster/post_* files there:
@@ -156,7 +157,7 @@ paramsetting()
 		fi
 		lineno=`wc -l "$vdb" | awk '{print $1}'`
 		lineno=$(($lineno / 2))
-		"`dirname $0`/generateparam" "${groupfortuning}.param" $lineno $grpdist > "${vdb}.param"
+		"$EXEC_DIR/generateparam" "${groupfortuning}.param" $lineno $grpdist > "${vdb}.param"
 	done \
     ) 1>>"${TIME_DIR}/paramsetting_${t}_${s}_${sim}_${GROUPING_S}" 2>&1
     errcode=$?
@@ -285,7 +286,7 @@ pcluster()
 }
 
 
-. `dirname $0`/configure
+. "$EXEC_DIR/configure"
 
 if [[ $# -ge 1 ]]; then
 	case "$1" in
@@ -341,28 +342,10 @@ do
 	fi
 # Clustering:
 	echo "Cluster every vector groups..." | tee "$TIME_DIR/cluster_vdb_${t}_${s}_allg_${i}_${GROUPING_S}"
-	find "$VECTOR_DIR" -type f -name "vdb_${t}_${s}_g[0-9]*_${i}_${GROUPING_S}*" -not -name '*.param' | while read vdb;
-	do
-	  grpfileid=`echo "$vdb" | sed "s/.*vdb_${t}_${s}_g\([0-9]*\)_${i}_${GROUPING_S}.*/\1/"`
-	  grpal=0
-	  grpdist=0
-	  # TODO: what are better distance parameters for the groups?
-          if [[ $grpfileid -le 0 ]]; then
-              echo "Warning: invalid group id: $grpfileid in group $vdb...Skip." | tee -a "$TIME_DIR/cluster_vdb_${t}_${s}_allg_${i}_${GROUPING_S}"
-              continue
-	  elif [[ $grpfileid -eq 1 ]]; then
-		grpal=`head -n $(expr $grpfileid + 1) $(dirname "$vdb")/ranges_${i}_${GROUPING_S} | tail -n 1 | awk '{print $3}'`
-	  	grpdist=`echo "$sim ${grpal}" | awk '{printf( "%.7g\n", sqrt((1-$1)*$2) )}'`
-	  else
-		grpal=`head -n $(expr $grpfileid + 1) $(dirname "$vdb")/ranges_${i}_${GROUPING_S} | tail -n 1 | awk '{print $2}'`
-	  	grpdist=`echo "$sim ${grpal}" | awk '{printf( "%.7g\n", sqrt((1-$1)*2*$2) )}'`
-	  fi
-	  cluster "$vdb" $grpdist 1>>"$TIME_DIR/cluster_vdb_${t}_${s}_allg_${i}_${GROUPING_S}" 2>&1
-	  errcode=$?
-	  if [[ $errcode -ne 0 ]]; then
-		  echo "Clustering: Possible errors for vector group: $vdb $grpdist. Check log: $TIME_DIR/cluster_$(basename "${vdb}")" | tee -a "$TIME_DIR/cluster_vdb_${t}_${s}_allg_${i}_${GROUPING_S}"
-	  fi
-	done
+#	find "$VECTOR_DIR" -type f -name "vdb_${t}_${s}_g[0-9]*_${i}_${GROUPING_S}*" -not -name '*.param' | while read vdb;
+#	do
+	find "$VECTOR_DIR" -type f -name "vdb_${t}_${s}_g[0-9]*_${i}_${GROUPING_S}*" -not -name '*.param' -print0 | xargs -0 -n 1 -P $MAX_PROCS "$EXEC_DIR/vdbclustergroup" $t $s $sim
+#	done
 	echo "Done clustering. Check log: $TIME_DIR/cluster_vdb_${t}_${s}_allg_${i}_${GROUPING_S} and $TIME_DIR/cluster_vdb_${t}_${s}_g[0-9]+_${i}_${GROUPING_S}" | tee -a "$TIME_DIR/cluster_vdb_${t}_${s}_allg_${i}_${GROUPING_S}"
 # Merging:
 	echo -n "Merging all clone reports into $CLUSTER_DIR/cluster_vdb_${t}_${s}_allg_${sim}_${GROUPING_S} ..." | tee -a "$TIME_DIR/merging_${t}_${s}_${sim}_${GROUPING_S}"
