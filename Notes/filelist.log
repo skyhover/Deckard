@@ -9,9 +9,11 @@ SH:../scripts/clonedetect/config-sample
 SH:../scripts/clonedetect/configure
 SH:../scripts/clonedetect/generateparam
 SH:../scripts/clonedetect/paramsetting
+SH:../scripts/clonedetect/paramsetting_groupfile
 SH:../scripts/clonedetect/post_process_groupfile
+SH:../scripts/clonedetect/vdbclustergroup
 SH:../scripts/clonedetect/vdbgen
-SH:../scripts/clonedetect/vertical-group2-batch
+SH:../scripts/clonedetect/vdbgenfile
 SH:../scripts/clonedetect/vertical-param-batch
 SH:../scripts/clonedetect/deckard.sh
 C:../src/include/ptree.h
