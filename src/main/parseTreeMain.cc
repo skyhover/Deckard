@@ -1,7 +1,7 @@
 /*
  * 
- * Copyright (c) 2007-2012,
- *   Lingxiao Jiang         <lxjiang@ucdavis.edu>
+ * Copyright (c) 2007-2013, University of California / Singapore Management University
+ *   Lingxiao Jiang         <lxjiang@ucdavis.edu> <lxjiang@smu.edu.sg>
  *   Ghassan Misherghi      <ghassanm@ucdavis.edu>
  *   Zhendong Su            <su@ucdavis.edu>
  *   Stephane Glondu        <steph@glondu.net>
@@ -119,9 +119,9 @@ int main( int argc, char **argv )
   }
 
   if(argc>=6) {
-    pt->dumpParseTree(true);  // to overide existing file
+    pt->dumpParseTree(NULL, true);  // to overide existing file
   } else {
-    pt->dumpParseTree(false);
+    pt->dumpParseTree(NULL, false);
   }
 
   Tree* node = pt->tokenRange2Tree(tbid, teid);

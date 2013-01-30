@@ -1,7 +1,7 @@
 #
 # 
-# Copyright (c) 2007-2012,
-#   Lingxiao Jiang         <lxjiang@ucdavis.edu>
+# Copyright (c) 2007-2013, University of California / Singapore Management University
+#   Lingxiao Jiang         <lxjiang@ucdavis.edu> <lxjiang@smu.edu.sg>
 #   Ghassan Misherghi      <ghassanm@ucdavis.edu>
 #   Zhendong Su            <su@ucdavis.edu>
 #   Stephane Glondu        <steph@glondu.net>
@@ -91,6 +91,13 @@ POSTPRO_EXEC="$DECKARD_DIR/scripts/clonedetect/post_process_groupfile"
 # how to transform source code html?
 SRC2HTM_EXEC=source-highlight 
 SRC2HTM_OPTS=--line-number-ref
+
+############################################################
+# For parallel processing
+#
+# the maximal number of processes to be used (by xargs)
+# - 0 means as many as possible (upto xargs)
+MAX_PROCS=8
 
 ##################################################################
 # Some additional, internal parameters; can be ignored

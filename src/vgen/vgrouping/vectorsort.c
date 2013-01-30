@@ -1,7 +1,7 @@
 /*
  * 
- * Copyright (c) 2007-2012,
- *   Lingxiao Jiang         <lxjiang@ucdavis.edu>
+ * Copyright (c) 2007-2013, University of California / Singapore Management University
+ *   Lingxiao Jiang         <lxjiang@ucdavis.edu> <lxjiang@smu.edu.sg>
  *   Ghassan Misherghi      <ghassanm@ucdavis.edu>
  *   Zhendong Su            <su@ucdavis.edu>
  *   Stephane Glondu        <steph@glondu.net>
@@ -378,7 +378,7 @@ int main (int argc, char *argv[])
 	} else {
 	  /* begin a new group: */
 	  gid++;
-	  sprintf(groupfilename, "%s_g%d_%s_%s", argv[1], gid, argv[4], argv[3]);
+	  sprintf(groupfilename, "%s_g%ld_%s_%s", argv[1], gid, argv[4], argv[3]);
 	  if ( OUTPUT2FILE==TRUE && groupfile!=NULL
 	       && groupfile!=stdout && groupfile!=stderr ) {
 	    /* close the previous group file: */
@@ -388,7 +388,7 @@ int main (int argc, char *argv[])
 	  printf("==== group No. %ld, file %s ====\n", gid, groupfilename);
 	  groupfile = fopen(groupfilename, "w");
 	  if ( groupfile==NULL ) {
-	    fprintf(stderr, "Can't open %s_g%d for writing. Use stdout instead.\n", argv[1], gid);
+	    fprintf(stderr, "Can't open %s_g%ld for writing. Use stdout instead.\n", argv[1], gid);
 	    groupfile = stdout;
 	  }
 	  groupsize = 0;

@@ -1,7 +1,7 @@
 #
 # 
-# Copyright (c) 2007-2012,
-#   Lingxiao Jiang         <lxjiang@ucdavis.edu>
+# Copyright (c) 2007-2013, University of California / Singapore Management University
+#   Lingxiao Jiang         <lxjiang@ucdavis.edu> <lxjiang@smu.edu.sg>
 #   Ghassan Misherghi      <ghassanm@ucdavis.edu>
 #   Zhendong Su            <su@ucdavis.edu>
 #   Stephane Glondu        <steph@glondu.net>
@@ -32,12 +32,17 @@
 #
 # This is a testing directory; may have a lot of errors in the grammar files
 
-CXXFLAGS= -I../../include -g
+DEBUGFLAGS?=-g -pg
+
+CPPFLAGS+=-I../../include
+CXX=g++
+CXXFLAGS+=$(DEBUGFLAGS)
+LDFLAGS+=$(DEBUGFLAGS)
 OBJS= lex.yy.o pt_c.tab.o main.o head.o
 TARGET= c_ptgen
 
 TARGET: ${OBJS}
-	g++ -o ${TARGET} ${OBJS}
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o ${TARGET} ${OBJS}
 
 lex.yy.cc: c.l pt_c.tab.cc
 	flex -olex.yy.cc c.l

@@ -1,7 +1,7 @@
 /*
  * 
- * Copyright (c) 2007-2012,
- *   Lingxiao Jiang         <lxjiang@ucdavis.edu>
+ * Copyright (c) 2007-2013, University of California / Singapore Management University
+ *   Lingxiao Jiang         <lxjiang@ucdavis.edu> <lxjiang@smu.edu.sg>
  *   Ghassan Misherghi      <ghassanm@ucdavis.edu>
  *   Zhendong Su            <su@ucdavis.edu>
  *   Stephane Glondu        <steph@glondu.net>
@@ -161,23 +161,20 @@ increaseVecCounters(Tree* n, TreeVector* tv)
   if ( tv->token_end_id<0 || ((pair<long, long>*)(*attr_itr).second)->second>tv->token_end_id )
     tv->token_end_id = ((pair<long, long>*)(*attr_itr).second)->second;
 
-  if ( n->isTerminal()==true ) {
-    // update line counts:
-    Terminal* tn = n->toTerminal();
+  // update line counts:
 //    tv->lines.insert(tn->line);
-    if ( tv->minLine<=0 || (tn->line>0 && tn->line<tv->minLine) )
-      tv->minLine = tn->line;
-    if ( tv->maxLine<=0 || tn->line>tv->maxLine )
-      tv->maxLine = tn->line;
+  if ( tv->minLine<=0 || (n->min>0 && n->min<tv->minLine) )
+    tv->minLine = n->min;
+  if ( tv->maxLine<=0 || n->max>tv->maxLine )
+    tv->maxLine = n->max;
 #ifdef outputcountedlines
-    fprintf(stderr, "A line ---%d, id==%s\n", tn->line, n->type==identid? tn->value->c_str() : "NULL");
+  fprintf(stderr, "Node line range: [%d, %d], id==%s\n", n->min, n->max, n->type==identid? n->toTerminal()->value->c_str() : "NULL");
 #endif
-  }
 
   if ( n->type==identid ) {
     // TODO: the condition may be not enough coz we may want to
     // consider recording '+', '-' to help locating bugs.
-    // assert( n->isTerminal() );
+    // assert( n->isTerminal() ); currently, 'identid' should be a terminal
     Terminal* tn = n->toTerminal();
     map<string, int>::iterator id = tv->name_counters.find(*(tn->value));
     if ( id==tv->name_counters.end() )

@@ -1,7 +1,7 @@
 /*
  * 
- * Copyright (c) 2007-2012,
- *   Lingxiao Jiang         <lxjiang@ucdavis.edu>
+ * Copyright (c) 2007-2013, University of California / Singapore Management University
+ *   Lingxiao Jiang         <lxjiang@ucdavis.edu> <lxjiang@smu.edu.sg>
  *   Ghassan Misherghi      <ghassanm@ucdavis.edu>
  *   Zhendong Su            <su@ucdavis.edu>
  *   Stephane Glondu        <steph@glondu.net>
@@ -51,7 +51,7 @@ typedef int bool;
 #define TRUE 1
 const double epsilon = 1e-6;
 
-const int max_num_ranges=1024*1024*1024; // could the size of a vector be so huge?
+const long max_num_ranges=1024*1024*1024; // could the size of a vector be so huge?
 int num_ranges=1024*2; // may be dynamically increased
 void *enlarge_array(long* arr, int * cap)
 {
@@ -66,7 +66,7 @@ int main (int argc, char *argv[])
   long lo, hi;
   long *lows, *highs;
   long ri = 0;
-  int i, j;
+  long i, j;
 
   if ( argc!=4 ) {
     fprintf(stderr, "Usage: %s <dist> <lowerbound> <upperbound>\n", argv[0]);
@@ -136,7 +136,7 @@ int main (int argc, char *argv[])
    * first line (the parameters): <dist> <low> <high> <num_ranges> <first_high> <last_low>
    * other lines: <range_id> <low> <high> <dist_for_reference> */
   printf("%.8g\t%ld\t%ld\t%ld\t%ld\t%ld\n", d, lo, hi, ri, highs[0], lows[ri-1]);
-  printf("%6ld\t\t%ld\t%ld\t%g\n", 1, lows[0], highs[0], d);
+  printf("%6ld\t\t%ld\t%ld\t%g\n", (long)1, lows[0], highs[0], d);
   for ( i=1; i<ri; i++) {
     printf("%6ld\t\t%ld\t%ld\t%g\n", i+1, lows[i], highs[i], sqrt(lows[i])/sqrt(lo)*d);
   }

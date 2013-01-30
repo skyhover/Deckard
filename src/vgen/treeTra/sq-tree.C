@@ -1,7 +1,7 @@
 /*
  * 
- * Copyright (c) 2007-2012,
- *   Lingxiao Jiang         <lxjiang@ucdavis.edu>
+ * Copyright (c) 2007-2013, University of California / Singapore Management University
+ *   Lingxiao Jiang         <lxjiang@ucdavis.edu> <lxjiang@smu.edu.sg>
  *   Ghassan Misherghi      <ghassanm@ucdavis.edu>
  *   Zhendong Su            <su@ucdavis.edu>
  *   Stephane Glondu        <steph@glondu.net>
@@ -104,7 +104,7 @@ evaluateSynthesizedAttribute(Tree* node, Tree* in,
   return pair<long, long>(id-1, low_id);
 }
 
-// mush pass low_ids from children to parents to accumulate. ids do
+// must pass low_ids from children to parents to accumulate. ids do
 // not need to be passed because they are an accumulative attribute.
 pair<long, long> TreeSerializer::
 defaultSynthesizedAttribute(Tree* node, Tree* inh,

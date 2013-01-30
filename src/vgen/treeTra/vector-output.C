@@ -1,7 +1,7 @@
 /*
  * 
- * Copyright (c) 2007-2012,
- *   Lingxiao Jiang         <lxjiang@ucdavis.edu>
+ * Copyright (c) 2007-2013, University of California / Singapore Management University
+ *   Lingxiao Jiang         <lxjiang@ucdavis.edu> <lxjiang@smu.edu.sg>
  *   Ghassan Misherghi      <ghassanm@ucdavis.edu>
  *   Zhendong Su            <su@ucdavis.edu>
  *   Stephane Glondu        <steph@glondu.net>
@@ -66,8 +66,11 @@ Tree* TraVecOutput::
 evaluateInheritedAttribute(Tree* astNode, Tree* inh)
 {
   TreeVector* tv = TreeAccessor::get_node_vector(astNode);
-  tv->output(vecGen_outfile);
-  nNodeVectors++;
+  if ( tv->output(vecGen_outfile) )
+    nNodeVectors++;
+  else {
+    fprintf(stderr, "Warning: non-empty vector but output failed for node type %d at node %p\n", astNode->type, astNode);
+  }
 
   return astNode;
 }

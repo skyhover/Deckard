@@ -1,7 +1,7 @@
 /*
  * 
- * Copyright (c) 2007-2012,
- *   Lingxiao Jiang         <lxjiang@ucdavis.edu>
+ * Copyright (c) 2007-2013, University of California / Singapore Management University
+ *   Lingxiao Jiang         <lxjiang@ucdavis.edu> <lxjiang@smu.edu.sg>
  *   Ghassan Misherghi      <ghassanm@ucdavis.edu>
  *   Zhendong Su            <su@ucdavis.edu>
  *   Stephane Glondu        <steph@glondu.net>
@@ -115,15 +115,15 @@ increaseCounters(Tree* n)
   if ( token_end_id<0 || ((pair<long, long>*)(*attr_itr).second)->second>token_end_id )
     token_end_id = ((pair<long, long>*)(*attr_itr).second)->second;
 
-  if ( n->isTerminal()==true ) {
-    // update line counts:
-    Terminal* tn = n->toTerminal();
+  // update line counts:
 //     lines.insert(tn->line);
-    if ( minLine<=0 || (tn->line>0 && tn->line<minLine) )
-      minLine = tn->line;
-    if ( maxLine<=0 || tn->line>maxLine )
-      maxLine = tn->line;
+  if ( minLine<=0 || (n->min>0 && n->min<minLine) )
+    minLine = n->min;
+  if ( maxLine<=0 || n->max>maxLine )
+    maxLine = n->max;
 
+  if ( n->isTerminal()==true ) {
+    Terminal* tn = n->toTerminal();
     // increase name counts: TODO, not all names should be recorded...cf. increaseVecCounters in TraGenConfiguration.
     map<string, int>::iterator id = name_counters.find(*(tn->value));
     if ( id==name_counters.end() )
@@ -293,7 +293,7 @@ output(FILE * buf)
   int minlineno = minLineContained();
   // output iff the vector is from some real file and contains more than one lines.
 #ifdef nooutputforemptylines
-  if ( minlineno<=0 )
+  if ( filename==NULL || minlineno<=0 )
     fprintf(stdout, "==From file `%s', minlineno:%d, total lines:%d (line range=%d), \n", filename, minlineno, nLines, nLinesContained());
   if ( 1 ) {
 #else
@@ -312,7 +312,7 @@ output(FILE * buf)
     // TODO
     fprintf (buf, "NUM_DECL:0, NUM_STMT:0, NUM_EXPR:0, ");
     // output token range:
-    fprintf(buf, "TBID:%d, TEID:%d, ", token_begin_id, token_end_id);
+    fprintf(buf, "TBID:%ld, TEID:%ld, ", token_begin_id, token_end_id);
 #define outputidentifiersforbugdetection
 #ifdef outputidentifiersforbugdetection
     // output identifiers for bug detection

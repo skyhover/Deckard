@@ -1,7 +1,7 @@
 /*
  * 
- * Copyright (c) 2007-2012,
- *   Lingxiao Jiang         <lxjiang@ucdavis.edu>
+ * Copyright (c) 2007-2013, University of California / Singapore Management University
+ *   Lingxiao Jiang         <lxjiang@ucdavis.edu> <lxjiang@smu.edu.sg>
  *   Ghassan Misherghi      <ghassanm@ucdavis.edu>
  *   Zhendong Su            <su@ucdavis.edu>
  *   Stephane Glondu        <steph@glondu.net>
@@ -64,15 +64,15 @@ int compare_string_nocase(const void *c1, const void *c2)
   const char * s1 = (const char *)c1;
   const char * s2 = (const char *)c2;
   unsigned i;
-  for (i = 0; s1[i]!=NULL && s2[i]!=NULL; i++) {
+  for (i = 0; s1[i]!='\0' && s2[i]!='\0'; i++) {
     char uc1 = toupper(s1[i]);
     char uc2 = toupper(s2[i]);
     if ( uc1!=uc2 )
       return uc1 - uc2;
   }
-  if (s1[i]==NULL && s2[i]==NULL)
+  if (s1[i]=='\0' && s2[i]=='\0')
     return 0;
-  else if (s1[i]==NULL)
+  else if (s1[i]=='\0')
     return 0 - s2[i];
   else
     return s1[i];

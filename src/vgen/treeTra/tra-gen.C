@@ -1,7 +1,7 @@
 /*
  * 
- * Copyright (c) 2007-2012,
- *   Lingxiao Jiang         <lxjiang@ucdavis.edu>
+ * Copyright (c) 2007-2013, University of California / Singapore Management University
+ *   Lingxiao Jiang         <lxjiang@ucdavis.edu> <lxjiang@smu.edu.sg>
  *   Ghassan Misherghi      <ghassanm@ucdavis.edu>
  *   Zhendong Su            <su@ucdavis.edu>
  *   Stephane Glondu        <steph@glondu.net>
@@ -34,6 +34,8 @@
 #include <fstream>
 #include "tra-gen.h"
 #include "tree-accessor.h"
+
+using namespace std;
 
 #define VGDEBUG
 
@@ -143,7 +145,7 @@ run(int startln, int endln)
   // count token nnumbers and assign token IDs (and, optionally, set parent pointers for e)
   token_counter->traverse(parse_tree->getRoot(), initial_inh);
 #ifdef VGDEBUG
-  fprintf(stderr, "Total counted terminals:%ld\n", parse_tree->getRoot()->terminal_number);
+  fprintf(stderr, "Total counted terminals:%d\n", parse_tree->getRoot()->terminal_number);
 #endif
   // count token ranges for each node: mainly for bug finding purpose so far
   token_range_counter->traverse(parse_tree->getRoot(), initial_inh);
@@ -187,10 +189,11 @@ run(int startln, int endln)
 #ifdef VGDEBUG
   fprintf(stderr, "Total nodes > %ld (some children of atomic nodes are skipped), # nodes in the Sq tree:%ld\n", tree_serializer->id, tree_serializer->sqtree_length());
 #endif
+//#define outputnodeids
 #ifdef outputnodeids
   Tree* tree_itr = tree_serializer->serialized_tree.chain_header;
   while ( tree_itr!=NULL ) {
-    fprintf(stdout, "Tree %p id=%ld (%s), tokens = %ld, low_id = %ld, value=`%s'\n", tree_itr, TreeAccessor::get_serialized_id(tree_itr), parse_tree->getTypeName(tree_itr->type).c_str(), tree_itr->terminal_number, TreeAccessor::get_serialized_low_id(tree_itr), tree_itr->isTerminal()?tree_itr->toTerminal()->value->c_str():"<NULL>");
+    fprintf(stderr, "Tree %p id=%ld (%s), tokens = %ld, low_id = %ld, value=`%s'\n", tree_itr, TreeAccessor::get_serialized_id(tree_itr), parse_tree->getTypeName(tree_itr->type).c_str(), tree_itr->terminal_number, TreeAccessor::get_serialized_low_id(tree_itr), tree_itr->isTerminal()?tree_itr->toTerminal()->value->c_str():"<NULL>");
     tree_itr = TreeAccessor::get_serialized_next_neighbor(tree_itr);
   }
 #endif

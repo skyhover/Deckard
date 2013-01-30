@@ -2,8 +2,8 @@
 
 #
 # 
-# Copyright (c) 2007-2012,
-#   Lingxiao Jiang         <lxjiang@ucdavis.edu>
+# Copyright (c) 2007-2013, University of California / Singapore Management University
+#   Lingxiao Jiang         <lxjiang@ucdavis.edu> <lxjiang@smu.edu.sg>
 #   Ghassan Misherghi      <ghassanm@ucdavis.edu>
 #   Zhendong Su            <su@ucdavis.edu>
 #   Stephane Glondu        <steph@glondu.net>
@@ -33,8 +33,8 @@
 # 
 #
 
-echo "DECKARD--A Tree-Based Code Clone Detection Toolkit. Version 1.2.3"
-echo "Copyright (c) 2007-2012. University of California"
+echo "DECKARD--A Tree-Based Code Clone Detection Toolkit. Version 1.3"
+echo "Copyright (c) 2007-2013. University of California / Singapore Management University"
 echo "Distributed under the three-clause BSD license."
 echo
 
@@ -106,7 +106,7 @@ if [[ $errcode -ne 0 ]]; then
 fi
 
 echo "Clone detection done. Logs in $TIME_DIR/*"
-echo "Clone reports in $VECTOR_DIR/post_cluster_*"
+echo "Clone reports in $CLUSTER_DIR/post_cluster_*"
 echo
 
 # Bug Finding:

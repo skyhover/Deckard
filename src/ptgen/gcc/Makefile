@@ -1,7 +1,7 @@
 #
 # 
-# Copyright (c) 2007-2012,
-#   Lingxiao Jiang         <lxjiang@ucdavis.edu>
+# Copyright (c) 2007-2013, University of California / Singapore Management University
+#   Lingxiao Jiang         <lxjiang@ucdavis.edu> <lxjiang@smu.edu.sg>
 #   Ghassan Misherghi      <ghassanm@ucdavis.edu>
 #   Zhendong Su            <su@ucdavis.edu>
 #   Stephane Glondu        <steph@glondu.net>
@@ -30,7 +30,13 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # 
 #
-CXX= g++ -I../../include
+
+DEBUGFLAGS?=-O3
+
+CPPFLAGS+=-I../../include
+CXX=g++
+CXXFLAGS+=$(DEBUGFLAGS)
+LDFLAGS+=$(DEBUGFLAGS)
 OBJS= lex.yy.o pt_c.tab.o head.o
 #TARGET=c_ptgen # this is just a test driver
 TARGET=gccptgen.a
@@ -38,10 +44,10 @@ TARGET=gccptgen.a
 all: $(TARGET)
 
 gccptgen.a: $(OBJS)
-	ar -qcs $@ $(OBJS)
+	ar -csrv $@ $(OBJS)
 
 c_ptgen: $(OBJS) main.o
-	$(CXX) -o c_ptgen $(OBJS) main.o
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -o c_ptgen $(OBJS) main.o
 
 #${TARGET}: ${OBJS} main.o
 #	$(CXX) -o ${TARGET} ${OBJS} main.o
@@ -58,3 +64,4 @@ head.cc pt_c.y: c.y c.y.head c.y.foot
 .PHONY: clean
 clean:
 	rm -f *.o lex.yy.cc pt_c.tab* pt_c.y head.cc $(TARGET)
+

@@ -1,7 +1,7 @@
 /*
  * 
- * Copyright (c) 2007-2012,
- *   Lingxiao Jiang         <lxjiang@ucdavis.edu>
+ * Copyright (c) 2007-2013, University of California / Singapore Management University
+ *   Lingxiao Jiang         <lxjiang@ucdavis.edu> <lxjiang@smu.edu.sg>
  *   Ghassan Misherghi      <ghassanm@ucdavis.edu>
  *   Zhendong Su            <su@ucdavis.edu>
  *   Stephane Glondu        <steph@glondu.net>
@@ -74,19 +74,27 @@ outputAllMergedVectors(FILE * out)
   // handle the case when the serialized tree is too short, but is
   // this really needed? TODO
   if ( moveForward()==false ) {
-    mergeTreeVectors(&tv);
-    tv.output(out);
+    if ( mergeTreeVectors(&tv) ) {
+      if ( tv.output(out) )
+        nOutputedVectors++;
+      else {
+        fprintf(stderr, "Warning: non-empty vector but output failed for merged vector.\n");
+      }
+    }
     moved_steps++;
-    nOutputedVectors++;
     goto return_check;
   }
 
   do {
     if ( moved_steps % vecGen_config.moveStride == 0 ) { // TODO: maybe not a good condition
       tv.clearVector();
-      mergeTreeVectors(&tv);
-      tv.output(out);
-      nOutputedVectors++;
+      if ( mergeTreeVectors(&tv) ) {
+        if ( tv.output(out) )
+          nOutputedVectors++;
+       	else {
+          fprintf(stderr, "Warning: non-empty vector but output failed for merged vector.\n");
+        }
+      }
     }
     moved_steps++;
   }  while ( moveForward()==true );
@@ -168,7 +176,7 @@ mergeTreeVectors(TreeVector * mv) /* merge tree vectors into mv */
     }
 
 #ifdef checkmergedtokens
-    fprintf(stderr, "Merging %d tokens\n", mergeable_counts);
+    fprintf(stderr, "Merging %d tokens; new [minLine,maxLine]=[%d,%d]\n", mergeable_counts, mv->minLine, mv->maxLine);
 #endif
     return true;
   } else
@@ -306,15 +314,16 @@ moveForward()
     moveForwardOneStep(front);
   }
 
+//#define outputmovementofslidingwindow
 #ifdef outputmovementofslidingwindow
-  fprintf(stdout, "SW from id %d to id %d\n", front==NULL ? -1 : TreeAccessor::get_serialized_id(front), tail==NULL ? -1 : TreeAccessor::get_serialized_id(tail));
+  fprintf(stderr, "SW from id %d to id %d\n", front==NULL ? -1 : TreeAccessor::get_serialized_id(front), tail==NULL ? -1 : TreeAccessor::get_serialized_id(tail));
 #endif
   // move tail forward until the next mergeable sliding window or end.
   while ( enoughForMerge()<0 ) {
     if ( moveForwardOneStep(tail)==false )
       return false;
 #ifdef outputmovementofslidingwindow
-    fprintf(stdout, "SW from id %d to id %d\n", front==NULL ? -1 : TreeAccessor::get_serialized_id(front), tail==NULL ? -1 : TreeAccessor::get_serialized_id(tail));
+    fprintf(stderr, "SW from id %d to id %d\n", front==NULL ? -1 : TreeAccessor::get_serialized_id(front), tail==NULL ? -1 : TreeAccessor::get_serialized_id(tail));
 #endif
   }
 
@@ -420,7 +429,7 @@ mergeTreeVectors(TreeVector * mv) /* merge tree vectors into mv */
     }
 
 #ifdef checkmergedtokens
-    fprintf(stderr, "Merging %d tokens\n", mergeable_counts);
+    fprintf(stderr, "Merging %d tokens; new [minLine,maxLine]=[%d,%d]\n", mergeable_counts, mv->minLine, mv->maxLine);
 #endif
 
     return true;

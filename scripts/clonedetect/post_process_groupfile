@@ -2,8 +2,8 @@
 
 #
 # 
-# Copyright (c) 2007-2012,
-#   Lingxiao Jiang         <lxjiang@ucdavis.edu>
+# Copyright (c) 2007-2013, University of California / Singapore Management University
+#   Lingxiao Jiang         <lxjiang@ucdavis.edu> <lxjiang@smu.edu.sg>
 #   Ghassan Misherghi      <ghassanm@ucdavis.edu>
 #   Zhendong Su            <su@ucdavis.edu>
 #   Stephane Glondu        <steph@glondu.net>
@@ -99,6 +99,7 @@ def only_one_diff( cluster ):
         return True
     return False
 
+#TODO: may consider to tighten the criteria and reduce the amount of overlapping clone reports. 
 def remove_staggered( cluster ):
     rs= map( vector_linerange, cluster )
     keep= map( lambda x: True, cluster )

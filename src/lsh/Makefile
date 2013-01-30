@@ -1,3 +1,8 @@
+
+# '?=' gives environment variables (if any) higher priority than definitions in the file
+# So, it would be easier to re-define DEBUGFLAGS to be '-g -pg' to enable debugging
+DEBUGFLAGS?=-O3
+
 SOURCES_DIR:=sources
 OBJ_DIR:=bin
 OUT_DIR:=bin
@@ -24,9 +29,13 @@ TEST_BUILDS:=exactNNs \
 	    genPlantedDS
 
 GCC:=g++
-OPTIONS:=-DREAL_FLOAT -O3 #-DDEBUG
-CFLAGS:=$(OPTIONS)
+OPTIONS:=-DREAL_FLOAT
 # -march=athlon -msse -mfpmath=sse
+CFLAGS+=$(DEBUGFLAGS) $(OPTIONS)
+CXXFLAGS+=$(DEBUGFLAGS) $(OPTIONS)
+# NOTE: 'make' uses the command "$(CC) $(LDFLAGS) x.o $(LOADLIBES) $(LDLIBS)" when linking
+# pay attention to the ordering of the linked libraries. E.g., -lm should come after x.o
+# This behavior is compiler-depedent; some newer versions of g++ (not all versions of gcc) work well no matter what the ordering is.
 LIBRARIES:=-lm 
 #-ldmalloc
 
@@ -48,13 +57,13 @@ c: compile
 
 compile:
 	@mkdir -p $(OUT_DIR)
-	$(GCC) -o $(OUT_DIR)/$(LSH_BUILD) $(OPTIONS) $(OBJ_SOURCES) $(SOURCES_DIR)/$(LSH_BUILD).cpp $(LIBRARIES)
+	$(GCC) $(CXXFLAGS) -o $(OUT_DIR)/$(LSH_BUILD) $(OPTIONS) $(OBJ_SOURCES) $(SOURCES_DIR)/$(LSH_BUILD).cpp $(LIBRARIES)
 	chmod g+rwx $(OUT_DIR)/$(LSH_BUILD)
 
 ct:
 	@mkdir -p $(OUT_DIR)
 	(for i in $(TEST_BUILDS); do \
-	 $(GCC) -o $(OUT_DIR)/$$i $(OPTIONS) $(OBJ_SOURCES) $(TEST_DIR)/$${i}.cpp $(LIBRARIES); chmod g+rwx $(OUT_DIR)/$$i; done)
+	 $(GCC) $(CXXFLAGS) -o $(OUT_DIR)/$$i $(OPTIONS) $(OBJ_SOURCES) $(TEST_DIR)/$${i}.cpp $(LIBRARIES); chmod g+rwx $(OUT_DIR)/$$i; done)
 
 zip:
 	zip -r LSHarchive.zip Makefile sources bin Documentation
