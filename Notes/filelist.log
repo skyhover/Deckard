@@ -3,6 +3,7 @@ SH:../scripts/bugdetect/bugfiltering
 SH:../scripts/bugdetect/bugmerging
 SH:../scripts/bugdetect/bugordering
 SH:../scripts/bugdetect/bugtypecounting
+SH:../scripts/bugdetect/deckardd.sh
 SH:../scripts/bugdetect/mergecomments
 SH:../scripts/clonedetect/cd_coverage
 SH:../scripts/clonedetect/config-sample
