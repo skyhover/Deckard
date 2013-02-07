@@ -1,0 +1,12 @@
+*.o
+cParseTreeMain
+cbugfilters
+cvecgen
+jParseTreeMain
+jbugfilters
+jvecgen
+out2html
+out2xml
+phpParseTreeMain
+phpbugfilters
+phpvecgen
