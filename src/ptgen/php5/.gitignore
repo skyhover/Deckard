@@ -1,0 +1,6 @@
+head.cc
+head.cc-e
+lex.yy.cc
+pt_zend_language_parser.tab.cc
+pt_zend_language_parser.tab.hh
+pt_zend_language_parser.y

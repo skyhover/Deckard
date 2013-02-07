@@ -60,7 +60,7 @@ lex.yy.cc: zend_language_scanner.l pt_zend_language_parser.tab.cc
 
 head.cc pt_zend_language_parser.y: zend_language_parser.y zend_language_parser.y.head zend_language_parser.y.foot
 	./mainphp.py zend_language_parser.y
-	sed -i "s/'\"'/'\\\\\"'/" head.cc
+	sed -i -e "s/'\"'/'\\\\\"'/" head.cc
 
 .PHONY: clean
 clean:
