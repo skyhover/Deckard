@@ -72,28 +72,3 @@ if [ $errcode -ne 0 ]; then
 fi
 )
 
-# re-compile .dot parser generator
-(
-# assume antlr has been run; otherwise, please manually run antlrworks-1.4.3 in the repository first
-cd ../dot2d/grammars/output || exit 1
-make clean
-make
-errcode=$?
-if [ $errcode -ne 0 ]; then
-	echo "error: dot parser make failed. exit."
-	exit $errcode
-fi
-)
-
-# re-compile main entries for deckard 2.x
-(
-cd ../dot2d || exit 1
-make clean
-make
-errcode=$?
-if [ $errcode -ne 0 ]; then
-	echo "error: dot2d make failed. exit."
-	exit $errcode
-fi
-)
-

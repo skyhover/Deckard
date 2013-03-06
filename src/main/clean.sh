@@ -24,3 +24,8 @@ cd ../lsh/ || exit 1
 make clean_all
 )
 
+(
+cd ../lib || exit 1
+make clean
+)
+
