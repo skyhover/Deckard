@@ -33,7 +33,7 @@
 # 
 #
 
-echo "DECKARD DEBUG--A Tree-Based Code Clone-Related Bug Detection Tool. Version 1.3"
+echo "DECKARD DEBUG--A Tree-Based Code Clone-Related Bug Detection Tool. Version 1.3.1"
 echo "Copyright (c) 2007-2013. University of California / Singapore Management University"
 echo "Distributed under the three-clause BSD license."
 echo
