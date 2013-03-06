@@ -79,7 +79,13 @@ echo
 # Bug Finding:
 echo "In addition, potential clone-related bugs may be produced by running the scripts:"
 echo "(Be careful about the file overwriting and the choice for programming language)"
-
+echo 
+echo "(0) search clone reports and find out suspicious ones for all config combinations: "
+echo "(Note that it may be slow if there are many clone groups)"
+echo "    \"$DECKARD_DIR/scripts/bugdect/deckardd.sh\""
+echo 
+echo "Or, run \"bugfilter\" for each clone cluster file, but need to export DECKARD_DIR first:"
+echo "    export DECKARD_DIR=$DECKARD_DIR"
 echo "(1) search clone reports and find out suspicious ones: "
 echo "    \"$DECKARD_DIR/scripts/bugdetect/bugfiltering\" \"${CLUSTER_DIR}/post_<filename>\" $SRCLANG > \"${CLUSTER_DIR}/bug_<filename>\" 2> \"${TIME_DIR}/bugfiltering_<filename>\""
 echo "(2) transform the bug reports to html for easier investigation:"
