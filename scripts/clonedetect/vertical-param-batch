@@ -49,13 +49,13 @@ clean()
 {
       echo "Cleaning up all intermediate files..."
       echo -n "...deleting vdb_*_*_g*_*_*, including parameter files ..."
-      find "$VECTOR_DIR" -type f -name "vdb_*_*_g[0-9]*_*_*" -print0 | xargs -0 -r --max-args=500 rm -f
-#      find "$VECTOR_DIR" -type f -name "vdb_*_*_g[0-9]*_*_${GROUPING_S}" -print0 | xargs -0 -r --max-args=500 rm -f
+      find "$VECTOR_DIR" -type f -name "vdb_*_*_g[0-9]*_*_*" -print0 | xargs -0 -n 500 rm -f
+#      find "$VECTOR_DIR" -type f -name "vdb_*_*_g[0-9]*_*_${GROUPING_S}" -print0 | xargs -0 -n 500 rm -f
 # also delete parameter files, coz. the number of files is too big to be handled by certain OS:
-#      find "$VECTOR_DIR" -type f -name "vdb_*_*_g[0-9]*_*_${GROUPING_S}.param" -print0 | xargs -0 -r --max-args=500 rm -f
+#      find "$VECTOR_DIR" -type f -name "vdb_*_*_g[0-9]*_*_${GROUPING_S}.param" -print0 | xargs -0 -n 500 rm -f
       echo "Done"
       echo -n "...deleting cluster_vdb_*_*_g*_*_* ..."
-      find "$CLUSTER_DIR" -type f -name "cluster_vdb_*_*_g[0-9]*_*_*" -print0 | xargs -0 -r --max-args=500 rm -f
+      find "$CLUSTER_DIR" -type f -name "cluster_vdb_*_*_g[0-9]*_*_*" -print0 | xargs -0 -n 500 rm -f
       echo "Done"
 }
 
@@ -64,21 +64,21 @@ clean_log()
 {
 	echo "Cleaning up all results and log files..."
 	echo -n "...deleting cluster_vdb_*_*_allg_*_* ..."
-	find "$CLUSTER_DIR" -type f -name "cluster_vdb_*_*_allg_*_*" -print0 | xargs -0 -r rm -f
+	find "$CLUSTER_DIR" -type f -name "cluster_vdb_*_*_allg_*_*" -print0 | xargs -0 rm -f
 	echo "Done"
 	echo -n "...deleting post_cluster_vdb_*_*_allg_*_* ..."
-	find "$CLUSTER_DIR" -type f -name "post_cluster_vdb_*_*_allg_*_*" -print0 | xargs -0 -r rm -f
+	find "$CLUSTER_DIR" -type f -name "post_cluster_vdb_*_*_allg_*_*" -print0 | xargs -0 rm -f
 	echo "Done"
 	echo -n "...deleting ranges_*_* ..."
-	find "$VECTOR_DIR" -type f -name "ranges_*_*" -print0 | xargs -0 -r rm -f
+	find "$VECTOR_DIR" -type f -name "ranges_*_*" -print0 | xargs -0 rm -f
 	echo "Done"
 	echo -n "...deleting logs..."
-	find "$TIME_DIR" -type f -name "grouping_*" -print0 | xargs -0 -r --max-args=500 rm -f 
-	find "$TIME_DIR" -type f -name "paramsetting_*" -print0 | xargs -0 -r --max-args=500 rm -f 
-	find "$TIME_DIR" -type f -name "merging_*" -print0 | xargs -0 -r --max-args=500 rm -f 
-	find "$TIME_DIR" -type f -name "cluster_*" -print0 | xargs -0 -r --max-args=500 rm -f 
-	find "$TIME_DIR" -type f -name "post_*" -print0 | xargs -0 -r --max-args=500 rm -f 
-	find "$TIME_DIR" -type f -name "coverage_*" -print0 | xargs -0 -r --max-args=500 rm -f 
+	find "$TIME_DIR" -type f -name "grouping_*" -print0 | xargs -0 -n 500 rm -f 
+	find "$TIME_DIR" -type f -name "paramsetting_*" -print0 | xargs -0 -n 500 rm -f 
+	find "$TIME_DIR" -type f -name "merging_*" -print0 | xargs -0 -n 500 rm -f 
+	find "$TIME_DIR" -type f -name "cluster_*" -print0 | xargs -0 -n 500 rm -f 
+	find "$TIME_DIR" -type f -name "post_*" -print0 | xargs -0 -n 500 rm -f 
+	find "$TIME_DIR" -type f -name "coverage_*" -print0 | xargs -0 -n 500 rm -f 
 	echo "Done"
 }
 
@@ -109,7 +109,7 @@ grouping()
     fi
 
 	# delete old vector groups, in case some files may not be overwritten:
-	find "$VECTOR_DIR" -regex ".*vdb_$1_$2_g[0-9]+_$3_${GROUPING_S}.*" -print0 | xargs -0 -r --max-args=500 rm -f
+	find "$VECTOR_DIR" -regex ".*vdb_$1_$2_g[0-9]+_$3_${GROUPING_S}.*" -print0 | xargs -0 -n 500 rm -f
 	( time \
           "`dirname ${GROUPING_EXEC}`/rundispatchonefile" "$VECTOR_DIR/vdb_$1_$2" $3 -l $GROUPING_S -h $GROUPING_H -o "$VECTOR_DIR" -p "vdb_$1_$2" || (echo "Error: $FUNCNAME failure: $1 $2 $3"; exit 1) \
 	) 1>>"$TIME_DIR/grouping_$1_$2_$3_${GROUPING_S}" 2>&1
