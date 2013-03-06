@@ -1,6 +1,11 @@
 #!/bin/bash
 
-echo "DECKARD--A Tree-Based Code Clone Detection Toolkit. Version 1.3"
+echo "DECKARD--A Tree-Based Code Clone Detection Toolkit."
+if [[ -f "`dirname $0`/../../README" ]]; then
+   grep Version "`dirname $0`/../../README"
+else
+   echo " * Version Unknown. Missing README."
+fi
 echo "Copyright (c) 2007-2013. University of California / Singapore Management University"
 echo "Distributed under the three-clause BSD license."
 echo
