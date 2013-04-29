@@ -1,0 +1,153 @@
+#!/bin/bash
+
+# This script takes a set of vectors as input, and take another set of vectors
+# as queries, and uses default parameter self-tuning (-c -p <param.file>) and
+# produces clone groups for the queries.
+
+TOOVERWRITE=
+
+# Delete log files and result files: if no argv, delete all files
+clean_log()
+{
+	echo "Cleaning up all results and log files..."
+	echo -n "...deleting query_* ..."
+	find "$CLUSTER_DIR" -type f -name "query_*" -print0 | xargs -0 -r rm -f
+	echo "Done"
+	echo -n "...deleting post_query_* ..."
+	find "$CLUSTER_DIR" -type f -name "post_query_*" -print0 | xargs -0 -r rm -f
+	echo "Done"
+	echo -n "...deleting logs..."
+	find "$TIME_DIR" -type f -name "query_*" -print0 | xargs -0 -r --max-args=500 rm -f 
+	find "$TIME_DIR" -type f -name "post_query_*" -print0 | xargs -0 -r --max-args=500 rm -f 
+	echo "Done"
+}
+
+# querying: $1=<query file>, $2=<vec file>, $3=<distance>
+queryvec()
+{
+	queryvec="$1"
+	vdb="$2"
+	dist=$3
+	vfile=`basename "$queryvec"`
+
+	echo "Querying '${queryvec}' '${vdb}' ${grpdist} ..." | tee -a "$TIME_DIR/query_${vfile}"
+
+	if [[ "$TOOVERWRITE" != "true" &&
+	      -s "$CLUSTER_DIR/query_${vfile}_$dist" &&
+	      "$CLUSTER_DIR/query_${vfile}_$dist" -nt "$queryvec" ]];
+        then
+		echo "Warning: $CLUSTER_DIR/query_${vfile}_$dist exists...Skip." | tee -a "$TIME_DIR/query_${vfile}"
+		return 0
+	fi
+
+	# dumb (not flexible) memory limit setting
+	mem=`ls -l "$vdb" | awk '{printf("%.0f", $5/1024/1024+0.5)}'`
+	if [ $mem -lt 2 ]; then
+		mem=10000000
+	elif [ $mem -lt 5 ]; then
+		mem=20000000
+	elif [ $mem -lt 10 ]; then
+		mem=30000000
+	elif [ $mem -lt 20 ]; then
+		mem=60000000
+	elif [ $mem -lt 50 ]; then
+		mem=150000000
+	elif [ $mem -lt 100 ]; then
+		mem=300000000
+	elif [ $mem -lt 200 ]; then
+		mem=600000000
+	elif [ $mem -lt 500 ]; then
+		mem=900000000
+	elif [ $mem -lt 1024 ]; then
+		mem=1900000000
+	elif [ $mem -lt 2048 ]; then
+		mem=3800000000
+	else
+		echo "Error: Size of $vdb > 2G. I don't want to do it before you think of any optimization." | tee -a "$TIME_DIR/query_${vfile}"
+		exit 1;
+	fi
+
+	echo "$QUERY_EXEC" -R $dist -M $mem -b 2 -A -q "$queryvec" -f "$vdb" ${flag} -c -p "${vdb}.param" " > " "$CLUSTER_DIR/query_${vfile}" | tee -a "$TIME_DIR/query_${vfile}"
+	( time \
+	  "$QUERY_EXEC" -R $dist -M $mem -b 2 -A -q "$queryvec" -f "$vdb" ${flag} -c -p "${vdb}.param" \
+	  > "$CLUSTER_DIR/query_${vfile}" \
+	) 1>>"$TIME_DIR/query_${vfile}" 2>&1
+	errcode=$?
+
+	if [[ $errcode -ne 0 ]]; then
+		echo "$FUNCNAME: Possible errors occurred with LSH. Check log: $TIME_DIR/query_${vfile}" | tee -a "$TIME_DIR/query_${vfile}"
+	else
+		echo "Done query '${queryvec}' '${vdb}' ${grpdist}. Log: $TIME_DIR/query_${vfile}" | tee -a "$TIME_DIR/query_${vfile}"
+	fi
+	return $errcode
+}
+
+# Post-processing and count clone line #:
+pcluster()
+{
+	cdb="$1"
+	cfile=`basename "$cdb"`
+# Count clone line # before post-processing:
+#        echo "Count clone lines for '$cdb' ..."
+#        ( time \
+#          "$coverage" "$cdb" > "${CLUSTER_DIR}/coverage_${cfile}" \
+#        ) >& "${TIME_DIR}/coverage_${cfile}"
+# Post-processing:
+	echo -n "Post processing $cdb ..." | tee -a "${TIME_DIR}/post_${cfile}"
+	if [[ $(wc -l "$cdb" | awk '{print $1}') -lt 2 ]];
+	then
+		echo "Warning: clone cluster file is too small to be right: $cdb...Skip." | tee -a "${TIME_DIR}/post_${cfile}"
+		return 1
+	fi
+
+	if [[ "$TOOVERWRITE" != "true" &&
+	      -s "$CLUSTER_DIR/post_${cfile}" &&
+	      "$CLUSTER_DIR/post_${cfile}" -nt "$cdb" ]];
+        then
+		echo "Warning: $CLUSTER_DIR/post_${cfile} exists...Skip. May manually delete it or set 'overwrite'" | tee -a "${TIME_DIR}/post_${cfile}"
+		return 0
+	else
+		( time \
+		  "$POSTPRO_EXEC" "$cdb" > "${CLUSTER_DIR}/post_${cfile}" \
+		) 1>>"${TIME_DIR}/post_${cfile}" 2>&1
+		errcode=$?
+		if [[ $errcode -ne 0 ]]; then
+			echo "$FUNCNAME: Possible errors occurred. Check log: $TIME_DIR/post_${cfile}" | tee -a "${TIME_DIR}/post_${cfile}"
+		else
+			echo "Done post-processing $cdb. Log: $TIME_DIR/post_${cfile}" | tee -a "${TIME_DIR}/post_${cfile}"
+		fi
+		return $errcode
+	fi
+# Count clone line # after post-processing:
+#	echo "Count clone lines for $CLUSTER_DIR/post_${cfile} ..."
+#	( time \
+#	  "$coverage" "${CLUSTER_DIR}/post_${cfile}" > "${CLUSTER_DIR}/coverage_post_${cfile}" \
+#	) 2& "${TIME_DIR}/coverage_post_${cfile}"
+
+	return 0
+}
+
+
+. `dirname $0`/configure
+
+if [[ $# -ge 1 ]]; then
+	case "$1" in
+		clean_log )
+			clean_log
+			exit $?
+		       	;;
+		overwrite )
+			TOOVERWRITE="true"
+			;;
+		* )
+			echo "Usage: $0 [overwrite | clean_log]"
+			exit 1
+			;;
+	esac
+fi
+
+# $2=<query file>, $3=<vec file>, $3=<distance>
+queryvec $2 $3 $4
+vfile=`basename $2`
+pcluster "$CLUSTER_DIR/query_${vfile}" 
+

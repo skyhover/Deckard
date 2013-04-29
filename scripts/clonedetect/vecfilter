@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# This script takes a set of vectors as input and only keeps the vectors for
+# "method definitions."
+
+awk 'BEGIN{flag=0}{ if(index($0,"NODE_KIND:95,")>0){print $0; flag=1;} else if (flag==1) {print $0; flag=0;} }' $1
+

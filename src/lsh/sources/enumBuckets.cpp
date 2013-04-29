@@ -14,6 +14,7 @@
  *
  * Author: Alexandr Andoni (andoni@mit.edu), Piotr Indyk (indyk@mit.edu)
  * Modified by: Stephane Glondu (stephane.glondu@dptinfo.ens-cachan.fr)
+ * Modified by: Lingxiao Jiang (lxjiang@ucdavis.edu, lxjiang@smu.edu.sg)
  */
 
 /*
@@ -55,7 +56,6 @@ IntT nRadii = 0;
 
 RealT *memRatiosForNNStructs = NULL;
 
-char sBuffer[600000];
 regex_t preg[ENUM_PPROP_LAST_NOT_USED];
 
 // Will merge prefetch consecutive vectors from input file
@@ -567,9 +567,11 @@ int main(int argc, char *argv[]){
 
   IntT resultSize = nPoints;
   PPointT *result = (PPointT*)MALLOC(resultSize * sizeof(*result));
-  PPointT queryPoint;
+  PPointT queryPoint = NULL;
+  /* PI: why nee to allocate query point if it is from dataSetPoints?
   FAILIF(NULL == (queryPoint = (PPointT)MALLOC(sizeof(PointT))));
   FAILIF(NULL == (queryPoint->coordinates = (RealT*)MALLOC(pointsDimension * sizeof(RealT))));
+  */
 
   TimeVarT meanQueryTime = 0;
   int nQueries = 0;

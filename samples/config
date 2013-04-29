@@ -79,8 +79,9 @@ case $FILE_PATTERN in
 esac
 # how to divide the vectors into groups?
 GROUPING_EXEC="$DECKARD_DIR/src/vgen/vgrouping/runvectorsort"
-# where is the lsh for vector clustering?
+# where is the lsh for vector clustering/querying?
 CLUSTER_EXEC="$DECKARD_DIR/src/lsh/bin/enumBuckets"
+QUERY_EXEC="$DECKARD_DIR/src/lsh/bin/queryBuckets"
 # how to post process clone groups?
 POSTPRO_EXEC="$DECKARD_DIR/scripts/clonedetect/post_process_groupfile"
 # how to transform source code html? Used by Deckard1 only
