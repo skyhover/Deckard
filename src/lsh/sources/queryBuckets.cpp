@@ -23,16 +23,18 @@
   calls the corresponding functions.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <sys/times.h>
 #include <sys/types.h>
-#include <ctype.h>
+#include <cctype>
 #include <regex.h>
 #include <unistd.h>
 #include "headers.h"
 
 #define N_SAMPLE_QUERY_POINTS 100
+
+static int DEBUG_LEVEL = 1;
 
 // The data set containing all the points.
 PPointT *dataSetPoints = NULL;
@@ -162,6 +164,14 @@ CommandLineParameters::CommandLineParameters()
    max_nVars_diff = 0.35;
    interfiles = false;
    min_lines = 0;
+}
+
+void printPoint(FILE* out, const PPointT p)
+{
+      fprintf(out, "FILE %s LINE:%d:%d NODE_KIND:%d nVARs:%d NUM_NODE:%d TBID:%d TEID:%d\n",
+            p->filename, p->prop[ENUM_PPROP_LINE-1], p->prop[ENUM_PPROP_OFFSET-1],
+            p->prop[ENUM_PPROP_NODE_KIND-1], p->prop[ENUM_PPROP_nVARs-1],
+            p->prop[ENUM_PPROP_NUM_NODE-1], p->prop[ENUM_PPROP_TBID-1], p->prop[ENUM_PPROP_TEID-1]);
 }
 
 inline PPointT readPoint2(char *line, char *comment){
@@ -346,13 +356,11 @@ void transformMemRatios(){
   ASSERT(sum <= 1.000001);
 }
 
-
 int compareInt32T(const void *a, const void *b){
   Int32T *x = (Int32T*)a;
   Int32T *y = (Int32T*)b;
   return (*x > *y) - (*x < *y);
 }
-
 
 #define ENUM_BUCKETS
 
@@ -366,7 +374,6 @@ int compareInt32T(const void *a, const void *b){
     fprintf(stderr, "Incorrect float value for variable %s\n", #v); \
     usage(1, argv[0]); \
   }}
-
 
 RNNParametersT *algParameters = NULL;
 PRNearNeighborStructT *nnStructs = NULL;
@@ -529,11 +536,8 @@ void enumBuckets(const CommandLineParameters & comParam, PPointT* dsPoints, int 
                      // L1 distance
 //                     printf("%09d\tdist:%0.1lf", (*p)->index, distance);
                      // L2 distance
-                     printf("%09d\tdist:%0.1lf", (*p)->index, sqrt(distance));
-                     printf("\tFILE %s LINE:%d:%d NODE_KIND:%d nVARs:%d NUM_NODE:%d TBID:%d TEID:%d\n",
-                            (*p)->filename, (*p)->prop[ENUM_PPROP_LINE-1], (*p)->prop[ENUM_PPROP_OFFSET-1],
-                            (*p)->prop[ENUM_PPROP_NODE_KIND-1], (*p)->prop[ENUM_PPROP_nVARs-1],
-                            (*p)->prop[ENUM_PPROP_NUM_NODE-1], (*p)->prop[ENUM_PPROP_TBID-1], (*p)->prop[ENUM_PPROP_TEID-1]);
+                     printf("%09d\tdist:%0.1lf\t", (*p)->index, sqrt(distance));
+                     printPoint(stdout, *p);
                      //CR_ASSERT(distance(dDim, queryPoint, *p) <= listOfRadii[r]);
                      //DPRINTF("Distance: %lf\n", distance(dDim, queryPoint, result[j]));
                      //printRealVector("NN: ", dDim, result[j]->coordinates);
@@ -563,11 +567,8 @@ void enumBuckets(const CommandLineParameters & comParam, PPointT* dsPoints, int 
                // L1 distance
 //               printf("%09d\tdist:%0.1lf", (*p)->index, distance);
                // L2 distance
-               printf("%09d\tdist:%0.1lf", (*p)->index, sqrt(distance));
-               printf("\tFILE %s LINE:%d:%d NODE_KIND:%d nVARs:%d NUM_NODE:%d TBID:%d TEID:%d\n",
-                     (*p)->filename, (*p)->prop[ENUM_PPROP_LINE-1], (*p)->prop[ENUM_PPROP_OFFSET-1],
-                     (*p)->prop[ENUM_PPROP_NODE_KIND-1], (*p)->prop[ENUM_PPROP_nVARs-1],
-                     (*p)->prop[ENUM_PPROP_NUM_NODE-1], (*p)->prop[ENUM_PPROP_TBID-1], (*p)->prop[ENUM_PPROP_TEID-1]);
+               printf("%09d\tdist:%0.1lf\t", (*p)->index, sqrt(distance));
+               printPoint(stdout, *p);
                //CR_ASSERT(distance(dDim, queryPoint, *p) <= listOfRadii[r]);
                //DPRINTF("Distance: %lf\n", distance(dDim, queryPoint, result[j]));
                //printRealVector("NN: ", dDim, result[j]->coordinates);
@@ -637,7 +638,7 @@ void queryBuckets(const CommandLineParameters& comParam, PPointT* dsPoints, int 
               break;
 
             bool worthy = false;
-            int sizeBucket = 1; // 1 means the first un-filtered point
+            int sizeBucket = 1+1; // 1+1 means the first un-filtered point plus the query point
             PPointT *begin = cur;
             cur++;
             while ( cur < end &&
@@ -669,6 +670,9 @@ void queryBuckets(const CommandLineParameters& comParam, PPointT* dsPoints, int 
                   && ( comParam.bug_detecting ? worthy : true ) ) {
                nBuckets++;
                printf("\n");
+               // print the query point
+               printPoint(stdout, queryPoint);
+               // print the rest points
                for (PPointT *p = begin; p < cur; p++)  {
                   ASSERT(*p != NULL);
                   if ( pointIsNotFiltered(p, comParam) ) {
@@ -686,11 +690,8 @@ void queryBuckets(const CommandLineParameters& comParam, PPointT* dsPoints, int 
                      // L1 distance
 //                     printf("%09d\tdist:%0.1lf", (*p)->index, distance);
                      // L2 distance
-                     printf("%09d\tdist:%0.1lf", (*p)->index, sqrt(distance));
-                     printf("\tFILE %s LINE:%d:%d NODE_KIND:%d nVARs:%d NUM_NODE:%d TBID:%d TEID:%d\n",
-                            (*p)->filename, (*p)->prop[ENUM_PPROP_LINE-1], (*p)->prop[ENUM_PPROP_OFFSET-1],
-                            (*p)->prop[ENUM_PPROP_NODE_KIND-1], (*p)->prop[ENUM_PPROP_nVARs-1],
-                            (*p)->prop[ENUM_PPROP_NUM_NODE-1], (*p)->prop[ENUM_PPROP_TBID-1], (*p)->prop[ENUM_PPROP_TEID-1]);
+                     printf("%09d\tdist:%0.1lf\t", (*p)->index, sqrt(distance));
+                     printPoint(stdout, *p);
                      //CR_ASSERT(distance(dDim, queryPoint, *p) <= listOfRadii[r]);
                      //DPRINTF("Distance: %lf\n", distance(dDim, queryPoint, result[j]));
                      //printRealVector("NN: ", dDim, result[j]->coordinates);
@@ -699,9 +700,10 @@ void queryBuckets(const CommandLineParameters& comParam, PPointT* dsPoints, int 
             } // end of enumeration of a bucket
          }  // end of !no_filtering
       } else {
-         if ( nNNs>=comParam.lowerBound ) { // filter out non-clones anyway
+         if ( nNNs+1>=comParam.lowerBound ) { // +1 means the query point; filter out non-clones anyway
             nBuckets++;
             printf("\n");
+            printPoint(stdout, queryPoint);
             for (PPointT *p = cur; p < end; p++)  {
                ASSERT(*p != NULL);
                nBucketedPoints++;
@@ -719,11 +721,8 @@ void queryBuckets(const CommandLineParameters& comParam, PPointT* dsPoints, int 
                // L1 distance
 //               printf("%09d\tdist:%0.1lf", (*p)->index, distance);
                // L2 distance
-               printf("%09d\tdist:%0.1lf", (*p)->index, sqrt(distance));
-               printf("\tFILE %s LINE:%d:%d NODE_KIND:%d nVARs:%d NUM_NODE:%d TBID:%d TEID:%d\n",
-                     (*p)->filename, (*p)->prop[ENUM_PPROP_LINE-1], (*p)->prop[ENUM_PPROP_OFFSET-1],
-                     (*p)->prop[ENUM_PPROP_NODE_KIND-1], (*p)->prop[ENUM_PPROP_nVARs-1],
-                     (*p)->prop[ENUM_PPROP_NUM_NODE-1], (*p)->prop[ENUM_PPROP_TBID-1], (*p)->prop[ENUM_PPROP_TEID-1]);
+               printf("%09d\tdist:%0.1lf\t", (*p)->index, sqrt(distance));
+               printPoint(stdout, *p);
                //CR_ASSERT(distance(dDim, queryPoint, *p) <= listOfRadii[r]);
                //DPRINTF("Distance: %lf\n", distance(dDim, queryPoint, result[j]));
                //printRealVector("NN: ", dDim, result[j]->coordinates);
@@ -867,7 +866,6 @@ int main(int argc, char *argv[]){
 			   nRadii,
 			   listOfRadii,
 			   sampleQBoundaryIndeces);
-
 
     // Compute the R-NN DS parameters
     // if a parameter file is given, output them to that file, and continue
