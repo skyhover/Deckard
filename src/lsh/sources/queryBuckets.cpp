@@ -30,6 +30,7 @@
 #include <cctype>
 #include <regex.h>
 #include <unistd.h>
+#include <string>
 #include "headers.h"
 
 #define N_SAMPLE_QUERY_POINTS 100
@@ -183,6 +184,10 @@ inline PPointT readPoint2(char *line, char *comment){
   IntT d;
   char *t;
 
+  for (int i = 1; i < ENUM_PPROP_LAST_NOT_USED; i++) {
+     p->prop[i-1] = 0;
+  }
+
   if (comment != NULL) {
     int a, b;
     regmatch_t pmatch[2];
@@ -190,8 +195,8 @@ inline PPointT readPoint2(char *line, char *comment){
     if (regexec(&preg[ENUM_PPROP_FILE], comment, 2, pmatch, 0) == 0 &&
 	(a = pmatch[1].rm_so) != -1) {
       b = pmatch[1].rm_eo;
-      FAILIF(NULL == (p->filename = (char*)MALLOC(b-a+1)));
-      memmove(p->filename, comment + a, b-a);
+      FAILIF(NULL == (p->filename = (char*)MALLOC(sizeof(char)*(b-a+1))));
+      memcpy(p->filename, comment + sizeof(char)*a, sizeof(char)*(b-a));
       p->filename[b-a] = '\0';
     }
    
@@ -229,6 +234,7 @@ inline PPointT readPoint2(char *line, char *comment){
 
   p->index = -1;
   p->sqrLength = sqrLength;
+
   return p;
 }
 
@@ -276,6 +282,9 @@ void readDataSetFromFile2(const char *filename, PPointT*(&dsPoints), IntT& dNum,
          comment[lineLength-1] = '\0';
       line = NULL;
       bufferLength = 0;
+    } else if ( !isdigit(line[0]) ) {
+      fprintf(stderr, "Warning: no fully-supported format around line %d\n", dNum*2);
+      continue;
     } else {
       // the line is a point
       if (dDim == 0) {
@@ -289,6 +298,9 @@ void readDataSetFromFile2(const char *filename, PPointT*(&dsPoints), IntT& dNum,
          }
       }
 
+      if ( comment==NULL ) {
+        fprintf(stderr, "Warning: empty meta data for vector around line %d. Continue...may segfault.\n", dNum*2);
+      }
       // add the new point to the prefetch queue
       prefetchEnd->hd = readPoint2(line, comment);
 
@@ -302,7 +314,8 @@ void readDataSetFromFile2(const char *filename, PPointT*(&dsPoints), IntT& dNum,
            for (int j = 0; j < dDim; j++) {
              prefetchStart->hd->coordinates[j] += i->hd->coordinates[j];
            }
-           prefetchStart->hd->prop[ENUM_PPROP_FILE-1] += i->hd->prop[ENUM_PPROP_FILE-1];
+           /* PI: what does this do?
+           prefetchStart->hd->prop[ENUM_PPROP_FILE-1] += i->hd->prop[ENUM_PPROP_FILE-1]; */
          }
          // allocate the next cell and move the prefetch window
          FAILIF(NULL == (prefetchEnd->tl = (TPPointTList*)MALLOC(sizeof(TPPointTList))));
@@ -815,6 +828,7 @@ int main(int argc, char *argv[]){
     case 'f':
       readDataSetFromFile2(optarg, dataSetPoints, nPoints, pointsDimension);
       DPRINTF("Allocated memory (after reading data set): %d\n", totalAllocatedMemory);
+      fprintf(stderr, "Base data provided: nPoints=%d\n", nPoints);
       break;
     case 'q':
        readDataSetFromFile2(optarg, queryDataSetPoints, nQueryPoints, pointsDimension);
