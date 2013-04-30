@@ -139,8 +139,10 @@ if [[ $# -ge 1 ]]; then
 		overwrite )
 			TOOVERWRITE="true"
 			;;
+		noaction )
+			;;
 		* )
-			echo "Usage: $0 [overwrite | clean_log]"
+			echo "Usage: $0 [noaction | overwrite | clean_log] <queryvectors> <basevectors> <distance>"
 			exit 1
 			;;
 	esac
