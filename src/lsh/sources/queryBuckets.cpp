@@ -684,6 +684,7 @@ void queryBuckets(const CommandLineParameters& comParam, PPointT* dsPoints, int 
                nBuckets++;
                printf("\n");
                // print the query point
+               printf("%09d\tdist:%0.1lf\t", 0, -1.0f);
                printPoint(stdout, queryPoint);
                // print the rest points
                for (PPointT *p = begin; p < cur; p++)  {
@@ -716,6 +717,7 @@ void queryBuckets(const CommandLineParameters& comParam, PPointT* dsPoints, int 
          if ( nNNs+1>=comParam.lowerBound ) { // +1 means the query point; filter out non-clones anyway
             nBuckets++;
             printf("\n");
+	    printf("%09d\tdist:%0.1lf\t", 0, -1.0f);
             printPoint(stdout, queryPoint);
             for (PPointT *p = cur; p < end; p++)  {
                ASSERT(*p != NULL);

@@ -31,6 +31,13 @@ def vector_varcount( vector ):
         return -1
     return int( m.group(1) )
 
+dist_r=re.compile('.*dist:([\.\d]+).*')
+def vector_dist( vector ):
+    m = dist_r.match(vector)
+    if m == None:
+        return -1.0
+#        return float("inf")
+    return float(m.group(1))
     
 def has_enough_lines( cluster ):
     for vector in cluster:
@@ -156,6 +163,11 @@ def not_empty( cluster ):
 
 # compare locations of two clones:
 def cmp_codelocation( c1, c2 ):
+    dist1 = vector_dist(c1)
+    dist2 = vector_dist(c2)
+    # sort by 'dist' first; may help to keep more similar clones; but note that remove_overlaping etc may not work any more
+    if dist1 < dist2: return -1
+    elif dist1 > dist2: return 1
     r1 = vector_linerange(c1)
     r2 = vector_linerange(c2)
     if r1[2]==r2[2]:
