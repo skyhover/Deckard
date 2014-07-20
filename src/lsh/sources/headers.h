@@ -31,7 +31,9 @@
 #include "NearNeighbors.h"
 
 #ifdef DEBUG_MEM
+#if !defined(__APPLE__)
 #include <malloc.h>
+#endif
 #endif
 
 #ifdef DEBUG_TIMINGS
