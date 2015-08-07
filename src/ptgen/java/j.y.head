@@ -36,6 +36,7 @@
 %token   FOR_TK          NEW_TK             CONTINUE_TK
 %token   GOTO_TK         PACKAGE_TK         THIS_TK
 %token   ASSERT_TK
+%token   ENUM_TK
 
 %token   BYTE_TK         SHORT_TK           INT_TK            LONG_TK
 %token   CHAR_TK         INTEGRAL_TK

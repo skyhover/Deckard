@@ -76,6 +76,7 @@ int line = 1;
 "package" {count();yylvalp->t=new Terminal(name2id["PACKAGE_TK"],yytext,line);return (PACKAGE_TK);}
 "this" {count();yylvalp->t=new Terminal(name2id["THIS_TK"],yytext,line);return (THIS_TK);}
 "assert" {count();yylvalp->t=new Terminal(name2id["ASSERT_TK"],yytext,line);return (ASSERT_TK);}
+"enum" {count();yylvalp->t=new Terminal(name2id["ENUM_TK"],yytext,line);return (ENUM_TK);}
 "byte" {count();yylvalp->t=new Terminal(name2id["BYTE_TK"],yytext,line);return (BYTE_TK);}
 "short" {count();yylvalp->t=new Terminal(name2id["SHORT_TK"],yytext,line);return (SHORT_TK);}
 "int" {count();yylvalp->t=new Terminal(name2id["INT_TK"],yytext,line);return (INT_TK);}

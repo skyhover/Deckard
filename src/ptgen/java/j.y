@@ -166,9 +166,15 @@ single_type_import_declaration:
 		  else
 		    REGISTER_IMPORT ($2, last_name);
 		}
+|	IMPORT_TK STATIC_TK name SC_TK
+		{ /* TODO */ }
 |	IMPORT_TK error
 		{yyerror ("Missing name"); RECOVER;}
 |	IMPORT_TK name error
+		{yyerror ("';' expected"); RECOVER;}
+|	IMPORT_TK STATIC_TK error
+		{yyerror ("Missing name"); RECOVER;}
+|	IMPORT_TK STATIC_TK name error
 		{yyerror ("';' expected"); RECOVER;}
 ;
 
@@ -191,9 +197,15 @@ type_import_on_demand_declaration:
 				 build_tree_list ($2, NULL_TREE));
 		    }
 		}
+|	IMPORT_TK STATIC_TK name DOT_TK MULT_TK SC_TK
+		{ /* TODO */ }
 |	IMPORT_TK name DOT_TK error
 		{yyerror ("'*' expected"); RECOVER;}
 |	IMPORT_TK name DOT_TK MULT_TK error
+		{yyerror ("';' expected"); RECOVER;}
+|	IMPORT_TK STATIC_TK name DOT_TK error
+		{yyerror ("'*' expected"); RECOVER;}
+|	IMPORT_TK STATIC_TK name DOT_TK MULT_TK error
 		{yyerror ("';' expected"); RECOVER;}
 ;
 
@@ -202,6 +214,8 @@ type_declaration:
 		{ end_class_declaration (0); }
 |	interface_declaration
 		{ end_class_declaration (0); }
+|	enum_declaration
+		{ /* TODO */ }
 |	empty_statement
 |	error
 		{
@@ -352,6 +366,8 @@ class_member_declaration:
 		{ end_class_declaration (1); }
 |	interface_declaration	/* Added, JDK1.1 inner interfaces */
 		{ end_class_declaration (1); }
+|	enum_declaration
+		{ /* TODO */ }
 |	empty_statement
 ;
 
@@ -503,13 +519,15 @@ formal_parameter_list:
 		{
 		  ctxp->formal_parameter_number = 1;
 		}
-|	formal_parameter_list C_TK last_formal_parameter
+|	last_formal_parameter
 		{ /* TODO */ }
 |	formal_parameter_list C_TK formal_parameter
 		{
 		  ctxp->formal_parameter_number += 1;
 		  $$ = chainon ($1, $3);
 		}
+|	formal_parameter_list C_TK last_formal_parameter
+		{ /* TODO */ }
 |	formal_parameter_list C_TK error
 		{ yyerror ("Missing formal parameter term"); RECOVER; }
 ;
@@ -745,6 +763,8 @@ interface_member_declaration:
 		{ end_class_declaration (1); }
 |	interface_declaration	/* Added, JDK1.1 inner interfaces */
 		{ end_class_declaration (1); }
+|	enum_declaration
+		{ /* TODO */ }
 ;
 
 constant_declaration:
@@ -759,6 +779,37 @@ abstract_method_declaration:
 		}
 |	method_header error
 		{yyerror ("';' expected"); RECOVER;}
+;
+
+enum_declaration:
+	ENUM_TK identifier interfaces OCB_TK enum_constants CCB_TK
+		{ /* TODO */ }
+|	ENUM_TK identifier interfaces OCB_TK CCB_TK
+		{ /* TODO */ }
+|	ENUM_TK error
+		{yyerror ("Invalid enum declaration"); RECOVER;}
+|	ENUM_TK identifier error
+		{yyerror ("Invalid enum declaration"); RECOVER;}
+|	ENUM_TK identifier interfaces error
+		{yyerror ("Invalid enum declaration"); RECOVER;}
+|	ENUM_TK identifier interfaces OCB_TK error
+		{yyerror ("Invalid enum declaration"); RECOVER;}
+|	ENUM_TK identifier interfaces OCB_TK enum_constants error
+		{yyerror ("Invalid enum declaration"); RECOVER;}
+;
+
+enum_constants:
+	enum_constant
+		{ /* TODO */ }
+|	enum_constants C_TK enum_constant
+		{ /* TODO */ }
+|	enum_constants C_TK error
+		{yyerror ("Missing enum constant"); RECOVER;}
+;
+
+enum_constant:
+	identifier		/* Doesn't support enum args, but we hope those are rare */
+		{ /* TODO */ }
 ;
 
 /* 19.10 Productions from 10: Arrays  */
