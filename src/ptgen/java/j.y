@@ -8,8 +8,8 @@ literal:
 |	FP_LIT_TK
 |	BOOL_LIT_TK
 |	CHAR_LIT_TK
-|       STRING_LIT_TK
-|       NULL_TK
+|	STRING_LIT_TK
+|	NULL_TK
 ;
 
 /* 19.4 Productions from 4: Types, Values and Variables  */
@@ -2053,9 +2053,9 @@ unary_expression_not_plus_minus:
 |	NEG_TK unary_expression
  		{$$ = build_unaryop ($1.token, $1.location, $2); }
 |	cast_expression
-|       NOT_TK error
+|	NOT_TK error
 		{yyerror ("Missing term"); RECOVER}
-|       NEG_TK error
+|	NEG_TK error
 		{yyerror ("Missing term"); RECOVER}
 ;
 
