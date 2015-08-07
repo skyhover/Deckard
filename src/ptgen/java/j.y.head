@@ -46,6 +46,7 @@
 %token   ID_TK
 
 %token   REL_QM_TK         REL_CL_TK NOT_TK  NEG_TK
+%token   AT_TK
 
 %token   ASSIGN_ANY_TK   ASSIGN_TK
 %token   ELLIPSIS_TK

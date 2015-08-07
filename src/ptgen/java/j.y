@@ -130,9 +130,15 @@ package_declaration:
 		  ctxp->package = EXPR_WFL_NODE ($2);
 		  register_package (ctxp->package);
 		}
+|	annotations PACKAGE_TK name SC_TK
+		{ /* TODO */ }
 |	PACKAGE_TK error
 		{yyerror ("Missing name"); RECOVER;}
 |	PACKAGE_TK name error
+		{yyerror ("';' expected"); RECOVER;}
+|	annotations PACKAGE_TK error
+		{yyerror ("Missing name"); RECOVER;}
+|	annotations PACKAGE_TK name error
 		{yyerror ("';' expected"); RECOVER;}
 ;
 
@@ -211,12 +217,141 @@ type_import_on_demand_declaration:
 		{yyerror ("';' expected"); RECOVER;}
 ;
 
+annotations:
+	annotation
+		{ /* TODO */ }
+|	annotations annotation
+		{ /* TODO */ }
+;
+
+annotation:
+	AT_TK annotation_name
+		{ /* TODO */ }
+|	AT_TK annotation_name OP_TK element_value CP_TK
+		{ /* TODO */ }
+|	AT_TK annotation_name OP_TK element_value_pairs CP_TK
+		{ /* TODO */ }
+|	AT_TK error
+		{yyerror ("Annotation name expected"); RECOVER;}
+|	AT_TK annotation_name OP_TK error
+		{yyerror ("')' expected"); RECOVER;}
+;
+
+annotation_name:
+	name
+		{ /* TODO */ }
+;
+
+element_value_pairs:
+	element_value_pair
+		{ /* TODO */ }
+|	element_value_pairs C_TK element_value_pair
+		{ /* TODO */ }
+|	element_value_pairs C_TK error
+		{yyerror ("Key-value pair expected"); RECOVER;}
+;
+
+element_value_pair:
+	identifier EQ_TK element_value
+		{ /* TODO */ }
+;
+
+element_value:
+	expression
+		{ /* TODO */ }
+|	annotation
+		{ /* TODO */ }
+|	element_value_array_initializer
+		{ /* TODO */ }
+;
+
+element_value_array_initializer:
+	OCB_TK element_value_pairs C_TK CCB_TK
+		{ /* TODO */ }
+|	OCB_TK element_value_pairs CCB_TK
+		{ /* TODO */ }
+|	OCB_TK CCB_TK
+		{ /* TODO */ }
+;
+
+annotation_type_declaration:
+	AT_TK INTERFACE_TK identifier annotation_type_body
+		{ /* TODO */ }
+;
+
+annotation_type_body:
+	OCB_TK annotation_type_element_declarations CCB_TK
+		{ /* TODO */ }
+	OCB_TK SC_TK CCB_TK
+		{ /* TODO */ }
+	OCB_TK annotation_type_element_declarations error
+		{yyerror ("'}' expected"); RECOVER;}
+;
+
+annotation_type_element_declarations:
+	annotation_type_element_declaration
+		{ /* TODO */ }
+|	annotation_type_element_declarations annotation_type_element_declaration
+		{ /* TODO */ }
+;
+
+annotation_type_element_declaration:
+	annotation_type_element_rest
+		{ /* TODO */ }
+|	modifiers annotation_type_element_rest
+		{ /* TODO */ }
+;
+
+annotation_type_element_rest:
+	type annotation_method_or_constant_rest SC_TK
+		{ /* TODO */ }
+|	annotation_type_element_non_delimited SC_TK
+		{ /* TODO */ }
+|	annotation_type_element_non_delimited
+		{ /* TODO */ }
+;
+
+annotation_type_element_non_delimited:
+	class_declaration
+		{ /* TODO */ }
+|	interface_declaration
+		{ /* TODO */ }
+|	enum_declaration
+		{ /* TODO */ }
+|	annotation_type_declaration
+		{ /* TODO */ }
+;
+
+annotation_method_or_constant_rest:
+	annotation_method_rest
+		{ /* TODO */ }
+|	annotation_constant_rest
+		{ /* TODO */ }
+;
+
+annotation_method_rest:
+	identifier OP_TK CP_TK default_value
+		{ /* TODO */ }
+;
+
+annotation_constant_rest:
+	variable_declarators
+		{ /* TODO */ }
+;
+
+default_value:
+	DEFAULT_TK element_value
+		{ /* TODO */ }
+;
+
 type_declaration:
 	class_declaration
 		{ end_class_declaration (0); }
 |	interface_declaration
 		{ end_class_declaration (0); }
 |	enum_declaration
+		{ /* TODO */ }
+|	annotation_type_declaration
 		{ /* TODO */ }
 |	empty_statement
 |	error
@@ -262,6 +397,8 @@ modifier:
 |	STRICT_TK
 |	CONST_TK
 |	MODIFIER_TK
+|	annotation
+		{ /* TODO */ }
 ;
 
 /* 19.8.1 Production from $8.1: Class Declaration */
@@ -879,6 +1016,8 @@ enum_constants:
 
 enum_constant:
 	identifier		/* Doesn't support enum args, but we hope those are rare */
+		{ /* TODO */ }
+|	annotations identifier
 		{ /* TODO */ }
 ;
 

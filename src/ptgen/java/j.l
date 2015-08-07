@@ -144,6 +144,7 @@ int line = 1;
 "|" {count();yylvalp->t=new Terminal(name2id["OR_TK"],yytext,line);return(OR_TK); }
 "?" {count();yylvalp->t=new Terminal(name2id["REL_QM_TK"],yytext,line);return(REL_QM_TK); }
 ":" {count();yylvalp->t=new Terminal(name2id["REL_CL_TK"],yytext,line);return(REL_CL_TK); }
+"@" {count();yylvalp->t=new Terminal(name2id["AT_TK"],yytext,line);return(AT_TK); }
 ([ \t\v\n\r])+ {count();}
 . {count();} 
 
