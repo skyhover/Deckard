@@ -46,6 +46,8 @@ reference_type:
 
 class_or_interface_type:
 	name
+|	name type_list
+		{ /* TODO */ }
 ;
 
 class_type:
@@ -272,17 +274,55 @@ class_declaration:
 		{ create_class (0, $2, $3, $4); }
 	class_body
 		{;}
+|	modifiers CLASS_TK identifier type_list super interfaces
+		{ /* TODO */ }
+	class_body
+		{ /* TODO */ }
+|	CLASS_TK identifier type_list super interfaces
+		{ /* TODO */ }
+	class_body
+		{ /* TODO */ }
 |	modifiers CLASS_TK error
 		{ yyerror ("Missing class name"); RECOVER; }
 |	CLASS_TK error
 		{ yyerror ("Missing class name"); RECOVER; }
-|       CLASS_TK identifier error
+|	CLASS_TK identifier error
 		{
 		  if (!ctxp->class_err) yyerror (" expected");
 		  DRECOVER(class1);
 		}
-|       modifiers CLASS_TK identifier error
+|	modifiers CLASS_TK identifier error
 		{ if (!ctxp->class_err) yyerror (" expected"); RECOVER; }
+;
+
+type_list:
+	LT_TK type_parameters GT_TK
+		{ /* TODO */ }
+|	LT_TK GT_TK
+		{ /* TODO */ }
+;
+
+type_parameters:
+	type_parameter
+		{ /* TODO */ }
+|	type_parameters C_TK type_parameter
+		{ /* TODO */ }
+;
+
+type_parameter:
+	identifier
+		{ /* TODO */ }
+|	identifier EXTENDS_TK type_bound
+		{ /* TODO */ }
+|	identifier EXTENDS_TK error
+		{ yyerror ("Type expected"); RECOVER; }
+;
+
+type_bound:
+	type
+		{ /* TODO */ }
+|	type_bound AND_TK type
+		{ /* TODO */ }
 ;
 
 super:
@@ -349,6 +389,7 @@ class_body_declaration:
 	class_member_declaration
 |	static_initializer
 |	constructor_declaration
+|	generic_constructor_declaration
 |	block			/* Added, JDK1.1, instance initializer */
 		{
 		  if ($1 != empty_stmt_node)
@@ -362,6 +403,7 @@ class_body_declaration:
 class_member_declaration:
 	field_declaration
 |	method_declaration
+|	generic_method_declaration
 |	class_declaration	/* Added, JDK1.1 inner classes */
 		{ end_class_declaration (1); }
 |	interface_declaration	/* Added, JDK1.1 inner interfaces */
@@ -453,6 +495,11 @@ method_declaration:
 		{ finish_method_declaration ($3); }
 |	method_header error
 		{YYNOT_TWICE yyerror (" expected"); RECOVER;}
+;
+
+generic_method_declaration:
+	type_list method_declaration
+		{ /* TODO */ }
 ;
 
 method_header:
@@ -627,6 +674,11 @@ constructor_declaration:
 		{ finish_method_declaration ($3); }
 ;
 
+generic_constructor_declaration:
+	type_list constructor_declaration
+		{ /* TODO */ }
+;
+
 constructor_header:
 	constructor_declarator throws
 		{ $$ = method_header (0, NULL_TREE, $1, $2); }
@@ -717,6 +769,18 @@ interface_declaration:
 		{ create_interface (0, $2, $3);	}
 	interface_body
 		{ ; }
+|	INTERFACE_TK identifier type_list
+		{ /* TODO */ }
+	interface_body
+		{ /* TODO */ }
+|	modifiers INTERFACE_TK identifier type_list
+		{ /* TODO */ }
+	interface_body
+		{ /* TODO */ }
+|	INTERFACE_TK identifier type_list extends_interfaces
+		{ /* TODO */ }
+	interface_body
+		{ /* TODO */ }
 |	modifiers INTERFACE_TK identifier extends_interfaces
 		{ create_interface ($1, $3, $4); }
 	interface_body
@@ -759,6 +823,7 @@ interface_member_declarations:
 interface_member_declaration:
 	constant_declaration
 |	abstract_method_declaration
+|	generic_abstract_method_declaration
 |	class_declaration	/* Added, JDK1.1 inner classes */
 		{ end_class_declaration (1); }
 |	interface_declaration	/* Added, JDK1.1 inner interfaces */
@@ -779,6 +844,11 @@ abstract_method_declaration:
 		}
 |	method_header error
 		{yyerror ("';' expected"); RECOVER;}
+;
+
+generic_abstract_method_declaration:
+	type_list abstract_method_declaration
+		{ /* TODO */ }
 ;
 
 enum_declaration:
