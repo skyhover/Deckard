@@ -53,7 +53,7 @@ class_type:
 ;
 
 interface_type:
-	 class_or_interface_type
+	class_or_interface_type
 ;
 
 array_type:
@@ -100,10 +100,10 @@ compilation_unit:
 |	package_declaration
 |	import_declarations
 |	type_declarations
-|       package_declaration import_declarations
-|       package_declaration type_declarations
-|       import_declarations type_declarations
-|       package_declaration import_declarations type_declarations
+|	package_declaration import_declarations
+|	package_declaration type_declarations
+|	import_declarations type_declarations
+|	package_declaration import_declarations type_declarations
 ;
 
 import_declarations:
@@ -503,6 +503,8 @@ formal_parameter_list:
 		{
 		  ctxp->formal_parameter_number = 1;
 		}
+|	formal_parameter_list C_TK last_formal_parameter
+		{ /* TODO */ }
 |	formal_parameter_list C_TK formal_parameter
 		{
 		  ctxp->formal_parameter_number += 1;
@@ -510,6 +512,11 @@ formal_parameter_list:
 		}
 |	formal_parameter_list C_TK error
 		{ yyerror ("Missing formal parameter term"); RECOVER; }
+;
+
+last_formal_parameter:
+	type ELLIPSIS_TK variable_declarator_id
+		{ /* TODO */ }
 ;
 
 formal_parameter:
@@ -1127,6 +1134,8 @@ for_statement:
 		  LOOP_EXPR_BODY_CONDITION_EXPR (LOOP_EXPR_BODY ($$), 0) =
 		    empty_stmt_node;
 		}
+|	for_header type variable_declarator REL_CL_TK expression CP_TK statement
+		{ /* TODO */ }
 |	for_begin SC_TK error
 		{yyerror ("Invalid control expression"); RECOVER;}
 |	for_begin SC_TK expression SC_TK error
@@ -1145,6 +1154,8 @@ for_statement_nsi:
 		  LOOP_EXPR_BODY_CONDITION_EXPR (LOOP_EXPR_BODY ($$), 0) =
 		    empty_stmt_node;
 		}
+|	for_header type variable_declarator REL_CL_TK expression CP_TK statement_nsi
+		{ /* TODO */ }
 ;
 
 for_header:
@@ -1343,7 +1354,7 @@ catch_clause_parameter:
                         (ASSIGN_TK, $2.location, TREE_PURPOSE ($3),
                          build (JAVA_EXC_OBJ_EXPR, ptr_type_node));
                       declare_local_variables (0, TREE_VALUE ($3),
-                                               build_tree_list 
+                                               build_tree_list
 					       (TREE_PURPOSE ($3), init));
                       $$ = build1 (CATCH_EXPR, NULL_TREE, ccpb);
                       EXPR_WFL_LINECOL ($$) = $1.location;
@@ -2064,7 +2075,7 @@ assign_any:
 |	AND_ASSIGN_TK
 |	XOR_ASSIGN_TK
 |	OR_ASSIGN_TK
-;	
+;
 
 
 expression:

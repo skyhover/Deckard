@@ -47,6 +47,7 @@
 %token   REL_QM_TK         REL_CL_TK NOT_TK  NEG_TK
 
 %token   ASSIGN_ANY_TK   ASSIGN_TK
+%token   ELLIPSIS_TK
 %token   OP_TK  CP_TK  OCB_TK  CCB_TK  OSB_TK  CSB_TK  SC_TK  C_TK DOT_TK
 
 %token   STRING_LIT_TK   CHAR_LIT_TK        INT_LIT_TK        FP_LIT_TK

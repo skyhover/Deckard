@@ -127,6 +127,7 @@ int line = 1;
 ")" {count();yylvalp->t=new Terminal(name2id["CP_TK"],yytext,line);return(CP_TK); }
 "[" {count();yylvalp->t=new Terminal(name2id["OSB_TK"],yytext,line);return(OSB_TK); }
 "]" {count();yylvalp->t=new Terminal(name2id["CSB_TK"],yytext,line);return(CSB_TK); }
+"\.\.\." {count();yylvalp->t=new Terminal(name2id["ELLIPSIS_TK"],yytext,line);return(ELLIPSIS_TK); }
 "\." {count();yylvalp->t=new Terminal(name2id["DOT_TK"],yytext,line);return(DOT_TK); }
 "&" {count();yylvalp->t=new Terminal(name2id["AND_TK"],yytext,line);return(AND_TK); }
 "!" {count();yylvalp->t=new Terminal(name2id["NOT_TK"],yytext,line);return(NOT_TK); }
