@@ -442,7 +442,16 @@ class_declaration:
 type_list:
 	LT_TK type_parameters GT_TK
 		{ /* TODO */ }
+|	LT_TK types GT_TK
+		{ /* TODO */ }
 |	LT_TK GT_TK
+		{ /* TODO */ }
+;
+
+types:
+	type
+		{ /* TODO */ }
+|	types C_TK type
 		{ /* TODO */ }
 ;
 

@@ -92,7 +92,7 @@ int line = 1;
 (0[xX]){H}+([Ll]?) {count();yylvalp->t=new Terminal(name2id["INT_LIT_TK"],yytext,line);return(INT_LIT_TK); }
 {D}+([Ll]?) {count();yylvalp->t=new Terminal(name2id["INT_LIT_TK"],yytext,line);return(INT_LIT_TK); }
 {D}+[FfDd] {count();yylvalp->t=new Terminal(name2id["FP_LIT_TK"],yytext,line);return(FP_LIT_TK); }
-{D}+[eE]{D}+[fFdD]? {count();yylvalp->t=new Terminal(name2id["FP_LIT_TK"],yytext,line);return(FP_LIT_TK); }
+{D}+[eE]("-")?{D}+[fFdD]? {count();yylvalp->t=new Terminal(name2id["FP_LIT_TK"],yytext,line);return(FP_LIT_TK); }
 {D}+"."{D}*("E"({D})+)?[fFdD]? {count();yylvalp->t=new Terminal(name2id["FP_LIT_TK"],yytext,line);return(FP_LIT_TK); }
 {D}*"."{D}+("E"({D})+)?[fFdD]? {count();yylvalp->t=new Terminal(name2id["FP_LIT_TK"],yytext,line);return(FP_LIT_TK); }
 "\"".*"\"" {count();yylvalp->t=new Terminal(name2id["STRING_LIT_TK"],yytext,line);return(STRING_LIT_TK); }
@@ -109,9 +109,9 @@ int line = 1;
 "&=" {count();yylvalp->t=new Terminal(name2id["AND_ASSIGN_TK"],yytext,line);return(AND_ASSIGN_TK); }
 "^=" {count();yylvalp->t=new Terminal(name2id["XOR_ASSIGN_TK"],yytext,line);return(XOR_ASSIGN_TK); }
 "|=" {count();yylvalp->t=new Terminal(name2id["OR_ASSIGN_TK"],yytext,line);return(OR_ASSIGN_TK); }
-">>" {count();yylvalp->t=new Terminal(name2id["SRS_TK"],yytext,line);return(SRS_TK); }
+" >>" {count();yylvalp->t=new Terminal(name2id["SRS_TK"],yytext,line);return(SRS_TK); }
 "<<" {count();yylvalp->t=new Terminal(name2id["LS_TK"],yytext,line);return(LS_TK); }
-">>>" {count();yylvalp->t=new Terminal(name2id["ZRS_TK"],yytext,line);return(ZRS_TK); }
+" >>>" {count();yylvalp->t=new Terminal(name2id["ZRS_TK"],yytext,line);return(ZRS_TK); }
 "++" {count();yylvalp->t=new Terminal(name2id["INCR_TK"],yytext,line);return(INCR_TK); }
 "--" {count();yylvalp->t=new Terminal(name2id["DECR_TK"],yytext,line);return(DECR_TK); }
 "&&" {count();yylvalp->t=new Terminal(name2id["BOOL_AND_TK"],yytext,line);return(BOOL_AND_TK); }
