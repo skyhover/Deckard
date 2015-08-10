@@ -1592,17 +1592,47 @@ synchronized:
 ;
 
 try_statement:
-	TRY_TK block catches
+	try_head block catches
 		{ $$ = build_try_statement ($1.location, $2, $3); }
-|	TRY_TK block finally
+|	try_head block finally
 		{ $$ = build_try_finally_statement ($1.location, $2, $3); }
-|	TRY_TK block catches finally
+|	try_head block catches finally
 		{ $$ = build_try_finally_statement
 		    ($1.location, build_try_statement ($1.location,
 						       $2, $3), $4);
 		}
-|	TRY_TK error
+|	try_head error
 		{yyerror (" expected"); DRECOVER (try_statement);}
+;
+
+try_head:
+	TRY_TK
+		{ /* TODO */ }
+|	TRY_TK resource_list
+		{ /* TODO */ }
+|	TRY_TK error
+		{yyerror ("Resources or statement block expected."); RECOVER;}
+;
+
+resource_list:
+	OP_TK CP_TK
+		{ /* TODO */ }
+|	OP_TK resources CP_TK
+		{ /* TODO */ }
+|	OP_TK error
+		{yyerror ("Expected resource declarations."); RECOVER;}
+;
+
+resources:
+	resource
+		{ /* TODO */ }
+|	resources SC_TK resource
+		{ /* TODO */ }
+;
+
+resource:
+	type variable_declarator
+		{ /* TODO */ }
 ;
 
 catches:
