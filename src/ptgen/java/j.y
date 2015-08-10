@@ -42,6 +42,8 @@ float:
 reference_type:
 	class_or_interface_type
 |	array_type
+|	class_or_interface_array_type
+		{ /* TODO */ }
 ;
 
 class_or_interface_type:
@@ -75,6 +77,11 @@ array_type:
 		    t = build_unresolved_array_type (t);
 		  $$ = t;
 		}
+;
+
+class_or_interface_array_type:
+	class_or_interface_type dims
+		{ /* TODO */ }
 ;
 
 /* 19.5 Productions from 6: Names  */
