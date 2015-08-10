@@ -1033,6 +1033,8 @@ enum_constants:
 		{ /* TODO */ }
 |	enum_constants C_TK enum_constant
 		{ /* TODO */ }
+|	enum_constants SC_TK
+		{ /* TODO */ }
 |	enum_constants C_TK error
 		{yyerror ("Missing enum constant"); RECOVER;}
 ;

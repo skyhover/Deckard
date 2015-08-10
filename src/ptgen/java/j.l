@@ -95,7 +95,7 @@ int line = 1;
 {D}+[eE]("-")?{D}+[fFdD]? {count();yylvalp->t=new Terminal(name2id["FP_LIT_TK"],yytext,line);return(FP_LIT_TK); }
 {D}+"."{D}*("E"({D})+)?[fFdD]? {count();yylvalp->t=new Terminal(name2id["FP_LIT_TK"],yytext,line);return(FP_LIT_TK); }
 {D}*"."{D}+("E"({D})+)?[fFdD]? {count();yylvalp->t=new Terminal(name2id["FP_LIT_TK"],yytext,line);return(FP_LIT_TK); }
-"\"".*"\"" {count();yylvalp->t=new Terminal(name2id["STRING_LIT_TK"],yytext,line);return(STRING_LIT_TK); }
+"\""[^"]*"\"" {count();yylvalp->t=new Terminal(name2id["STRING_LIT_TK"],yytext,line);return(STRING_LIT_TK); }
 "'"[^\r\n\t']*"'" {count();yylvalp->t=new Terminal(name2id["CHAR_LIT_TK"],yytext,line);return(CHAR_LIT_TK); }
 {L}?\"(\\.|[^\\"])*\"k {count();yylvalp->t=new Terminal(name2id["STRING_LIT_TK"],yytext,line);return(STRING_LIT_TK); }
 ">>=" {count();yylvalp->t=new Terminal(name2id["SRS_ASSIGN_TK"],yytext,line);return(SRS_ASSIGN_TK); }
