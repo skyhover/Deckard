@@ -372,11 +372,18 @@ type_declaration:
    modifiers: modifier | modifiers modifier
    modifier: any of public...  */
 modifiers:
+	modifiers_without_type_parameterization
+		{ /* TODO */ }
+|	modifiers_without_type_parameterization type_list
+		{ /* TODO */ }
+;
+
+modifiers_without_type_parameterization:
 	 modifier
 		{
 		  $$ = (1 << $1);
 		}
-|	modifiers modifier
+|	modifiers_without_type_parameterization modifier
 		{
 		  int acc = (1 << $2);
 		  if ($$ & acc)
