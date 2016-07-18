@@ -8,8 +8,8 @@ literal:
 |	FP_LIT_TK
 |	BOOL_LIT_TK
 |	CHAR_LIT_TK
-|       STRING_LIT_TK
-|       NULL_TK
+|	STRING_LIT_TK
+|	NULL_TK
 ;
 
 /* 19.4 Productions from 4: Types, Values and Variables  */
@@ -42,10 +42,14 @@ float:
 reference_type:
 	class_or_interface_type
 |	array_type
+|	class_or_interface_array_type
+		{ /* TODO */ }
 ;
 
 class_or_interface_type:
 	name
+|	name type_list
+		{ /* TODO */ }
 ;
 
 class_type:
@@ -53,7 +57,7 @@ class_type:
 ;
 
 interface_type:
-	 class_or_interface_type
+	class_or_interface_type
 ;
 
 array_type:
@@ -73,6 +77,11 @@ array_type:
 		    t = build_unresolved_array_type (t);
 		  $$ = t;
 		}
+;
+
+class_or_interface_array_type:
+	class_or_interface_type dims
+		{ /* TODO */ }
 ;
 
 /* 19.5 Productions from 6: Names  */
@@ -100,10 +109,10 @@ compilation_unit:
 |	package_declaration
 |	import_declarations
 |	type_declarations
-|       package_declaration import_declarations
-|       package_declaration type_declarations
-|       import_declarations type_declarations
-|       package_declaration import_declarations type_declarations
+|	package_declaration import_declarations
+|	package_declaration type_declarations
+|	import_declarations type_declarations
+|	package_declaration import_declarations type_declarations
 ;
 
 import_declarations:
@@ -128,9 +137,15 @@ package_declaration:
 		  ctxp->package = EXPR_WFL_NODE ($2);
 		  register_package (ctxp->package);
 		}
+|	annotations PACKAGE_TK name SC_TK
+		{ /* TODO */ }
 |	PACKAGE_TK error
 		{yyerror ("Missing name"); RECOVER;}
 |	PACKAGE_TK name error
+		{yyerror ("';' expected"); RECOVER;}
+|	annotations PACKAGE_TK error
+		{yyerror ("Missing name"); RECOVER;}
+|	annotations PACKAGE_TK name error
 		{yyerror ("';' expected"); RECOVER;}
 ;
 
@@ -166,9 +181,15 @@ single_type_import_declaration:
 		  else
 		    REGISTER_IMPORT ($2, last_name);
 		}
+|	IMPORT_TK STATIC_TK name SC_TK
+		{ /* TODO */ }
 |	IMPORT_TK error
 		{yyerror ("Missing name"); RECOVER;}
 |	IMPORT_TK name error
+		{yyerror ("';' expected"); RECOVER;}
+|	IMPORT_TK STATIC_TK error
+		{yyerror ("Missing name"); RECOVER;}
+|	IMPORT_TK STATIC_TK name error
 		{yyerror ("';' expected"); RECOVER;}
 ;
 
@@ -191,10 +212,143 @@ type_import_on_demand_declaration:
 				 build_tree_list ($2, NULL_TREE));
 		    }
 		}
+|	IMPORT_TK STATIC_TK name DOT_TK MULT_TK SC_TK
+		{ /* TODO */ }
 |	IMPORT_TK name DOT_TK error
 		{yyerror ("'*' expected"); RECOVER;}
 |	IMPORT_TK name DOT_TK MULT_TK error
 		{yyerror ("';' expected"); RECOVER;}
+|	IMPORT_TK STATIC_TK name DOT_TK error
+		{yyerror ("'*' expected"); RECOVER;}
+|	IMPORT_TK STATIC_TK name DOT_TK MULT_TK error
+		{yyerror ("';' expected"); RECOVER;}
+;
+
+annotations:
+	annotation
+		{ /* TODO */ }
+|	annotations annotation
+		{ /* TODO */ }
+;
+
+annotation:
+	AT_TK annotation_name
+		{ /* TODO */ }
+|	AT_TK annotation_name OP_TK element_value CP_TK
+		{ /* TODO */ }
+|	AT_TK annotation_name OP_TK element_value_pairs CP_TK
+		{ /* TODO */ }
+|	AT_TK error
+		{yyerror ("Annotation name expected"); RECOVER;}
+|	AT_TK annotation_name OP_TK error
+		{yyerror ("')' expected"); RECOVER;}
+;
+
+annotation_name:
+	name
+		{ /* TODO */ }
+;
+
+element_value_pairs:
+	element_value_pair
+		{ /* TODO */ }
+|	element_value_pairs C_TK element_value_pair
+		{ /* TODO */ }
+|	element_value_pairs C_TK error
+		{yyerror ("Key-value pair expected"); RECOVER;}
+;
+
+element_value_pair:
+	identifier EQ_TK element_value
+		{ /* TODO */ }
+;
+
+element_value:
+	expression
+		{ /* TODO */ }
+|	annotation
+		{ /* TODO */ }
+|	element_value_array_initializer
+		{ /* TODO */ }
+;
+
+element_value_array_initializer:
+	OCB_TK element_value_pairs C_TK CCB_TK
+		{ /* TODO */ }
+|	OCB_TK element_value_pairs CCB_TK
+		{ /* TODO */ }
+|	OCB_TK CCB_TK
+		{ /* TODO */ }
+;
+
+annotation_type_declaration:
+	AT_TK INTERFACE_TK identifier annotation_type_body
+		{ /* TODO */ }
+;
+
+annotation_type_body:
+	OCB_TK annotation_type_element_declarations CCB_TK
+		{ /* TODO */ }
+	OCB_TK SC_TK CCB_TK
+		{ /* TODO */ }
+	OCB_TK annotation_type_element_declarations error
+		{yyerror ("'}' expected"); RECOVER;}
+;
+
+annotation_type_element_declarations:
+	annotation_type_element_declaration
+		{ /* TODO */ }
+|	annotation_type_element_declarations annotation_type_element_declaration
+		{ /* TODO */ }
+;
+
+annotation_type_element_declaration:
+	annotation_type_element_rest
+		{ /* TODO */ }
+|	modifiers annotation_type_element_rest
+		{ /* TODO */ }
+;
+
+annotation_type_element_rest:
+	type annotation_method_or_constant_rest SC_TK
+		{ /* TODO */ }
+|	annotation_type_element_non_delimited SC_TK
+		{ /* TODO */ }
+|	annotation_type_element_non_delimited
+		{ /* TODO */ }
+;
+
+annotation_type_element_non_delimited:
+	class_declaration
+		{ /* TODO */ }
+|	interface_declaration
+		{ /* TODO */ }
+|	enum_declaration
+		{ /* TODO */ }
+|	annotation_type_declaration
+		{ /* TODO */ }
+;
+
+annotation_method_or_constant_rest:
+	annotation_method_rest
+		{ /* TODO */ }
+|	annotation_constant_rest
+		{ /* TODO */ }
+;
+
+annotation_method_rest:
+	identifier OP_TK CP_TK default_value
+		{ /* TODO */ }
+;
+
+annotation_constant_rest:
+	variable_declarators
+		{ /* TODO */ }
+;
+
+default_value:
+	DEFAULT_TK element_value
+		{ /* TODO */ }
 ;
 
 type_declaration:
@@ -202,6 +356,10 @@ type_declaration:
 		{ end_class_declaration (0); }
 |	interface_declaration
 		{ end_class_declaration (0); }
+|	enum_declaration
+		{ /* TODO */ }
+|	annotation_type_declaration
+		{ /* TODO */ }
 |	empty_statement
 |	error
 		{
@@ -214,11 +372,18 @@ type_declaration:
    modifiers: modifier | modifiers modifier
    modifier: any of public...  */
 modifiers:
+	modifiers_without_type_parameterization
+		{ /* TODO */ }
+|	modifiers_without_type_parameterization type_list
+		{ /* TODO */ }
+;
+
+modifiers_without_type_parameterization:
 	 modifier
 		{
 		  $$ = (1 << $1);
 		}
-|	modifiers modifier
+|	modifiers_without_type_parameterization modifier
 		{
 		  int acc = (1 << $2);
 		  if ($$ & acc)
@@ -246,6 +411,8 @@ modifier:
 |	STRICT_TK
 |	CONST_TK
 |	MODIFIER_TK
+|	annotation
+		{ /* TODO */ }
 ;
 
 /* 19.8.1 Production from $8.1: Class Declaration */
@@ -258,17 +425,64 @@ class_declaration:
 		{ create_class (0, $2, $3, $4); }
 	class_body
 		{;}
+|	modifiers CLASS_TK identifier type_list super interfaces
+		{ /* TODO */ }
+	class_body
+		{ /* TODO */ }
+|	CLASS_TK identifier type_list super interfaces
+		{ /* TODO */ }
+	class_body
+		{ /* TODO */ }
 |	modifiers CLASS_TK error
 		{ yyerror ("Missing class name"); RECOVER; }
 |	CLASS_TK error
 		{ yyerror ("Missing class name"); RECOVER; }
-|       CLASS_TK identifier error
+|	CLASS_TK identifier error
 		{
 		  if (!ctxp->class_err) yyerror (" expected");
 		  DRECOVER(class1);
 		}
-|       modifiers CLASS_TK identifier error
+|	modifiers CLASS_TK identifier error
 		{ if (!ctxp->class_err) yyerror (" expected"); RECOVER; }
+;
+
+type_list:
+	LT_TK type_parameters GT_TK
+		{ /* TODO */ }
+|	LT_TK types GT_TK
+		{ /* TODO */ }
+|	LT_TK GT_TK
+		{ /* TODO */ }
+;
+
+types:
+	type
+		{ /* TODO */ }
+|	types C_TK type
+		{ /* TODO */ }
+;
+
+type_parameters:
+	type_parameter
+		{ /* TODO */ }
+|	type_parameters C_TK type_parameter
+		{ /* TODO */ }
+;
+
+type_parameter:
+	identifier
+		{ /* TODO */ }
+|	identifier EXTENDS_TK type_bound
+		{ /* TODO */ }
+|	identifier EXTENDS_TK error
+		{ yyerror ("Type expected"); RECOVER; }
+;
+
+type_bound:
+	type
+		{ /* TODO */ }
+|	type_bound AND_TK type
+		{ /* TODO */ }
 ;
 
 super:
@@ -335,6 +549,7 @@ class_body_declaration:
 	class_member_declaration
 |	static_initializer
 |	constructor_declaration
+|	generic_constructor_declaration
 |	block			/* Added, JDK1.1, instance initializer */
 		{
 		  if ($1 != empty_stmt_node)
@@ -348,10 +563,13 @@ class_body_declaration:
 class_member_declaration:
 	field_declaration
 |	method_declaration
+|	generic_method_declaration
 |	class_declaration	/* Added, JDK1.1 inner classes */
 		{ end_class_declaration (1); }
 |	interface_declaration	/* Added, JDK1.1 inner interfaces */
 		{ end_class_declaration (1); }
+|	enum_declaration
+		{ /* TODO */ }
 |	empty_statement
 ;
 
@@ -439,6 +657,11 @@ method_declaration:
 		{YYNOT_TWICE yyerror (" expected"); RECOVER;}
 ;
 
+generic_method_declaration:
+	type_list method_declaration
+		{ /* TODO */ }
+;
+
 method_header:
 	type method_declarator throws
 		{ $$ = method_header (0, $1, $2, $3); }
@@ -503,13 +726,22 @@ formal_parameter_list:
 		{
 		  ctxp->formal_parameter_number = 1;
 		}
+|	last_formal_parameter
+		{ /* TODO */ }
 |	formal_parameter_list C_TK formal_parameter
 		{
 		  ctxp->formal_parameter_number += 1;
 		  $$ = chainon ($1, $3);
 		}
+|	formal_parameter_list C_TK last_formal_parameter
+		{ /* TODO */ }
 |	formal_parameter_list C_TK error
 		{ yyerror ("Missing formal parameter term"); RECOVER; }
+;
+
+last_formal_parameter:
+	type ELLIPSIS_TK variable_declarator_id
+		{ /* TODO */ }
 ;
 
 formal_parameter:
@@ -602,6 +834,11 @@ constructor_declaration:
 		{ finish_method_declaration ($3); }
 ;
 
+generic_constructor_declaration:
+	type_list constructor_declaration
+		{ /* TODO */ }
+;
+
 constructor_header:
 	constructor_declarator throws
 		{ $$ = method_header (0, NULL_TREE, $1, $2); }
@@ -692,6 +929,18 @@ interface_declaration:
 		{ create_interface (0, $2, $3);	}
 	interface_body
 		{ ; }
+|	INTERFACE_TK identifier type_list
+		{ /* TODO */ }
+	interface_body
+		{ /* TODO */ }
+|	modifiers INTERFACE_TK identifier type_list
+		{ /* TODO */ }
+	interface_body
+		{ /* TODO */ }
+|	INTERFACE_TK identifier type_list extends_interfaces
+		{ /* TODO */ }
+	interface_body
+		{ /* TODO */ }
 |	modifiers INTERFACE_TK identifier extends_interfaces
 		{ create_interface ($1, $3, $4); }
 	interface_body
@@ -734,10 +983,13 @@ interface_member_declarations:
 interface_member_declaration:
 	constant_declaration
 |	abstract_method_declaration
+|	generic_abstract_method_declaration
 |	class_declaration	/* Added, JDK1.1 inner classes */
 		{ end_class_declaration (1); }
 |	interface_declaration	/* Added, JDK1.1 inner interfaces */
 		{ end_class_declaration (1); }
+|	enum_declaration
+		{ /* TODO */ }
 ;
 
 constant_declaration:
@@ -752,6 +1004,46 @@ abstract_method_declaration:
 		}
 |	method_header error
 		{yyerror ("';' expected"); RECOVER;}
+;
+
+generic_abstract_method_declaration:
+	type_list abstract_method_declaration
+		{ /* TODO */ }
+;
+
+enum_declaration:
+	ENUM_TK identifier interfaces OCB_TK enum_constants CCB_TK
+		{ /* TODO */ }
+|	ENUM_TK identifier interfaces OCB_TK CCB_TK
+		{ /* TODO */ }
+|	ENUM_TK error
+		{yyerror ("Invalid enum declaration"); RECOVER;}
+|	ENUM_TK identifier error
+		{yyerror ("Invalid enum declaration"); RECOVER;}
+|	ENUM_TK identifier interfaces error
+		{yyerror ("Invalid enum declaration"); RECOVER;}
+|	ENUM_TK identifier interfaces OCB_TK error
+		{yyerror ("Invalid enum declaration"); RECOVER;}
+|	ENUM_TK identifier interfaces OCB_TK enum_constants error
+		{yyerror ("Invalid enum declaration"); RECOVER;}
+;
+
+enum_constants:
+	enum_constant
+		{ /* TODO */ }
+|	enum_constants C_TK enum_constant
+		{ /* TODO */ }
+|	enum_constants SC_TK
+		{ /* TODO */ }
+|	enum_constants C_TK error
+		{yyerror ("Missing enum constant"); RECOVER;}
+;
+
+enum_constant:
+	identifier		/* Doesn't support enum args, but we hope those are rare */
+		{ /* TODO */ }
+|	annotations identifier
+		{ /* TODO */ }
 ;
 
 /* 19.10 Productions from 10: Arrays  */
@@ -1127,6 +1419,8 @@ for_statement:
 		  LOOP_EXPR_BODY_CONDITION_EXPR (LOOP_EXPR_BODY ($$), 0) =
 		    empty_stmt_node;
 		}
+|	for_header type variable_declarator REL_CL_TK expression CP_TK statement
+		{ /* TODO */ }
 |	for_begin SC_TK error
 		{yyerror ("Invalid control expression"); RECOVER;}
 |	for_begin SC_TK expression SC_TK error
@@ -1145,6 +1439,8 @@ for_statement_nsi:
 		  LOOP_EXPR_BODY_CONDITION_EXPR (LOOP_EXPR_BODY ($$), 0) =
 		    empty_stmt_node;
 		}
+|	for_header type variable_declarator REL_CL_TK expression CP_TK statement_nsi
+		{ /* TODO */ }
 ;
 
 for_header:
@@ -1296,17 +1592,47 @@ synchronized:
 ;
 
 try_statement:
-	TRY_TK block catches
+	try_head block catches
 		{ $$ = build_try_statement ($1.location, $2, $3); }
-|	TRY_TK block finally
+|	try_head block finally
 		{ $$ = build_try_finally_statement ($1.location, $2, $3); }
-|	TRY_TK block catches finally
+|	try_head block catches finally
 		{ $$ = build_try_finally_statement
 		    ($1.location, build_try_statement ($1.location,
 						       $2, $3), $4);
 		}
-|	TRY_TK error
+|	try_head error
 		{yyerror (" expected"); DRECOVER (try_statement);}
+;
+
+try_head:
+	TRY_TK
+		{ /* TODO */ }
+|	TRY_TK resource_list
+		{ /* TODO */ }
+|	TRY_TK error
+		{yyerror ("Resources or statement block expected."); RECOVER;}
+;
+
+resource_list:
+	OP_TK CP_TK
+		{ /* TODO */ }
+|	OP_TK resources CP_TK
+		{ /* TODO */ }
+|	OP_TK error
+		{yyerror ("Expected resource declarations."); RECOVER;}
+;
+
+resources:
+	resource
+		{ /* TODO */ }
+|	resources SC_TK resource
+		{ /* TODO */ }
+;
+
+resource:
+	type variable_declarator
+		{ /* TODO */ }
 ;
 
 catches:
@@ -1343,7 +1669,7 @@ catch_clause_parameter:
                         (ASSIGN_TK, $2.location, TREE_PURPOSE ($3),
                          build (JAVA_EXC_OBJ_EXPR, ptr_type_node));
                       declare_local_variables (0, TREE_VALUE ($3),
-                                               build_tree_list 
+                                               build_tree_list
 					       (TREE_PURPOSE ($3), init));
                       $$ = build1 (CATCH_EXPR, NULL_TREE, ccpb);
                       EXPR_WFL_LINECOL ($$) = $1.location;
@@ -1782,9 +2108,9 @@ unary_expression_not_plus_minus:
 |	NEG_TK unary_expression
  		{$$ = build_unaryop ($1.token, $1.location, $2); }
 |	cast_expression
-|       NOT_TK error
+|	NOT_TK error
 		{yyerror ("Missing term"); RECOVER}
-|       NEG_TK error
+|	NEG_TK error
 		{yyerror ("Missing term"); RECOVER}
 ;
 
@@ -2064,7 +2390,7 @@ assign_any:
 |	AND_ASSIGN_TK
 |	XOR_ASSIGN_TK
 |	OR_ASSIGN_TK
-;	
+;
 
 
 expression:

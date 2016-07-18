@@ -76,6 +76,7 @@ int line = 1;
 "package" {count();yylvalp->t=new Terminal(name2id["PACKAGE_TK"],yytext,line);return (PACKAGE_TK);}
 "this" {count();yylvalp->t=new Terminal(name2id["THIS_TK"],yytext,line);return (THIS_TK);}
 "assert" {count();yylvalp->t=new Terminal(name2id["ASSERT_TK"],yytext,line);return (ASSERT_TK);}
+"enum" {count();yylvalp->t=new Terminal(name2id["ENUM_TK"],yytext,line);return (ENUM_TK);}
 "byte" {count();yylvalp->t=new Terminal(name2id["BYTE_TK"],yytext,line);return (BYTE_TK);}
 "short" {count();yylvalp->t=new Terminal(name2id["SHORT_TK"],yytext,line);return (SHORT_TK);}
 "int" {count();yylvalp->t=new Terminal(name2id["INT_TK"],yytext,line);return (INT_TK);}
@@ -91,10 +92,11 @@ int line = 1;
 (0[xX]){H}+([Ll]?) {count();yylvalp->t=new Terminal(name2id["INT_LIT_TK"],yytext,line);return(INT_LIT_TK); }
 {D}+([Ll]?) {count();yylvalp->t=new Terminal(name2id["INT_LIT_TK"],yytext,line);return(INT_LIT_TK); }
 {D}+[FfDd] {count();yylvalp->t=new Terminal(name2id["FP_LIT_TK"],yytext,line);return(FP_LIT_TK); }
+{D}+[eE]("-")?{D}+[fFdD]? {count();yylvalp->t=new Terminal(name2id["FP_LIT_TK"],yytext,line);return(FP_LIT_TK); }
 {D}+"."{D}*("E"({D})+)?[fFdD]? {count();yylvalp->t=new Terminal(name2id["FP_LIT_TK"],yytext,line);return(FP_LIT_TK); }
 {D}*"."{D}+("E"({D})+)?[fFdD]? {count();yylvalp->t=new Terminal(name2id["FP_LIT_TK"],yytext,line);return(FP_LIT_TK); }
-"\"".*"\"" {count();yylvalp->t=new Terminal(name2id["STRING_LIT_TK"],yytext,line);return(STRING_LIT_TK); }
-"'"[^ \r\n\t]*"'" {count();yylvalp->t=new Terminal(name2id["CHAR_LIT_TK"],yytext,line);return(CHAR_LIT_TK); }
+"\""[^"]*"\"" {count();yylvalp->t=new Terminal(name2id["STRING_LIT_TK"],yytext,line);return(STRING_LIT_TK); }
+"'"[^\r\n\t']*"'" {count();yylvalp->t=new Terminal(name2id["CHAR_LIT_TK"],yytext,line);return(CHAR_LIT_TK); }
 {L}?\"(\\.|[^\\"])*\"k {count();yylvalp->t=new Terminal(name2id["STRING_LIT_TK"],yytext,line);return(STRING_LIT_TK); }
 ">>=" {count();yylvalp->t=new Terminal(name2id["SRS_ASSIGN_TK"],yytext,line);return(SRS_ASSIGN_TK); }
 "<<=" {count();yylvalp->t=new Terminal(name2id["LS_ASSIGN_TK"],yytext,line);return(LS_ASSIGN_TK); }
@@ -107,9 +109,9 @@ int line = 1;
 "&=" {count();yylvalp->t=new Terminal(name2id["AND_ASSIGN_TK"],yytext,line);return(AND_ASSIGN_TK); }
 "^=" {count();yylvalp->t=new Terminal(name2id["XOR_ASSIGN_TK"],yytext,line);return(XOR_ASSIGN_TK); }
 "|=" {count();yylvalp->t=new Terminal(name2id["OR_ASSIGN_TK"],yytext,line);return(OR_ASSIGN_TK); }
-">>" {count();yylvalp->t=new Terminal(name2id["SRS_TK"],yytext,line);return(SRS_TK); }
+" >>" {count();yylvalp->t=new Terminal(name2id["SRS_TK"],yytext,line);return(SRS_TK); }
 "<<" {count();yylvalp->t=new Terminal(name2id["LS_TK"],yytext,line);return(LS_TK); }
-">>>" {count();yylvalp->t=new Terminal(name2id["ZRS_TK"],yytext,line);return(ZRS_TK); }
+" >>>" {count();yylvalp->t=new Terminal(name2id["ZRS_TK"],yytext,line);return(ZRS_TK); }
 "++" {count();yylvalp->t=new Terminal(name2id["INCR_TK"],yytext,line);return(INCR_TK); }
 "--" {count();yylvalp->t=new Terminal(name2id["DECR_TK"],yytext,line);return(DECR_TK); }
 "&&" {count();yylvalp->t=new Terminal(name2id["BOOL_AND_TK"],yytext,line);return(BOOL_AND_TK); }
@@ -127,6 +129,7 @@ int line = 1;
 ")" {count();yylvalp->t=new Terminal(name2id["CP_TK"],yytext,line);return(CP_TK); }
 "[" {count();yylvalp->t=new Terminal(name2id["OSB_TK"],yytext,line);return(OSB_TK); }
 "]" {count();yylvalp->t=new Terminal(name2id["CSB_TK"],yytext,line);return(CSB_TK); }
+"\.\.\." {count();yylvalp->t=new Terminal(name2id["ELLIPSIS_TK"],yytext,line);return(ELLIPSIS_TK); }
 "\." {count();yylvalp->t=new Terminal(name2id["DOT_TK"],yytext,line);return(DOT_TK); }
 "&" {count();yylvalp->t=new Terminal(name2id["AND_TK"],yytext,line);return(AND_TK); }
 "!" {count();yylvalp->t=new Terminal(name2id["NOT_TK"],yytext,line);return(NOT_TK); }
@@ -142,6 +145,7 @@ int line = 1;
 "|" {count();yylvalp->t=new Terminal(name2id["OR_TK"],yytext,line);return(OR_TK); }
 "?" {count();yylvalp->t=new Terminal(name2id["REL_QM_TK"],yytext,line);return(REL_QM_TK); }
 ":" {count();yylvalp->t=new Terminal(name2id["REL_CL_TK"],yytext,line);return(REL_CL_TK); }
+"@" {count();yylvalp->t=new Terminal(name2id["AT_TK"],yytext,line);return(AT_TK); }
 ([ \t\v\n\r])+ {count();}
 . {count();} 
 
