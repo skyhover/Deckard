@@ -24,7 +24,11 @@ string identifierTypeName = "ID_TK";
 #ifdef PHP
 string identifierTypeName = "T_VARIABLE";
 #else
+#ifdef SOLIDITY
 string identifierTypeName = "IDENTIFIER";
+#else
+string identifierTypeName = "IDENTIFIER";
+#endif
 #endif
 #endif
 
@@ -43,7 +47,11 @@ static const char *relNodes[] = {
 #ifdef PHP
 #include "../ptgen/php5/phprelevantNodes.h"
 #else
+#ifdef SOLIDITY
+#include "../ptgen/sol/solrelevantNodes.h"
+#else
 #include "../ptgen/gcc/crelevantNodes.h"
+#endif
 #endif
 #endif
 };
@@ -55,7 +63,11 @@ static const char *atomicNodes[] = {
 #ifdef PHP
 #include "../ptgen/php5/phpatomicNodes.h"
 #else
+#ifdef SOLIDITY
+#include "../ptgen/sol/solatomicNodes.h"
+#else
 #include "../ptgen/gcc/catomicNodes.h"
+#endif
 #endif
 #endif
 };
@@ -67,7 +79,11 @@ static const char *valParents[] = {
 #ifdef PHP
 #include "../ptgen/php5/phpparentNodes.h"
 #else
+#ifdef SOLIDITY
+#include "../ptgen/sol/solparentNodes.h"
+#else
 #include "../ptgen/gcc/cparentNodes.h"
+#endif
 #endif
 #endif
 };

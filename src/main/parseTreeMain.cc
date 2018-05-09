@@ -15,7 +15,11 @@ string identifierTypeName = "ID_TK";
 #ifdef PHP
 string identifierTypeName = "T_VARIABLE";
 #else
+#ifdef SOLIDITY
 string identifierTypeName = "IDENTIFIER";
+#else
+string identifierTypeName = "IDENTIFIER";
+#endif
 #endif
 #endif
 
@@ -48,7 +52,11 @@ int main( int argc, char **argv )
 #ifdef PHP
   const char * file_suffix = ".php";
 #else
+#ifdef SOLIDITY
+  const char * file_suffix = ".sol";
+#else
   const char * file_suffix = ".c";
+#endif
 #endif
 #endif
   string fn = string(argv[1]);
