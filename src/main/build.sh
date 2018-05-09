@@ -22,6 +22,7 @@ fi
 # re-compile vector generator and vector grouping code
 (
 cd ../vgen/treeTra/ || exit 1
+rm -f *.d
 make clean
 make
 errcode=$?

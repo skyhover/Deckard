@@ -12,6 +12,7 @@ make clean
 
 (
 cd ../vgen/treeTra/ || exit 1
+rm -f *.d
 make clean
 cd ../vgrouping/ || exit 1
 make clean
