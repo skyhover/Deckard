@@ -204,7 +204,7 @@ L?\"(\\.|[^\\"])*\"	{
 		count();
 		yylvalp->t = new Terminal(name2id["ELLIPSIS"],yytext,line);
 		return(ELLIPSIS); }
-">>="|"<<="|"+="|"-="|"*="|"/="|"%="|"&="|"^="|"|="	{
+">>="|"<<="|"+="|"-="|"*="|"/="|"%="|"&="|"^="|"|="	{ /* treat these the same for the purpose of clone detection */
 		count();
 		yylvalp->t = new Terminal(name2id["ASSIGN"],yytext,line);
 		return(ASSIGN); }
@@ -236,13 +236,13 @@ L?\"(\\.|[^\\"])*\"	{
 		count();
 		yylvalp->t = new Terminal(name2id["OROR"],yytext,line);
 		return(OROR); }
-"<="|">="			{
+"<="|">="			{ /* treat these the same for the purpose of clone detection */
 		count();
 		yylvalp->t = new Terminal(name2id["ARITHCOMPARE"],yytext,line);
 		return(ARITHCOMPARE); }
 "=="|"!="		{
 		count();
-		yylvalp->t = new Terminal(name2id["EOCOMPARE"],yytext,line);
+		yylvalp->t = new Terminal(name2id["EQCOMPARE"],yytext,line);
 		return(EQCOMPARE); }
 ";"			{
 		count();
@@ -320,7 +320,7 @@ L?\"(\\.|[^\\"])*\"	{
 		count();
 		yylvalp->t = new Terminal(name2id["'%'"],yytext,line);
 		return('%'); }
-"<"|">"			{
+"<"|">"			{ /* treat these the same as ">="/"<=" for the purpose of clone detection. TODO: whether better to split them? */
 		count();
 		yylvalp->t = new Terminal(name2id["ARITHCOMPARE"],yytext,line);
 		return(ARITHCOMPARE); }
