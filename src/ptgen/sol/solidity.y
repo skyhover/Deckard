@@ -18,7 +18,7 @@
 */
 // grammar Solidity;
 
-sourceUnit : /* empty */
+sourceUnit: /* empty */
 	   | directives_or_definitions
 	   ;
 
@@ -66,7 +66,7 @@ versionOperator:
 	| GT
 	| LEQ
 	| GEQ
-	| ASSIGN
+	| '='
 	;
 
 importDirective:
@@ -118,7 +118,7 @@ contract_parts_or_empty: /* empty */
 
 contract_parts:
 	      contractPart
-	| contract_parts ',' contractPart
+	| contract_parts contractPart
 	;
 
 inheritanceSpecifier:
@@ -157,7 +157,7 @@ state_var_keyword:
 	;
 
 initializer_or_empty: /* empty */
-		    | ASSIGN expression
+		    | '=' expression
 		;
 
 usingForDeclaration:
@@ -326,14 +326,13 @@ typeName:
 	elementaryTypeName
 	| userDefinedTypeName
 	| mapping
-	| typeName '[' ']'
-	| typeName '[' expression ']'
+	| typeName '[' expression_or_empty ']' /* TODO: this rule requires potentially LR(*) to differentiate from many other rules, e.g., expression: expression '[' expression ']' */
 	| functionTypeName
 	;
 
 userDefinedTypeName:
 		   identifier
-		| userDefinedTypeName '.' identifier
+		| userDefinedTypeName '.' identifier /* TODO: this rule requires potentially LR(*) to differentiate from many other rules, e.g., expression: expression '.' identifier */
 		;
 
 mapping:
@@ -566,13 +565,13 @@ expression: /* TODO: differentiate expressions of different kinds of operands */
 	| expression MINUSMINUS
 	| NEW typeName
   	| expression '[' expression ']'
-  	| expression '(' functionCallArguments ')'
+  	| expression '(' functionCallArguments ')' %prec HYPERPREC
   	| expression '.' identifier
-  	| '(' expression ')'
-	| PLUSPLUS expression
-	| MINUSMINUS expression
-  	| '+' expression
-	| '-' expression
+  	| '(' expression ')' /* TODO: ambiguous with tupleExpression with one expression inside */
+	| PLUSPLUS expression %prec PREFIX_DOUBLEPLUSMINUS
+	| MINUSMINUS expression %prec PREFIX_DOUBLEPLUSMINUS
+  	| '+' expression %prec UNARY_PLUSMINUS
+	| '-' expression %prec UNARY_PLUSMINUS
 	| AFTER expression
 	| DELETE expression
   	| '!' expression
@@ -597,7 +596,7 @@ expression: /* TODO: differentiate expressions of different kinds of operands */
   	| expression ANDAND expression
   	| expression OROR expression
 	| conditional_expression
-  	| expression assignment_expression
+  	| expression assignment_operator expression
   	| primaryExpression
 	;
 
@@ -605,12 +604,8 @@ conditional_expression:
 		      expression '?' expression ':' expression
 			;
 
-assignment_expression:
-		     assignment_operator expression
-		;
-
 assignment_operator:
-		   ASSIGN
+		   '='
 		| ASSIGN_AND
 		| ASSIGN_OR
 		| ASSIGN_XOR
@@ -815,7 +810,7 @@ subAssembly:
 	;
 
 tupleExpression:
-	       '(' expression_or_empty expression_with_comma_list_or_empty ')'
+	       '(' expression_or_empty expression_with_comma_list_or_empty ')' %prec HYPERPREC
 	| '[' expression_list_or_empty ']'
 	;
 

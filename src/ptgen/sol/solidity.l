@@ -492,8 +492,8 @@ x		{ /* for fixed/ufixed points, e.g., ddd x ddd; but x can also be an IDENTIFIE
 		return(NEQ); }
 "="			{
 		count();
-		yylvalp->t = new Terminal(name2id["ASSIGN"],yytext,line);
-		return(ASSIGN); }
+		yylvalp->t = new Terminal(name2id["'='"],yytext,line);
+		return('='); }
 ";"			{
 		count();
 		yylvalp->t = new Terminal(name2id["';'"],yytext,line);

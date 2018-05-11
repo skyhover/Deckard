@@ -69,7 +69,7 @@ Tree *t;
 }
 
 %{
-void yyerror(char*s);
+void yyerror(char const*s);
 int yylex(YYSTYPE *yylvalp);
 
 Tree *root;
