@@ -59,12 +59,12 @@ lex.yy.cc: solidity.l pt_solidity.tab.cc
 	flex -olex.yy.cc solidity.l
 
 pt_solidity.tab.cc: pt_solidity.y
-	bison -d pt_solidity.y -o pt_solidity.tab.cc
+	bison -d pt_solidity.y -o pt_solidity.tab.cc -v -g
 
 head.cc pt_solidity.y: solidity.y solidity.y.head solidity.y.foot
 	./mainsol.py solidity.y
 
 .PHONY: clean
 clean:
-	rm -f *.o lex.yy.cc pt_solidity.tab* pt_solidity.y head.cc $(TARGET)
+	rm -f *.o lex.yy.cc pt_solidity.* head.cc $(TARGET)
 
