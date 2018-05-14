@@ -44,7 +44,8 @@ rhs [lhs] {right=[]}:
   | ERROR { right.append(("error","error")) }
   | PREC ((pi:ID) {right.append(("%prec","%prec "+pi.getText()))}|
           (pc:CHAR) {right.append(("%prec","%prec "+pc.getText()))}
-          )
+         )
+  | DPREC (dpd:UINT) {right.append(("%dprec","%dprec "+dpd.getText()))}
   | ACTION //ignore actions in grammar
 )*
 {
@@ -66,8 +67,10 @@ CARROT: '^';
 BANG: '!';
 OR: '|';
 PREC: "%prec";
+DPREC: "%dprec";
 ERROR: "error";
 ID: LETTER (LETTER | DIGIT | '_' | '.')*;
+UINT: (DIGIT)+;
 protected
 LETTER: ('a'..'z'|'A'..'Z');
 protected

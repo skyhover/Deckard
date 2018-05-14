@@ -31,16 +31,18 @@ CHAR = 7
 STRING = 8
 ERROR = 9
 PREC = 10
-ACTION = 11
-OR = 12
-HYPHEN = 13
-CARROT = 14
-BANG = 15
-LETTER = 16
-DIGIT = 17
-SL_COMMENT = 18
-ML_COMMENT = 19
-WS = 20
+DPREC = 11
+UINT = 12
+ACTION = 13
+OR = 14
+HYPHEN = 15
+CARROT = 16
+BANG = 17
+LETTER = 18
+DIGIT = 19
+SL_COMMENT = 20
+ML_COMMENT = 21
+WS = 22
 
 class Parser(antlr.LLkParser):
     ### user action >>>
@@ -106,6 +108,7 @@ class Parser(antlr.LLkParser):
         str = None
         pi = None
         pc = None
+        dpd = None
         right=[]
         try:      ## for error handling
             pass
@@ -164,6 +167,13 @@ class Parser(antlr.LLkParser):
                     else:
                             raise antlr.NoViableAltException(self.LT(1), self.getFilename())
                         
+                elif la1 and la1 in [DPREC]:
+                    pass
+                    self.match(DPREC)
+                    pass
+                    dpd = self.LT(1)
+                    self.match(UINT)
+                    right.append(("%dprec","%dprec "+dpd.getText()))
                 elif la1 and la1 in [ACTION]:
                     pass
                     self.match(ACTION)
@@ -237,6 +247,8 @@ _tokenNames = [
     "STRING", 
     "ERROR", 
     "PREC", 
+    "DPREC", 
+    "UINT", 
     "ACTION", 
     "OR", 
     "HYPHEN", 

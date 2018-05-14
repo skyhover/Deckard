@@ -5,9 +5,12 @@
 
 %}
 
+/*
 %define lr.type ielr
 %define parse.lac full
+*/
 %define parse.error verbose
+%glr-parser
 
 // cf. Language Grammar: http://solidity.readthedocs.io/en/latest/miscellaneous.html#language-grammar
 %start sourceUnit

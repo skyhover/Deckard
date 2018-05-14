@@ -565,7 +565,7 @@ expression: /* TODO: differentiate expressions of different kinds of operands */
 	| expression MINUSMINUS
 	| NEW typeName
   	| expression '[' expression ']'
-  	| expression '(' functionCallArguments ')' %prec HYPERPREC
+  	| expression '(' functionCallArguments ')'
   	| expression '.' identifier
   	| '(' expression ')' /* TODO: ambiguous with tupleExpression with one expression inside */
 	| PLUSPLUS expression %prec PREFIX_DOUBLEPLUSMINUS
@@ -596,7 +596,7 @@ expression: /* TODO: differentiate expressions of different kinds of operands */
   	| expression ANDAND expression
   	| expression OROR expression
 	| conditional_expression
-  	| expression assignment_operator expression
+  	| expression assignment_operator expression %prec '='
   	| primaryExpression
 	;
 
@@ -810,7 +810,7 @@ subAssembly:
 	;
 
 tupleExpression:
-	       '(' expression_or_empty expression_with_comma_list_or_empty ')' %prec HYPERPREC
+	       '(' expression_or_empty expression_with_comma_list_or_empty ')'
 	| '[' expression_list_or_empty ']'
 	;
 
