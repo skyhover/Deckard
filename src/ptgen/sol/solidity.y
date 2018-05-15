@@ -326,13 +326,13 @@ typeName:
 	elementaryTypeName
 	| userDefinedTypeName
 	| mapping
-	| typeName '[' expression_or_empty ']' /* TODO: this rule requires potentially LR(*) to differentiate from many other rules, e.g., expression: expression '[' expression ']' */
+	| typeName '[' expression_or_empty ']' /* This rule requires LR(*) to differentiate from many other rules, e.g., expression: expression '[' expression ']'; use glr-parser */
 	| functionTypeName
 	;
 
 userDefinedTypeName:
 		   identifier
-		| userDefinedTypeName '.' identifier /* TODO: this rule requires potentially LR(*) to differentiate from many other rules, e.g., expression: expression '.' identifier */
+		| userDefinedTypeName '.' identifier /* This rule requires potentially LR(*) to differentiate from many other rules, e.g., expression: expression '.' identifier; use glr-parser */
 		;
 
 mapping:
@@ -567,7 +567,7 @@ expression: /* TODO: differentiate expressions of different kinds of operands */
   	| expression '[' expression ']'
   	| expression '(' functionCallArguments ')'
   	| expression '.' identifier
-  	| '(' expression ')' /* TODO: ambiguous with tupleExpression with one expression inside */
+  	| '(' expression ')' /* Ambiguous with tupleExpression/primaryExpression when only one expression is inside. Give this rule a higher precedence */ %dprec 1
 	| PLUSPLUS expression %prec PREFIX_DOUBLEPLUSMINUS
 	| MINUSMINUS expression %prec PREFIX_DOUBLEPLUSMINUS
   	| '+' expression %prec UNARY_PLUSMINUS
@@ -597,7 +597,7 @@ expression: /* TODO: differentiate expressions of different kinds of operands */
   	| expression OROR expression
 	| conditional_expression
   	| expression assignment_operator expression %prec '='
-  	| primaryExpression
+  	| primaryExpression %dprec 2
 	;
 
 conditional_expression:
@@ -815,7 +815,7 @@ tupleExpression:
 	;
 
 expression_with_comma_list_or_empty: /* empty */
-				   expression_with_comma_list
+				   | expression_with_comma_list
 				;
 
 expression_with_comma_list:
