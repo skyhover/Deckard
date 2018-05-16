@@ -33,6 +33,7 @@
 #include <ptree.h>
 #include <map>
 #include <string>
+#include "../../vgen/treeTra/vgen-utils.h"
 
 using namespace std;
 
@@ -51,8 +52,9 @@ int last_line= 0;
 
 /* A test driver for the solidity parser.
  * Take redirected input from a file via '<'
+ * argv[i]=="trees" and/or "tokens" to print trees and/or tokens; case insensitive. 
  */
-int main()
+int main(int argc, char *argv[])
 {
     id_init();
     yyparse();
@@ -61,8 +63,27 @@ int main()
         return 1;
     }
 
-    root->printTok();
-    //root->print();
+	bool printTokens = false;
+	bool printTrees = false;
+	
+	for(int i=1; i<argc; i++) {
+		if (compare_string_nocase("trees",argv[i])==0)
+			printTrees = true;
+		else if (compare_string_nocase("tokens",argv[i])==0)
+			printTokens = true;
+		else { // report wrong argument
+			cerr << "wrong argument: " << argv[i] << endl;
+			return 2;
+		}
+	}
+	// print tokens if no parameters are set
+	if (!printTokens && !printTrees)
+		printTokens = true;
+
+    if (printTokens)
+		root->printTok();
+    if (printTrees)
+		root->print();
 
 //    int c= root->countTerminals();
 

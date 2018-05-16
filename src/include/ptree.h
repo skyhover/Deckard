@@ -16,6 +16,17 @@
 /** A Tree Node or a tree */
 class Tree;
 
+/** stuff from Ylex & Bison */
+extern FILE *yyin;
+void yyrestart( FILE *new_file );
+int yyparse();
+extern Tree* root;
+
+/** stuff from ptgen */
+void id_init();
+extern std::map<std::string, int> name2id;
+extern std::map<int, std::string> id2name; /*  */
+
 /** A whole parse tree */
 class ParseTree {
    const static int DEBUG_LEVEL = 1;
@@ -141,7 +152,7 @@ class Tree {
     }
 
     virtual void print() {
-        std::cout << "[ " << type << " ";
+        std::cout << "[ " << getTypeName(id2name,type) << " ";
         for (int i= 0; i < children.size(); i++) {
             children[i]->print();
         }
@@ -257,18 +268,6 @@ public:
     virtual bool isNonTerminal() {return true;}
     virtual NonTerminal *toNonTerminal() {return this;}
 };
-
-
-/** stuff from Ylex & Bison */
-extern FILE *yyin;
-void yyrestart( FILE *new_file );
-int yyparse();
-extern Tree* root;
-
-/** stuff from ptgen */
-void id_init();
-extern std::map<std::string, int> name2id;
-extern std::map<int, std::string> id2name; /*  */
 
 #endif	/* _PARSE_TREE_H_ */
 
