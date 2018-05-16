@@ -6,9 +6,9 @@
 %}
 
 /*
-%define lr.type ielr
 %define parse.lac full
 */
+%define lr.type ielr
 %define parse.error verbose
 %glr-parser
 
@@ -35,20 +35,22 @@
 %token <t> ENUM STRUCT WHILE DO FOR SWITCH CASE DEFAULT
 %token <t> BREAK CONTINUE RETURNS RETURN ASSEMBLY
 
-%token <t>  ':' ')' ']' ';' '{' '}'
+%token <t> ']' '{' '}'
 %token <t> 'x' // a special letter used for fixed/ufixed points
 
 %token <t> INLINE STATIC FINAL ELLIPSIS TYPE TYPEOF TRY CATCH MATCH IN OF RELOCATABLE		/* not used yet  */
 
+%left <t> ')' ';'
 // cf. Using Precedence For Non Operators: https://www.gnu.org/software/bison/manual/html_node/Non-Operators.html#Non-Operators
 %right <t> IF
-%right <t> ELSE
+%right <t> THEN ELSE
 // cf. Order of Precedence of Operators: http://solidity.readthedocs.io/en/latest/miscellaneous.html#order
 %left <t> ','
 %right <t> MAPSTO
 %left <t> ASSIGN_ASSEMBLY_R
 %right <t> '=' ASSIGN_MUL ASSIGN_DIV ASSIGN_REM ASSIGN_AND ASSIGN_XOR ASSIGN_OR ASSIGN_PLUS ASSIGN_MINUS ASSIGN_LSHIFT ASSIGN_RSHIFT ASSIGN_ASSEMBLY_L
-%right <t> '?'
+%precedence ADDRESS BOOL STRING VAR INT UINT BYTES BYTE FIXED UFIXED
+%right <t> '?' ':'
 %left <t> OROR
 %left <t> ANDAND
 %left <t> EQ NEQ
@@ -65,8 +67,9 @@
 %precedence AFTER DELETE
 %left UNARY_PLUSMINUS /* TODO: should be left or right? */
 %left PREFIX_DOUBLEPLUSMINUS /* TODO: should be left or right? */
+%precedence NEW
 %left <t> POINTSAT '.'
 %left <t> '[' '('
-%precedence NEW
 %left <t> PLUSPLUS MINUSMINUS
+%nonassoc <t> '_'
 %left HYPERPREC

@@ -41,18 +41,19 @@ pragmaName:
 	  identifier
 	;
 
-pragmaValue:
+pragmaValue: /* according to solidity code, it should take in anything up to the trailing ';', even a newline: [^;]+ */ 
 	   version
 	| expression
 	;
 
 version:
        versionConstraint
-	| versionConstraint versionConstraint
+	| versionConstraint versionConstraint /* hack: a format to allow spaces in VERSIONID due to limits in the non-adaptive tokenizer */
 	;
 
 versionConstraint:
 		 version_operator_or_empty VERSIONID
+		| version_operator_or_empty DecimalNumber
 		;
 
 version_operator_or_empty: /* empty */
@@ -127,11 +128,11 @@ inheritanceSpecifier:
 		;
 
 contractPart:
-	    stateVariableDeclaration
+	    stateVariableDeclaration %dprec 3
 	| usingForDeclaration
   	| structDefinition
   	| modifierDefinition
-  	| functionDefinition
+  	| functionDefinition %dprec 4 /* E.g., is "function() internal callback;" a stateVariableDeclaration or a functionDefinition if the function body is allowed to be empty? So far, give dynamic precedence to stateVariableDeclaration. */
   	| eventDefinition
   	| enumDefinition
 	;
@@ -412,15 +413,13 @@ statement:
   	| throwStatement
   	| emitStatement
   	| simpleStatement
+	| placeholder_statement
 	;
 
 ifStatement:
-	   IF '(' expression ')' statement else_statement_or_empty
+	   IF '(' expression ')' statement %prec THEN
+	| IF '(' expression ')' statement ELSE statement
 	;
-
-else_statement_or_empty: /* empty */
-		       | ELSE statement
-			;
 
 whileStatement:
 	      WHILE '(' expression ')' statement
@@ -537,6 +536,11 @@ expressionStatement:
 		   expression ';'
 		;
 
+placeholder_statement:
+		     '_' /* don't allow '_' to be an identifier? */
+		| '_' ';'
+		;
+
 elementaryTypeName:
 		  ADDRESS
 		| BOOL
@@ -595,7 +599,7 @@ expression: /* TODO: differentiate expressions of different kinds of operands */
   	| expression NEQ expression
   	| expression ANDAND expression
   	| expression OROR expression
-	| conditional_expression
+	| conditional_expression %prec '?'
   	| expression assignment_operator expression %prec '='
   	| primaryExpression %dprec 2
 	;
@@ -832,9 +836,10 @@ elementaryTypeNameExpression:
 			;
 
 identifier:
-	  FROM /* Different from other keywords (e.g., 'for'), 'from' can be used as an identifier too? */
-	| IDENTIFIER
+	  IDENTIFIER
+	| FROM /* Different from reserved keywords (e.g., 'for'), 'from' can be used as an identifier too. */
 	| 'x' /* a special identifier used for fixed/unfixed points */
+	| EMIT /* emitStatement; 'emit' can be an identifier too */
 	;
 
 DecimalNumber:

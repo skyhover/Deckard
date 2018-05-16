@@ -327,10 +327,14 @@ hex		{
 		count();
 		yylvalp->t = new Terminal(name2id["HEX"],yytext,line);
 		return(HEX); }
-x		{ /* for fixed/ufixed points, e.g., ddd x ddd; but x can also be an IDENTIFIER */
+x		{ /* for fixed/ufixed points, e.g., ddd 'x' ddd; but x can also be an IDENTIFIER */
 		count();
 		yylvalp->t = new Terminal(name2id["'x'"],yytext,line);
 		return('x'); }
+_		{ /* for _ in modifiers, don't allow it to be an identifier? */
+		count();
+		yylvalp->t = new Terminal(name2id["'_'"],yytext,line);
+		return('_'); }
 
 {L}({L}|{D})*		{
 		count();
