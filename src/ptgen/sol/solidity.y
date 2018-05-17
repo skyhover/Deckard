@@ -537,7 +537,7 @@ expressionStatement:
 		;
 
 placeholder_statement:
-		     '_' /* don't allow '_' to be an identifier? */
+		     '_' /* '_' can be an identifier too */
 		| '_' ';'
 		;
 
@@ -840,6 +840,7 @@ identifier:
 	| FROM /* Different from reserved keywords (e.g., 'for'), 'from' can be used as an identifier too. */
 	| 'x' /* a special identifier used for fixed/unfixed points */
 	| EMIT /* emitStatement; 'emit' can be an identifier too */
+	| '_'
 	;
 
 DecimalNumber:
