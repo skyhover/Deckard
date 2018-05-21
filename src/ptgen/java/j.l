@@ -159,7 +159,7 @@ void comment()
 	int c;
 
 	for (;;) {
-		while ( (c = yyinput()) != '*' && c != EOF ) {
+		while ( (c = yyinput()) != '*' && c != YY_NULL && c != EOF ) {
 			if (c=='\n') {
 				line++;column=0;
 			} else {

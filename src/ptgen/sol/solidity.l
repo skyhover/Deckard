@@ -6,6 +6,7 @@ FS			(f|F|l|L)
 IS			(u|U|l|L)*
 
 %{
+#include <error.h>
 #include <stdio.h>
 #include <ptree.h>
 #include "pt_solidity.tab.hh"
@@ -33,7 +34,7 @@ int line = 1;
 
 %%
 
-"/*"			{ count(); comment();}
+"/*"			{ count(); comment(); }
 "//"			{ count(); cpp_comment(); }
 ^"#"			{count(); macro();}
 
@@ -605,10 +606,13 @@ int yywrap()
 
 void comment()
 {
+/* code adapted from: https://westes.github.io/flex/manual/Actions.html#index-discarding-C-comments.
+ * But note that yyinput doesn't really return EOF (-1); it returns YY_NULL (0) instead.
+ */
 	int c;
 
 	for (;;) {
-		while ( (c = yyinput()) != '*' && c != EOF ) {
+		while ( (c = yyinput()) != '*' && c != YY_NULL && c != EOF) {
 			if (c=='\n') {
 				line++;column=0;
 			} else {
@@ -625,7 +629,8 @@ void comment()
 				break;
 		}
 
-		if ( c == EOF ) {
+		if ( c == YY_NULL || c == EOF ) {
+//			error(1, 1, "EOF in comment at line:column=%d:%d\n", line, column);
 			break;	
 		}
 	}
@@ -634,7 +639,7 @@ void comment()
 void cpp_comment()
 {
 	int c;
-	while ((c = yyinput()) != '\n' && c != 0 && c!=EOF)
+	while ((c = yyinput()) != '\n' && c != YY_NULL && c!=EOF)
 		column++;
 	line++;
 	column= 0;
@@ -645,7 +650,7 @@ void macro()
 	int c,last=0;
 	again:
 	last= 0;
-	while ((c = yyinput()) != '\n' && c != 0 && c!=EOF) {
+	while ((c = yyinput()) != '\n' && c != YY_NULL && c!=EOF) {
 		if ( c == '\\' )
 			last= c;
 	}

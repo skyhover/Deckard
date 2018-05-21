@@ -353,10 +353,13 @@ int yywrap()
 
 void comment()
 {
+/* code adapted from: https://westes.github.io/flex/manual/Actions.html#index-discarding-C-comments.
+ * But note that yyinput doesn't really return EOF (-1); it returns YY_NULL (0) instead.
+ */
 	int c;
 
 	for (;;) {
-		while ( (c = yyinput()) != '*' && c != EOF ) {
+		while ( (c = yyinput()) != '*' && c != YY_NULL && c != EOF ) {
 			if (c=='\n') {
 				line++;column=0;
 			} else {
@@ -382,7 +385,7 @@ void comment()
 void cpp_comment()
 {
 	int c;
-	while ((c = yyinput()) != '\n' && c != 0 && c!=EOF)
+	while ((c = yyinput()) != '\n' && c != YY_NULL && c!=EOF)
 		column++;
 	line++;
 	column= 0;
@@ -393,7 +396,7 @@ void macro()
 	int c,last=0;
 	again:
 	last= 0;
-	while ((c = yyinput()) != '\n' && c != 0 && c!=EOF) {
+	while ((c = yyinput()) != '\n' && c != YY_NULL && c!=EOF) {
 		if ( c == '\\' )
 			last= c;
 	}
