@@ -376,7 +376,7 @@ void comment()
 				break;
 		}
 
-                if ( c == EOF ) {
+                if ( c == EOF || c == YY_NULL ) {
 			break;	
 		}
             }
