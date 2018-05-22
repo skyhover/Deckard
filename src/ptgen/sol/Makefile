@@ -31,6 +31,7 @@
 # 
 #
 
+#-p -pg for debugging (need rebuild TREEOBJS with debugging options too); -O3 for release
 DEBUGFLAGS?=-O3
 
 CPPFLAGS+=-I../../include
@@ -58,6 +59,7 @@ solidity_ptgen: $(OBJS) $(TREEOBJS) main.cc
 lex.yy.cc: solidity.l pt_solidity.tab.cc
 	flex -olex.yy.cc solidity.l
 
+# --debug or -t to enable tracing in bison-generated parser
 pt_solidity.tab.cc: pt_solidity.y
 	bison -d pt_solidity.y -o pt_solidity.tab.cc -v -g
 

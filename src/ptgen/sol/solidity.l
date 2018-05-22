@@ -332,7 +332,32 @@ x		{ /* for fixed/ufixed points, e.g., ddd 'x' ddd; but x can also be an IDENTIF
 		count();
 		yylvalp->t = new Terminal(name2id["'x'"],yytext,line);
 		return('x'); }
-_		{ /* for _ in modifiers, don't allow it to be an identifier? */
+
+^([ \t])*_([ \t])*;		{ /* _ in its own line ended with ';' is a placeholder statement. To disambiguate '_' with an empty statement. TODO: allow comments in the line too. */
+		count();
+		yylvalp->t = new Terminal(name2id["PLACEHOLDER"],"_;",line);
+		return(PLACEHOLDER); }
+\r([ \t])*_([ \t])*;		{ /* In addition to above, handle Macintosh EOL */
+		count();
+		yylvalp->t = new Terminal(name2id["PLACEHOLDER"],"_;",line);
+		return(PLACEHOLDER); }
+^([ \t])*"_"([ \t])*$		{ /* _ in its own line is a placeholder statement. This disambiguation is not necessary as '_' is disallowed to be a typeName. TODO: allow comments in the line too. */
+		count();
+		yylvalp->t = new Terminal(name2id["PLACEHOLDER"],"_",line);
+		return(PLACEHOLDER); }
+^([ \t])*"_"([ \t])*/\r\n		{ /* In addition to above, handle Windows EOL */
+		count();
+		yylvalp->t = new Terminal(name2id["PLACEHOLDER"],"_",line);
+		return(PLACEHOLDER); }
+^([ \t])*"_"([ \t])*/\r		{ /* In addition to above, handle Macintosh EOL */
+		count();
+		yylvalp->t = new Terminal(name2id["PLACEHOLDER"],"_",line);
+		return(PLACEHOLDER); }
+\r([ \t])*"_"([ \t])*/\r		{ /* In addition to above, handle Macintosh EOL */
+		count();
+		yylvalp->t = new Terminal(name2id["PLACEHOLDER"],"_",line);
+		return(PLACEHOLDER); }
+_		{ /* for _ in modifiers; allow '_' to be an identifier too, but not a typeName */
 		count();
 		yylvalp->t = new Terminal(name2id["'_'"],yytext,line);
 		return('_'); }
@@ -591,9 +616,10 @@ _		{ /* for _ in modifiers, don't allow it to be an identifier? */
 		count();
 		yylvalp->t = new Terminal(name2id["SQUOTE"],yytext,line);
 		return(SQUOTE); }
-
-([ \t\v\n\r])+		{count();}
-.			{count();}
+\r\n	|
+\r		|
+\n		{count();}
+.		{count();} /* . doesn't match newline, but may match \r depending on systems */
 
 %%
 
@@ -668,7 +694,8 @@ void count()
 	int i;
 
 	for (i = 0; yytext[i] != '\0'; i++)
-		if (yytext[i] == '\n') {
+		if ( (yytext[i] == '\r' && yytext[i+1] != '\n') /* for Machintosh EOL */
+			|| yytext[i] == '\n') {
 			column = 0;
 			line++;
 		} else if (yytext[i] == '\t')

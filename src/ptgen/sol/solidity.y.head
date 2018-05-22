@@ -5,12 +5,14 @@
 
 %}
 
+%debug
 /*
 %define parse.lac full
 */
 %define lr.type ielr
 %define parse.error verbose
-%glr-parser
+%glr-parser /** Q: is this right: doesn't seem to be fully GLR; i.e., it doesn't explore ambiguity beyond LALR(1). It's only "GLR" to handle ambiguities that can be seen within LALR(1).
+ * Also, the %dprec priority only works when the ambiguities and the merge points are both at the rules where %dprec are set; it doesn't work for cases when the ambiguities happen earlier than the merge points during parsing. */
 
 // cf. Language Grammar: http://solidity.readthedocs.io/en/latest/miscellaneous.html#language-grammar
 %start sourceUnit
@@ -33,7 +35,7 @@
 %token <t> DQUOTE SQUOTE
 %token <t> STRING_LIT
 %token <t> ENUM STRUCT WHILE DO FOR SWITCH CASE DEFAULT
-%token <t> BREAK CONTINUE RETURNS RETURN ASSEMBLY
+%token <t> BREAK CONTINUE RETURNS RETURN ASSEMBLY PLACEHOLDER
 
 %token <t> ']' '{' '}'
 %token <t> 'x' // a special letter used for fixed/ufixed points
@@ -62,14 +64,14 @@
 %left <t> '+' '-'
 %left <t> '*' '/' '%'
 %left <t> MULMUL
-%left <t> '~'  /* TODO: should be left or right? */
-%left <t> '!'   /* TODO: should be left or right? */
+%right <t> '~'
+%right <t> '!'
 %precedence AFTER DELETE
-%left UNARY_PLUSMINUS /* TODO: should be left or right? */
-%left PREFIX_DOUBLEPLUSMINUS /* TODO: should be left or right? */
+%right UNARY_PLUSMINUS
+%right PREFIX_DOUBLEPLUSMINUS
 %precedence NEW
 %left <t> POINTSAT '.'
 %left <t> '[' '('
 %left <t> PLUSPLUS MINUSMINUS
-%nonassoc <t> '_'
+%left <t> '_'
 %left HYPERPREC

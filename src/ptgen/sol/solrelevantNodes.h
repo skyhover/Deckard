@@ -232,6 +232,7 @@
 "IDENTIFIER",
 "'x'",
 "'_'",
+"PLACEHOLDER",
 "CONST_INT",
 "CONST_NUM",
 "CONST_INT_O",

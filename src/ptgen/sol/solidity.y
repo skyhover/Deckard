@@ -331,9 +331,11 @@ typeName:
 	| functionTypeName
 	;
 
-userDefinedTypeName:
-		   identifier
-		| userDefinedTypeName '.' identifier /* This rule requires potentially LR(*) to differentiate from many other rules, e.g., expression: expression '.' identifier; use glr-parser */
+userDefinedTypeName: /* exclude certain special identifier from typeName: FROM, EMIT, '_' */
+		   IDENTIFIER
+		| 'x'
+		| userDefinedTypeName '.' IDENTIFIER /* This rule requires potentially LR(*) to differentiate from many other rules, e.g., expression: expression '.' identifier; use glr-parser */
+		| userDefinedTypeName '.' 'x'
 		;
 
 mapping:
@@ -412,8 +414,7 @@ statement:
   	| returnStatement
   	| throwStatement
   	| emitStatement
-  	| simpleStatement
-	| placeholder_statement
+  	| simple_or_empty_statement
 	;
 
 ifStatement:
@@ -502,8 +503,9 @@ expression_list:
 	;
 
 simpleStatement:
-	       variableDeclarationStatement
-	| expressionStatement
+	       variableDeclarationStatement %dprec 6
+	| expressionStatement %dprec 7
+	| placeholder_statement %dprec 5
 	;
 
 variableDeclarationStatement:
@@ -537,8 +539,9 @@ expressionStatement:
 		;
 
 placeholder_statement:
-		     '_' /* '_' can be an identifier too */
-		| '_' ';'
+		     PLACEHOLDER /* '_' needs to be on its own line or with ';'. TODO: allow more flexibile '_', e.g., with comments and other things in the line. */
+//		     '_' /* '_' can be an identifier too */
+//		| '_' ';' /* TODO: to avoid ambiguity here, may need the lexer to help */
 		;
 
 elementaryTypeName:

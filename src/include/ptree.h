@@ -227,7 +227,7 @@ class Tree {
 
 class Terminal : public Tree {
 public:
-    Terminal( int type, char *s, int line ) {
+    Terminal( int type, const char *s, int line ) {
         this->type= type;
         value= new std::string(s);
         this->line= line;
