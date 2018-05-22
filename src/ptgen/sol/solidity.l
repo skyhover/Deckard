@@ -427,11 +427,11 @@ _		{ /* for _ in modifiers, don't allow it to be an identifier? */
 		count();
 		yylvalp->t = new Terminal(name2id["ASSIGN_OR"],yytext,line);
 		return(ASSIGN_OR); }
-":="	{
+":"[ \t]*"="	{ /* allow white spaces in-between ':' and '=' */
 		count();
 		yylvalp->t = new Terminal(name2id["ASSIGN_ASSEMBLY_L"],yytext,line);
 		return(ASSIGN_ASSEMBLY_L); }
-"=:"	{
+"="[ \t]*":"	{ /* allow white spaces in-between '=' and ':' */
 		count();
 		yylvalp->t = new Terminal(name2id["ASSIGN_ASSEMBLY_R"],yytext,line);
 		return(ASSIGN_ASSEMBLY_R); }
