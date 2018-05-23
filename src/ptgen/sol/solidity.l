@@ -139,6 +139,11 @@ function			{
 		yylvalp->t = new Terminal(name2id["FUNCTION"],yytext,line);
 		lasttoken = FUNCTION;
 		return(FUNCTION); }
+constructor			{
+		count();
+		yylvalp->t = new Terminal(name2id["CONSTRUCTOR"],yytext,line);
+		lasttoken = CONSTRUCTOR;
+		return(CONSTRUCTOR); }
 break			{
 		count();
 		yylvalp->t = new Terminal(name2id["BREAK"],yytext,line);

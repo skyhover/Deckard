@@ -132,6 +132,7 @@ contractPart:
 	| usingForDeclaration
   	| structDefinition
   	| modifierDefinition
+	| constructor
   	| functionDefinition %dprec 4 /* E.g., is "function() internal callback;" a stateVariableDeclaration or a functionDefinition if the function body is allowed to be empty? So far, give dynamic precedence to stateVariableDeclaration. */
   	| eventDefinition
   	| enumDefinition
@@ -224,6 +225,10 @@ parameter:
 identifier_or_empty: /* empty */
 		   | identifier
 		;
+
+constructor:
+	   CONSTRUCTOR parameterList modifier_list_or_empty return_parameters_or_empty block_or_empty_statement
+	;
 
 functionDefinition:
 		  FUNCTION identifier_or_empty parameterList modifier_list_or_empty return_parameters_or_empty block_or_empty_statement

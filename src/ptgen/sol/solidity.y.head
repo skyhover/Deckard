@@ -20,7 +20,7 @@
 %token <t> PRAGMA
 %token <t> FROM
 %token <t> VERSIONID
-%token <t> IDENTIFIER FUNCTION
+%token <t> IDENTIFIER FUNCTION CONSTRUCTOR
 %token <t> IMPORT
 %token <t> AS LET
 %token <t> USING MAPPING MEMORY STORAGE MODIFIER

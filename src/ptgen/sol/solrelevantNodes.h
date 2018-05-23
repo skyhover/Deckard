@@ -77,6 +77,8 @@
 "returnParameters",
 "statement",
 "block",
+"constructor",
+"CONSTRUCTOR",
 "functionDefinition",
 "parameter",
 "parameterList",
