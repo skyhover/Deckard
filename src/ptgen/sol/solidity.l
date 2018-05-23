@@ -410,7 +410,7 @@ _([ \t\v\r\n])*/";"	{ /* TODO: allow more flexibility after '_', e.g., allow com
 		count();
 		/* Suppose a placeholder is always a separate statement, i.e., it's within two statement delimiters. */
 		if ( lasttoken==0 || lasttoken==';' || lasttoken=='{' || lasttoken=='}'
-			|| lasttoken=='_' || lasttoken=='(' || lasttoken==')' ) {
+			|| lasttoken=='_' || lasttoken=='(' || lasttoken==')' || lasttoken==ELSE ) {
 			/* the above tokens indicate the beginning of a statement */
 			// eat the ';'
 			int c = yyinput();
