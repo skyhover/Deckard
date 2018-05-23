@@ -35,7 +35,7 @@
 %token <t> DQUOTE SQUOTE
 %token <t> STRING_LIT
 %token <t> ENUM STRUCT WHILE DO FOR SWITCH CASE DEFAULT
-%token <t> BREAK CONTINUE RETURNS RETURN ASSEMBLY PLACEHOLDER
+%token <t> BREAK CONTINUE RETURNS RETURN ASSEMBLY
 
 %token <t> ']' '{' '}'
 %token <t> 'x' // a special letter used for fixed/ufixed points

@@ -124,7 +124,7 @@ contract_parts:
 
 inheritanceSpecifier:
 		    userDefinedTypeName
-		| userDefinedTypeName '(' expression_list ')'
+		| userDefinedTypeName '(' expression_list_or_empty ')'
 		;
 
 contractPart:
@@ -538,10 +538,9 @@ expressionStatement:
 		   expression ';'
 		;
 
-placeholder_statement:
-		     PLACEHOLDER /* '_' needs to be on its own line or with ';'. TODO: allow more flexibile '_', e.g., with comments and other things in the line. */
-//		     '_' /* '_' can be an identifier too */
-//		| '_' ';' /* TODO: to avoid ambiguity here, may need the lexer to help */
+placeholder_statement: /* TODO: what can be in a placeholder is unclear; only function body or any expression? */
+		     '_' /* '_' can be an identifier too; leave it to GLR to disambiguate. */
+//		| '_' ';' /* minimize changes to grammar and to avoid ambiguity here, use the lexer to skip the ';' */
 		;
 
 elementaryTypeName:
