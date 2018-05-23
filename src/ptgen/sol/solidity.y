@@ -339,8 +339,10 @@ typeName:
 userDefinedTypeName: /* exclude certain special identifier from typeName: FROM, EMIT, '_' */
 		   IDENTIFIER
 		| 'x'
+		| CONSTRUCTOR
 		| userDefinedTypeName '.' IDENTIFIER /* This rule requires potentially LR(*) to differentiate from many other rules, e.g., expression: expression '.' identifier; use glr-parser */
 		| userDefinedTypeName '.' 'x'
+		| userDefinedTypeName '.' CONSTRUCTOR
 		;
 
 mapping:
@@ -365,7 +367,7 @@ function_type_parameters:
 		;
 
 functionTypeParameter:
-		     typeName storage_location_or_empty
+		     typeName storage_location_or_empty identifier_or_empty
 		;
 
 state_func_keywords_or_empty: /* empty */
@@ -672,9 +674,8 @@ assembly_item_list:
 		;
 
 assemblyItem:
-	    identifier
+	    assemblyExpression
 	| assemblyBlock
-  	| assemblyExpression
   	| assemblyLocalDefinition
   	| assemblyAssignment
   	| assemblyStackAssignment
@@ -686,9 +687,6 @@ assemblyItem:
   	| BreakKeyword
   	| ContinueKeyword
   	| subAssembly
-  	| numberLiteral
-  	| StringLiteral
-  	| HexLiteral
 	;
 
 assemblyExpression:
@@ -734,8 +732,7 @@ assembly_expression_with_comma:
 
 assemblyLiteral:
 	       StringLiteral
-		| DecimalNumber
-		| HexNumber
+		| numberLiteral
 		| HexLiteral
 		;
 
@@ -848,6 +845,7 @@ identifier:
 	| 'x' /* a special identifier used for fixed/unfixed points */
 	| EMIT /* emitStatement; 'emit' can be an identifier too */
 	| '_'
+	| CONSTRUCTOR
 	;
 
 DecimalNumber:
