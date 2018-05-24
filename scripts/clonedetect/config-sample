@@ -56,6 +56,8 @@ esac
 GROUPING_EXEC="$DECKARD_DIR/src/vgen/vgrouping/runvectorsort"
 # where is the lsh for vector clustering?
 CLUSTER_EXEC="$DECKARD_DIR/src/lsh/bin/enumBuckets"
+# where is the lsh for vector query?
+QUERY_EXEC="$DECKARD_DIR/src/lsh/bin/queryBuckets"
 # how to post process clone groups?
 POSTPRO_EXEC="$DECKARD_DIR/scripts/clonedetect/post_process_groupfile"
 # how to transform source code into HTML?
