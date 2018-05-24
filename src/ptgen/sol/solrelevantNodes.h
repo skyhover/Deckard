@@ -1,3 +1,4 @@
+"sourceUnit", // TODO: include this or not? Include to simply indicate it's solidity
 "elementaryTypeNameExpression",
 "expression_with_comma",
 "tupleExpression",
@@ -26,7 +27,6 @@
 "assemblyFunctionDefinition",
 "assemblyCase",
 "assemblySwitch",
-"labelDefinition",
 "assemblyStackAssignment",
 "assemblyAssignment",
 "assembly_initializer_or_empty",
@@ -51,7 +51,6 @@
 "variableDeclarationStatement",
 "forStatement",
 "whileStatement",
-"else_statement_or_empty",
 "ifStatement",
 "returns_or_empty",
 "PayableKeyword",

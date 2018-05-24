@@ -25,7 +25,7 @@ string identifierTypeName = "ID_TK";
 string identifierTypeName = "T_VARIABLE";
 #else
 #ifdef SOLIDITY
-string identifierTypeName = "IDENTIFIER";
+string identifierTypeName = "IDENTIFIER"; // TODO: may not be enough to cover all identifier types based on the grammar, e.g., 'x', 'emit', etc.
 #else
 string identifierTypeName = "IDENTIFIER";
 #endif

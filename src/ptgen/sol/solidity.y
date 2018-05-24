@@ -471,7 +471,8 @@ returnStatement:
 		;
 
 throwStatement:
-	      THROW ';' ;
+	      THROW ';'
+		;
 
 emitStatement:
 	     EMIT functionCall ';'

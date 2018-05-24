@@ -73,3 +73,13 @@ if [ $errcode -ne 0 ]; then
 fi
 )
 
+# compile additional tests
+(
+cd ../ptgen/sol || exit 1
+make test
+errcode=$?
+if [ $errcode -ne 0 ]; then
+	echo "Error: ptgen/sol 'make test' failed. Exit."
+	exit $errcode
+fi
+)

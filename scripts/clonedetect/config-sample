@@ -12,7 +12,7 @@
 #   -- STRIDE
 #   -- SIMILARITY
 #
-# java, c, or php?
+# java, c, php, or sol (or other extensions for solidity)?
 FILE_PATTERN='*.java' # used for the 'find' command
 # where are the source files?
 SRC_DIR='src'
@@ -44,6 +44,8 @@ case $FILE_PATTERN in
     VGEN_EXEC="$VGEN_EXEC/jvecgen" ;;
   *.php )
     VGEN_EXEC="$VGEN_EXEC/phpvecgen" ;;
+  *.sol )
+    VGEN_EXEC="$VGEN_EXEC/solvecgen" ;;
   *.c | *.h )
     VGEN_EXEC="$VGEN_EXEC/cvecgen" ;;
   * )
@@ -56,7 +58,7 @@ GROUPING_EXEC="$DECKARD_DIR/src/vgen/vgrouping/runvectorsort"
 CLUSTER_EXEC="$DECKARD_DIR/src/lsh/bin/enumBuckets"
 # how to post process clone groups?
 POSTPRO_EXEC="$DECKARD_DIR/scripts/clonedetect/post_process_groupfile"
-# how to transform source code html?
+# how to transform source code into HTML?
 SRC2HTM_EXEC=source-highlight 
 SRC2HTM_OPTS=--line-number-ref
 
