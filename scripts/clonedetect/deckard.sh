@@ -50,7 +50,7 @@ echo
 
 SRCLANG=${FILE_PATTERN##*.}
 case $SRCLANG in
-	c | h | java | php )
+	c | h | java | php | sol )
 		;;
 	*)
 		echo "Error: language '$SRCLANG' not supported."
