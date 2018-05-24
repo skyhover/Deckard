@@ -135,7 +135,7 @@ int main( int argc, char **argv )
       case 'o':
         outputfilename = optarg;
         break;
-      case 'f':
+      case 'c':
         configfilename = optarg;
         TraGenMain::getParameters(configfilename, mergeTokens, mergeStride, mergeLists);
         break;

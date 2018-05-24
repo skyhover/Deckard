@@ -23,6 +23,7 @@ string identifierTypeName = "IDENTIFIER";
 #endif
 #endif
 
+/** get input of type T from a string */
 template <class T> bool from_string(T& t, 
                  const std::string& s, 
                  std::ios_base& (*f)(std::ios_base&))
@@ -34,7 +35,7 @@ template <class T> bool from_string(T& t,
 int main( int argc, char **argv )
 {
   if ( argc<4 ) {
-    cerr << "Usage: " << argv[0] << " <filename> <start token id> <end token id> [contextual node level [overide files]]" << endl;
+    cerr << "Usage: " << argv[0] << " <filename> <start token id> <end token id> [contextual node level [override files]]" << endl;
     return 1;
   }
 
@@ -95,7 +96,7 @@ int main( int argc, char **argv )
   }
 
   if(argc>=6) {
-    pt->dumpParseTree(NULL, true);  // to overide existing file
+    pt->dumpParseTree(NULL, true);  // to override existing file
   } else {
     pt->dumpParseTree(NULL, false);
   }
@@ -103,7 +104,7 @@ int main( int argc, char **argv )
   Tree* node = pt->tokenRange2Tree(tbid, teid);
   long i = pt->tree2sn(node);
   if(i<=0) {
-    cerr << "Warining: incorrect tree node order number: " << endl;
+    cerr << "Warning: incorrect tree node order number: " << endl;
   }
   cout << pt->filename << " " << tbid << " " << teid << " " << i;
   if( contextlevel>0 ) {

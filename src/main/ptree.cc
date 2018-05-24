@@ -217,7 +217,7 @@ Tree* ParseTree::getContextualNode(Tree* node)
 
    Tree* startnode = node->parent;
    while ( startnode!=NULL ) {
-      if ( isContextualNode(startnode) ) { // this condition is language-dependant
+      if ( isContextualNode(startnode) ) { // this condition is language-dependent
          break;
       } else
          startnode = startnode->parent;
@@ -470,6 +470,7 @@ ParseTree* parseFile(const char * fn)
   return pt;
 }
 
+/** identify contextual nodes for clones, so as to look for inconsistencies that may be bugs. TODO: refactor, separate config files for the nodes, separate bug detection from clone detection, better modularization, interface between clone detection and bug detection. */
 static vector<bool> ctxNodes; /* internal use only: ctxNodes[i]==true iff the node kind is considered as contexts */
 static const char * contextualNodes[] = {
 #ifdef JAVA 

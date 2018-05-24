@@ -46,18 +46,19 @@ class ParseTree {
 
     std::string filename;
 
-    /** relevantNodes, are those that shouold be counted within the vector */
+    /** relevantNodes, are those that should be counted within the vector */
     std::vector<int> relevantNodes;
 
-    /** leafNodes are the smallest nodes which are used to advance the
+    /** leafNodes are the smallest nodes, also named atomicNodes, which are used to advance the
      * sliding window */
     std::vector<int> leafNodes;
 
-    /** validParents are the nodes from which we will generate vectors if they
+    /** validParents, also named parentNodes, are the nodes from which we will generate vectors if they
      * have the required counts */
     std::vector<int> validParents;
 
-    /** this's something similar to relevantNodes??? just because of a different vector merging strategy. */
+    /** this's something similar to a combination of relevantNodes and atomicNodes just because of a different vector merging strategy,
+	 * VectorMergerOnLists??? Not really used. */
     std::vector<int> mergeableNodes;
 
     /** dump the whole tree in a graph-like format; output filename is the 'filename'+'.grp' */ 
@@ -72,7 +73,7 @@ class ParseTree {
 
     /** return the smallest common ancestor in the parse tree that contains all the tokens in the range: */
     Tree* tokenRange2Tree(long startTokenId, long endTokenId); 
-    /** return the "contextual" node above the given node: */
+    /** return the "contextual" node above the given node, i.e., a node that can indicate the type of the surrounding context containing this node: */
     Tree* getContextualNode(Tree* node);
     Tree* getContextualNode(long startTokenId, long endTokenId);
 
