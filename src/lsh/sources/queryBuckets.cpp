@@ -913,6 +913,10 @@ int main(int argc, char *argv[]){
       ASSERT(segregatedQStart >= 0);
       ASSERT(segregatedQStart + segregatedQNumber <= nSampleQueries);
       ASSERT(segregatedQNumber >= 0);
+      if (availableTotalMemory <= totalAllocatedMemory) {
+        fprintf(stderr, "Not enough memory: %d available vs. %d allocated. Set more memory via -M option.\n", availableTotalMemory, totalAllocatedMemory);
+	ASSERT(availableTotalMemory > totalAllocatedMemory*totalAllocatedMemory);
+      }
       RNNParametersT optParameters = computeOptimalParameters(listOfRadii[i],
 							      successProbability,
 							      nPoints,
@@ -920,7 +924,7 @@ int main(int argc, char *argv[]){
 							      dataSetPoints,
 							      segregatedQNumber,
 							      sampleQueries + segregatedQStart,
-							      (Uns32T)((availableTotalMemory - totalAllocatedMemory) * memRatiosForNNStructs[i]));
+							      (Int32T)((availableTotalMemory - totalAllocatedMemory) * memRatiosForNNStructs[i]));
       printRNNParameters(fd, optParameters);
     }
     if (fd == stdout) {

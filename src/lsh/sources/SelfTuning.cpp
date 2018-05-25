@@ -330,6 +330,7 @@ IntT computeLfromKP(IntT k, RealT successProbability){
 // functions <u>, where the <m> functions <u> are each k/2-tuples of
 // independent LSH functions).
 IntT computeMForULSH(IntT k, RealT successProbability){
+  ASSERT(k > 0);
   ASSERT((k & 1) == 0); // k should be even in order to use ULSH.
   RealT mu = 1 - POW(computeFunctionP(PARAMETER_W_DEFAULT, 1), k / 2);
   RealT P = successProbability;
@@ -451,6 +452,7 @@ RNNParametersT computeOptimalParameters(RealT R,
 					PPointT *sampleQueries, 
 					Int32T memoryUpperBound){
   ASSERT(nSampleQueries > 0);
+  ASSERT(memoryUpperBound > 0);
 
   initializeLSHGlobal();
 
@@ -501,17 +503,18 @@ RNNParametersT computeOptimalParameters(RealT R,
   // Try all possible <k>s and choose the one for which the time
   // estimate of a query is minimal.
   IntT k;
+  IntT m, L;
   RealT timeLSH, timeUH, timeCycling;
   //IntT queryIndex = genRandomInt(0, nPoints);
   //PPointT query = dataSet[queryIndex]; // query points = a random points from the data set.
   IntT bestK = 0;
   RealT bestTime = 0;
   for(k = 2; ; k += 2){
-
+    // try all k until out of memoryUpperBound
     DPRINTF("ST. k = %d\n", k);
-    IntT m = computeMForULSH(k, successProbability);
-    IntT L = m * (m-1) / 2;
-    //DPRINTF("Available memory: %ld\n", getAvailableMemory());
+    m = computeMForULSH(k, successProbability);
+    L = m * (m-1) / 2;
+    DPRINTF("Available memory: %ld\n", getAvailableMemory());
     if (L * nPoints > memoryUpperBound / 12){
       break;
     }
@@ -544,8 +547,12 @@ RNNParametersT computeOptimalParameters(RealT R,
 
 
   DPRINTF("STO.Optimal k = %d\n", bestK);
-  IntT m = computeMForULSH(bestK, successProbability);
-  IntT L = m * (m-1) / 2;
+  if ( bestK==0 ) {
+    fprintf(stderr, "Error: bestK cannot be 0. Sure the memory was enough? %d needed vs. %d left. Set more memory via -M option.\n", L*nPoints*12, memoryUpperBound);
+    ASSERT(bestK > 0);
+  }
+  m = computeMForULSH(bestK, successProbability);
+  L = m * (m-1) / 2;
   timeLSH = m * bestK * lshPrecomp;
   timeUH = L * uhashOver;
   
