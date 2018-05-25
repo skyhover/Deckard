@@ -19,6 +19,11 @@ if [ $errcode -ne 0 ]; then
 fi
 )
 
+if [ $? -ne 0 ]; then
+	echo "Error: ptgen make failed. Deckard build fails."
+	exit $errcode
+fi
+
 # re-compile vector generator and vector grouping code
 (
 cd ../vgen/treeTra/ || exit 1
@@ -27,18 +32,31 @@ make clean
 make
 errcode=$?
 if [ $errcode -ne 0 ]; then
-	echo "Error: vcgen make failed. Exit."
-	exit 1
+	echo "Error: vgen/treeTra make failed. Exit."
+	exit $errcode
 fi
-cd ../vgrouping/ || exit 1
+)
+
+if [ $? -ne 0 ]; then
+	echo "Error: vgen/treeTra failed. Deckard build fails."
+	exit $errcode
+fi
+
+(
+cd ../vgen/vgrouping/ || exit 1
 make clean
 make
 errcode=$?
 if [ $errcode -ne 0 ]; then
-	echo "Error: vgrouping make failed. Exit."
+	echo "Error: vgen/vgrouping make failed. Exit."
 	exit $errcode
 fi
 )
+
+if [ $? -ne 0 ]; then
+	echo "Error: vgen/vgrouping failed. Deckard build fails."
+	exit $errcode
+fi
 
 # re-compile code for main entries
 make clean
@@ -61,6 +79,11 @@ if [ $errcode -ne 0 ]; then
 fi
 )
 
+if [ $? -ne 0 ]; then
+	echo "Error: lsh make failed. Deckard build fails."
+	exit $errcode
+fi
+
 # re-compile additional library code for trees and graphs
 (
 cd ../lib || exit 1
@@ -73,6 +96,11 @@ if [ $errcode -ne 0 ]; then
 fi
 )
 
+if [ $? -ne 0 ]; then
+	echo "Error: lib make failed. Deckard build fails."
+	exit $errcode
+fi
+
 # compile additional tests
 (
 cd ../ptgen/sol || exit 1
@@ -83,3 +111,11 @@ if [ $errcode -ne 0 ]; then
 	exit $errcode
 fi
 )
+
+if [ $? -ne 0 ]; then
+	echo "Error: ptgen/sol 'make test' failed. Deckard may still work."
+	exit $errcode
+fi
+
+echo "Deckard build done. See scripts/clonedetect for sample config, and then run deckard.sh"
+
