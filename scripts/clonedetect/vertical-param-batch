@@ -178,7 +178,7 @@ cluster()
 	fi
 
 	# dumb (not flexible) memory limit setting
-	mem=`wc "$vdb" | awk '{printf("%.0f", $5/1024/1024+0.5)}'`
+	mem=`wc "$vdb" | awk '{printf("%.0f", $3/1024/1024+0.5)}'`
 	if [ $mem -lt 2 ]; then
 		mem=10000000
 	elif [ $mem -lt 5 ]; then
