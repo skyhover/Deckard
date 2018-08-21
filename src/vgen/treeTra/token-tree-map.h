@@ -103,7 +103,7 @@ class TokenTreeMap {
   static regex_t clone_patterns[ENUM_CLONE_THE_END];
   static bool init_shared_data();
 
-  std::map<std::string, ParseTree*> fn2tree; /* map finenames to parse tree roots. */
+  std::map<std::string, ParseTree*> fn2tree; /* map filenames to parse tree roots. */
   std::vector<ClonePointT> clusterbuffer; /* outputs for a clone cluster from LSH. */
   unsigned int rank;		/* the higher, more buggy */
 #define NUM_BUGGY_SCORES 5
@@ -119,7 +119,7 @@ class TokenTreeMap {
   std::vector<bool> contexualNodes; /* contexualNodes[i]==true iff the node kind is considered as contexts */
   TokenRangeCounter * token_range_counter;
  public:
-  TokenTreeMap();		/* all nodes are contexual by default. */
+  TokenTreeMap();		/* all nodes are contextual by default. */
   ~TokenTreeMap();
   std::ostream & outputCluster(std::ostream & out);
 

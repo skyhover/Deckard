@@ -1,0 +1,77 @@
+%{
+/*
+ empty
+*/
+
+%}
+
+%debug
+/*
+%define parse.lac full
+*/
+%define lr.type ielr
+%define parse.error verbose
+%glr-parser /** Q: is this right: doesn't seem to be fully GLR; i.e., it doesn't explore ambiguity beyond LALR(1). It's only "GLR" to handle ambiguities that can be seen within LALR(1).
+ * Also, the %dprec priority only works when the ambiguities and the merge points are both at the rules where %dprec are set; it doesn't work for cases when the ambiguities happen earlier than the merge points during parsing. */
+
+// cf. Language Grammar: http://solidity.readthedocs.io/en/latest/miscellaneous.html#language-grammar
+%start sourceUnit
+
+%token <t> PRAGMA
+%token <t> FROM
+%token <t> VERSIONID
+%token <t> IDENTIFIER FUNCTION CONSTRUCTOR
+%token <t> IMPORT
+%token <t> AS LET
+%token <t> USING MAPPING MEMORY STORAGE MODIFIER
+%token <t> CONTRACT INTERFACE LIBRARY IS
+%token <t> PUBLIC PRIVATE CONSTANT INTERNAL
+%token <t> ANONYMOUS EXTERNAL INDEXED PAYABLE PURE VIEW
+%token <t> ADDRESS BOOL STRING VAR INT UINT BYTES BYTE FIXED UFIXED
+%token <t> CONST_NUM CONST_INT CONST_INT_H CONST_INT_O HEX_TAG HEX
+%token <t> THROW EMIT EVENT NEW AFTER DELETE
+%token <t> TRUE FALSE
+%token <t> WEI SZABO FINNEY ETHER SECONDS MINUTES HOURS DAYS WEEKS YEARS
+%token <t> DQUOTE SQUOTE
+%token <t> STRING_LIT
+%token <t> ENUM STRUCT WHILE DO FOR SWITCH CASE DEFAULT
+%token <t> BREAK CONTINUE RETURNS RETURN ASSEMBLY
+
+%token <t> ']' '{' '}'
+%token <t> 'x' // a special letter used for fixed/ufixed points
+
+%token <t> INLINE STATIC FINAL ELLIPSIS TYPE TYPEOF TRY CATCH MATCH IN OF RELOCATABLE		/* not used yet  */
+
+%left <t> ')' ';'
+// cf. Using Precedence For Non Operators: https://www.gnu.org/software/bison/manual/html_node/Non-Operators.html#Non-Operators
+%right <t> IF
+%right <t> THEN ELSE
+// cf. Order of Precedence of Operators: http://solidity.readthedocs.io/en/latest/miscellaneous.html#order
+%left <t> ','
+%right <t> MAPSTO
+%left <t> ASSIGN_ASSEMBLY_R
+%right <t> '=' ASSIGN_MUL ASSIGN_DIV ASSIGN_REM ASSIGN_AND ASSIGN_XOR ASSIGN_OR ASSIGN_PLUS ASSIGN_MINUS ASSIGN_LSHIFT ASSIGN_RSHIFT ASSIGN_ASSEMBLY_L
+%precedence ADDRESS BOOL STRING VAR INT UINT BYTES BYTE FIXED UFIXED
+%right <t> '?' ':'
+%left <t> OROR
+%left <t> ANDAND
+%left <t> EQ NEQ
+%left <t> LT GT GEQ LEQ
+%left <t> '|'
+%left <t> '^'
+%left <t> '&'
+%left <t> LSHIFT RSHIFT
+%left <t> '+' '-'
+%left <t> '*' '/' '%'
+%left <t> MULMUL
+%right <t> '~'
+%right <t> '!'
+%precedence AFTER DELETE
+%right UNARY_PLUSMINUS
+%right PREFIX_DOUBLEPLUSMINUS
+%precedence NEW
+%left <t> POINTSAT '.'
+%left <t> '[' '('
+%left <t> PLUSPLUS MINUSMINUS
+%left <t> '_'
+%left HYPERPREC

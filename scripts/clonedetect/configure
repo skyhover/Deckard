@@ -103,6 +103,8 @@ check_var "GROUPING_EXEC"
 check_file "$GROUPING_EXEC"
 check_var "CLUSTER_EXEC"
 check_file "$CLUSTER_EXEC"
+check_var "QUERY_EXEC"
+check_file "$QUERY_EXEC"
 check_var "POSTPRO_EXEC"
 check_file "$POSTPRO_EXEC"
 

@@ -9,7 +9,7 @@ code clone detection tool. It is also capable of reporting clone-related bugs.
 *
 **********************************************************************
 
-Copyright (c) 2007-2016, University of California / Singapore Management University
+Copyright (c) 2007-2018, University of California / Singapore Management University
   Lingxiao Jiang         <lxjiang@ucdavis.edu> <lxjiang@smu.edu.sg>
   Ghassan Misherghi      <ghassanm@ucdavis.edu>
   Zhendong Su            <su@ucdavis.edu>
@@ -20,8 +20,8 @@ Three-clause BSD licence
 
 **********************************************************************
 *
-* Version 1.3.1 + support for Java 7 syntax
-* December 26th, 2016
+* Version 2.0 + support for Solidity syntax
+* May 25th, 2018
 * 
 * What's new?
 * 
@@ -35,6 +35,8 @@ Three-clause BSD licence
 
 - Support for Java 7 syntax, contributed by Prof. Gail Kaiser and her
   students in the Programming Systems Lab at Columbia University.
+
+- Support for Solidity syntax (with small tweaks)
 
 **********************************************************************
 *

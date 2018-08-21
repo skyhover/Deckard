@@ -45,10 +45,10 @@ class TraGenConfiguration {
   const char * cfgFile;		/* Name of the configuration file. TODO: we don't have flexible syntax for configuration yet. */
 
   int nodekinds; /* The number of kinds of nodes: 0<=type<nodekinds. */
-  std::vector<bool> countedNodes; /* of length nodekinds, indicating the nodes should be counted. */
-  std::vector<bool> outputtedNodes; /* of length nodekinds, indicating the nodes should be outputted. */
-  std::vector<bool> atomicNodes; /* of length nodekinds, indicating the nodes should not be counted separately. */
-  std::vector<bool> mergeableNodes; /* of length nodekinds, indicating the nodes should be considered for merging (specific to the VectorMergerOnLists???). */
+  std::vector<bool> countedNodes; /* of length nodekinds, indicating the nodes should be counted; same as relevantNodes in ptree.h. */
+  std::vector<bool> outputtedNodes; /* of length nodekinds, indicating the nodes should be outputted; same as validParents in ptree.h. */
+  std::vector<bool> atomicNodes; /* of length nodekinds, indicating the nodes that should not be broken up by moving sliding windows; same as leafNodes in ptree.h. */
+  std::vector<bool> mergeableNodes; /* of length nodekinds, indicating the nodes should be considered for merging (similar to a combination of atomicNodes and relevantNodes; specific to the VectorMergerOnLists???. Not really used.) */
 
   /* parameters for vector merging. */
   int mergeTokens; /* The minimal number of tokens should be outputted. If <0, disable it; if ==0, use a list: 30 50 80 130 210 340 550 890 */

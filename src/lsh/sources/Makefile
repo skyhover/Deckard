@@ -27,6 +27,7 @@ TEST_SRC	= LSHMain.cpp \
 		  compareOutputs.cpp \
 		  genPlantedDS.cpp \
 		  enumBuckets.cpp \
+		  queryBuckets.cpp \
 		  exploreBuckets.cpp
 
 LSH_OBJS	= $(LSH_SRC:.cpp=.o)

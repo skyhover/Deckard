@@ -1,0 +1,12 @@
+#include <stdio.h>
+
+extern char yytext[];
+extern int column;
+extern int line;
+
+void yyerror( char const *s)
+{
+	fflush(stdout);
+	fprintf(stderr, "%s: %d.%d\n", s, line, column);
+}
+

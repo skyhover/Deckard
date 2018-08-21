@@ -97,7 +97,7 @@ int line = 1;
 {D}*"."{D}+("E"({D})+)?[fFdD]? {count();yylvalp->t=new Terminal(name2id["FP_LIT_TK"],yytext,line);return(FP_LIT_TK); }
 "\""[^"]*"\"" {count();yylvalp->t=new Terminal(name2id["STRING_LIT_TK"],yytext,line);return(STRING_LIT_TK); }
 "'"[^\r\n\t']*"'" {count();yylvalp->t=new Terminal(name2id["CHAR_LIT_TK"],yytext,line);return(CHAR_LIT_TK); }
-{L}?\"(\\.|[^\\"])*\"k {count();yylvalp->t=new Terminal(name2id["STRING_LIT_TK"],yytext,line);return(STRING_LIT_TK); }
+{L}?\"(\\.|[^\\"])*\" {count();yylvalp->t=new Terminal(name2id["STRING_LIT_TK"],yytext,line);return(STRING_LIT_TK); }
 ">>=" {count();yylvalp->t=new Terminal(name2id["SRS_ASSIGN_TK"],yytext,line);return(SRS_ASSIGN_TK); }
 "<<=" {count();yylvalp->t=new Terminal(name2id["LS_ASSIGN_TK"],yytext,line);return(LS_ASSIGN_TK); }
 ">>>=" {count();yylvalp->t=new Terminal(name2id["ZRS_ASSIGN_TK"],yytext,line);return(ZRS_ASSIGN_TK); }
@@ -109,9 +109,9 @@ int line = 1;
 "&=" {count();yylvalp->t=new Terminal(name2id["AND_ASSIGN_TK"],yytext,line);return(AND_ASSIGN_TK); }
 "^=" {count();yylvalp->t=new Terminal(name2id["XOR_ASSIGN_TK"],yytext,line);return(XOR_ASSIGN_TK); }
 "|=" {count();yylvalp->t=new Terminal(name2id["OR_ASSIGN_TK"],yytext,line);return(OR_ASSIGN_TK); }
-" >>" {count();yylvalp->t=new Terminal(name2id["SRS_TK"],yytext,line);return(SRS_TK); }
+">>" {count();yylvalp->t=new Terminal(name2id["SRS_TK"],yytext,line);return(SRS_TK); }
 "<<" {count();yylvalp->t=new Terminal(name2id["LS_TK"],yytext,line);return(LS_TK); }
-" >>>" {count();yylvalp->t=new Terminal(name2id["ZRS_TK"],yytext,line);return(ZRS_TK); }
+">>>" {count();yylvalp->t=new Terminal(name2id["ZRS_TK"],yytext,line);return(ZRS_TK); }
 "++" {count();yylvalp->t=new Terminal(name2id["INCR_TK"],yytext,line);return(INCR_TK); }
 "--" {count();yylvalp->t=new Terminal(name2id["DECR_TK"],yytext,line);return(DECR_TK); }
 "&&" {count();yylvalp->t=new Terminal(name2id["BOOL_AND_TK"],yytext,line);return(BOOL_AND_TK); }
@@ -163,7 +163,7 @@ void comment()
 	int c;
 
 	for (;;) {
-		while ( (c = yyinput()) != '*' && c != EOF ) {
+		while ( (c = yyinput()) != '*' && c != YY_NULL && c != EOF ) {
 			if (c=='\n') {
 				line++;column=0;
 			} else {
@@ -180,7 +180,7 @@ void comment()
 				break;
 		}
 
-                if ( c == EOF ) {
+                if ( c == EOF || c == YY_NULL ) {
 			break;	
 		}
             }

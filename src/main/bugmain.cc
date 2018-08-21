@@ -48,7 +48,11 @@ string identifierTypeName = "ID_TK";
 #ifdef PHP
 string identifierTypeName = "T_VARIABLE";
 #else
+#ifdef SOLIDITY
 string identifierTypeName = "IDENTIFIER";
+#else
+string identifierTypeName = "IDENTIFIER";
+#endif
 #endif
 #endif
 
@@ -59,7 +63,11 @@ static const char *cxtNodes[] = {
 #ifdef PHP
 #include "../ptgen/php5/phpcontextualNodes.h"
 #else
+#ifdef SOLIDITY
+#include "../ptgen/sol/solcontextualNodes.h"
+#else
 #include "../ptgen/gcc/ccontextualNodes.h"
+#endif
 #endif
 #endif
 };
@@ -123,7 +131,13 @@ int main( int argc, char **argv )
 #ifdef PHP
   ContextInconsistency_PHP tt;
 #else
+#ifdef SOLIDITY
   TokenTreeMap tt;
+  cerr << "ERROR: bug detection doesn't work for solidity yet. Context comparison for solidity clones not implemented." << endl;
+  return 65;
+#else
+  TokenTreeMap tt;
+#endif
 #endif
 #endif
   tt.initNodes(cxtNodes);

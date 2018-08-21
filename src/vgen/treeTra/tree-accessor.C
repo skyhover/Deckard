@@ -284,7 +284,7 @@ get_greatest_complete_ancestor_inrange(Tree* t, VectorMerger & vm)
 Tree* TreeAccessor::
 get_greatest_mergeable_ancestor_inrange(Tree* t, VectorMerger & vm)
 {
-  // definition for "mergeable" is one a piece of paper...
+  // definition for "mergeable" is on a piece of paper...but lost
 
   list<Tree*> ancestors = get_all_relevant_ancestors_inrange(t, vm);
   for (list<Tree*>::iterator anc_itr = ancestors.begin(); anc_itr!=ancestors.end(); ++anc_itr) {

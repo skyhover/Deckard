@@ -40,18 +40,19 @@
 
 using namespace std;
 
-// These are not really used by "out2html"; just to resolve dependancy.
+// These are not really used by "out2html"; just to resolve dependency. TODO: refactor, decouple bug detection from clone detection
 map<string,int> name2id;
 map<int,string> id2name;
-string identifierTypeName = "no need for such name";
+string identifierTypeName = "dummy only; no need for such name";
 
 /* read in a file line-by-line:
-   if the line is a valid clone point, transform it to html;
+   if the line is a valid clone point, transform it to XML;
    otherwise, simply output the line. */
 int main( int argc, char **argv )
 {
   if ( argc!=2 ) {
     cerr << "usage: [a clone cluster file]" << endl;
+    cerr << "output: an XML version of the clone cluster file." << endl;
     return 1;
   }
 

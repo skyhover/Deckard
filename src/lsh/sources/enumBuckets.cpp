@@ -14,6 +14,7 @@
  *
  * Author: Alexandr Andoni (andoni@mit.edu), Piotr Indyk (indyk@mit.edu)
  * Modified by: Stephane Glondu (stephane.glondu@dptinfo.ens-cachan.fr)
+ * Modified by: Lingxiao Jiang (lxjiang@ucdavis.edu, lxjiang@smu.edu.sg)
  */
 
 /*
@@ -22,16 +23,19 @@
   calls the corresponding functions.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <sys/times.h>
 #include <sys/types.h>
-#include <ctype.h>
+#include <cctype>
 #include <regex.h>
 #include <unistd.h>
+#include <string>
 #include "headers.h"
 
 #define N_SAMPLE_QUERY_POINTS 100
+
+static int DEBUG_LEVEL = 1;
 
 // The data set containing all the points.
 PPointT *dataSetPoints = NULL;
@@ -55,7 +59,6 @@ IntT nRadii = 0;
 
 RealT *memRatiosForNNStructs = NULL;
 
-char sBuffer[600000];
 regex_t preg[ENUM_PPROP_LAST_NOT_USED];
 
 // Will merge prefetch consecutive vectors from input file
@@ -121,7 +124,7 @@ bool inconsistentIDchanges(char *v1, char *v2)
 /*
   Prints the usage of the LSHMain.
  */
-void usage(int code, char *programName) {
+void usage(int code, const char *programName) {
   printf("Usage: %s [options: see source code] data_set_file [params_file]\n", programName);
   exit(code);
 }
@@ -257,11 +260,11 @@ void readDataSetFromFile2(char *filename)
 	prefetchEnd->tl = NULL;
 	prefetchStart = prefetchStart->tl;
       } else {
-	ASSERT(prefetchSize < prefetch);
-	// allocate the next cell
-	FAILIF(NULL == (prefetchEnd->tl = (TPPointTList*)MALLOC(sizeof(TPPointTList))));
-	prefetchEnd = prefetchEnd->tl;
-	prefetchEnd->tl = NULL;
+         ASSERT(prefetchSize < prefetch);
+         // allocate the next cell
+         FAILIF(NULL == (prefetchEnd->tl = (TPPointTList*)MALLOC(sizeof(TPPointTList))));
+         prefetchEnd = prefetchEnd->tl;
+         prefetchEnd->tl = NULL;
       }
     } // end of new point handling
   } // end of file
@@ -288,7 +291,6 @@ void readDataSetFromFile2(char *filename)
   }
 }
 
-
 // Tranforming <memRatiosForNNStructs> from
 // <memRatiosForNNStructs[i]=ratio of mem/total mem> to
 // <memRatiosForNNStructs[i]=ratio of mem/mem left for structs i,i+1,...>.
@@ -302,13 +304,11 @@ void transformMemRatios(){
   ASSERT(sum <= 1.000001);
 }
 
-
 int compareInt32T(const void *a, const void *b){
   Int32T *x = (Int32T*)a;
   Int32T *y = (Int32T*)b;
   return (*x > *y) - (*x < *y);
 }
-
 
 #define ENUM_BUCKETS
 
@@ -323,11 +323,10 @@ int compareInt32T(const void *a, const void *b){
     usage(1, argv[0]); \
   }}
 
-
 RNNParametersT *algParameters = NULL;
 PRNearNeighborStructT *nnStructs = NULL;
 
-bool readParamsFile(char *paramsFile)
+bool readParamsFile(const char *paramsFile)
 {
   FILE *pFile = fopen(paramsFile, "rt");
   if (pFile == NULL) {
@@ -357,12 +356,10 @@ bool readParamsFile(char *paramsFile)
   }
 }
 
-
 #define pointIsNotFiltered(p) ( \
     (*(p))->prop[ENUM_PPROP_NUM_NODE-1] >= minNumNodes && \
     (*(p))->prop[ENUM_PPROP_nVARs-1] >= min_nVars && \
     (*(p))->prop[ENUM_PPROP_OFFSET-1] >= min_lines )
-
 
 int comparePoints(const void *p1, const void *p2)
 {
@@ -376,7 +373,6 @@ int comparePoints(const void *p1, const void *p2)
   else
     return a->prop[ENUM_PPROP_LINE-1] - b->prop[ENUM_PPROP_LINE-1];
 }
-
 
 /*
   The main entry to LSH package. Depending on the command line
@@ -505,7 +501,6 @@ int main(int argc, char *argv[]){
 			   listOfRadii,
 			   sampleQBoundaryIndeces);
 
-
     // Compute the R-NN DS parameters
     // if a parameter file is given, output them to that file, and continue
     // otherwise, output them to stdout, and exit
@@ -516,8 +511,8 @@ int main(int argc, char *argv[]){
     } else {
       fd = fopen(paramsFile, "wt");
       if (fd == NULL) {
-	fprintf(stderr, "Unable to write to parameter file %s\n", paramsFile);
-	exit(1);
+         fprintf(stderr, "Unable to write to parameter file %s\n", paramsFile);
+         exit(1);
       }
     }
 
@@ -528,14 +523,18 @@ int main(int argc, char *argv[]){
       Int32T segregatedQStart = (i == 0) ? 0 : sampleQBoundaryIndeces[i - 1];
       Int32T segregatedQNumber = nSampleQueries - segregatedQStart;
       if (segregatedQNumber == 0) {
-	// XXX: not the right answer
-	segregatedQNumber = nSampleQueries;
-	segregatedQStart = 0;
+         // XXX: not the right answer
+         segregatedQNumber = nSampleQueries;
+         segregatedQStart = 0;
       }
       ASSERT(segregatedQStart < nSampleQueries);
       ASSERT(segregatedQStart >= 0);
       ASSERT(segregatedQStart + segregatedQNumber <= nSampleQueries);
       ASSERT(segregatedQNumber >= 0);
+      if (availableTotalMemory <= totalAllocatedMemory) {
+        fprintf(stderr, "Error: Not enough memory: %d available vs. %d allocated. Set more memory via -M option.\n", availableTotalMemory, totalAllocatedMemory);
+	ASSERT(availableTotalMemory > totalAllocatedMemory*totalAllocatedMemory);
+      }
       RNNParametersT optParameters = computeOptimalParameters(listOfRadii[i],
 							      successProbability,
 							      nPoints,
@@ -543,7 +542,7 @@ int main(int argc, char *argv[]){
 							      dataSetPoints,
 							      segregatedQNumber,
 							      sampleQueries + segregatedQStart,
-							      (Uns32T)((availableTotalMemory - totalAllocatedMemory) * memRatiosForNNStructs[i]));
+							      (Int32T)((availableTotalMemory - totalAllocatedMemory) * memRatiosForNNStructs[i]));
       printRNNParameters(fd, optParameters);
     }
     if (fd == stdout) {
@@ -567,9 +566,11 @@ int main(int argc, char *argv[]){
 
   IntT resultSize = nPoints;
   PPointT *result = (PPointT*)MALLOC(resultSize * sizeof(*result));
-  PPointT queryPoint;
+  PPointT queryPoint = NULL;
+  /* PI: why nee to allocate query point if it is from dataSetPoints?
   FAILIF(NULL == (queryPoint = (PPointT)MALLOC(sizeof(PointT))));
   FAILIF(NULL == (queryPoint->coordinates = (RealT*)MALLOC(pointsDimension * sizeof(RealT))));
+  */
 
   TimeVarT meanQueryTime = 0;
   int nQueries = 0;

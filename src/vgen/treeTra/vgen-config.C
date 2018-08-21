@@ -33,6 +33,8 @@
 #include "vgen-config.h"
 
 using namespace std;
+
+/** use this to locate nodes that contain identifier names; more for bug finding purposes, instead of clone detection. TODO: refactor, better modularization (although may slow down the performance a bit, or not?). */
 extern string identifierTypeName;
 
 #define VGDEBUG

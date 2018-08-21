@@ -13,6 +13,7 @@
  * use of this software.
  *
  * Author: Alexandr Andoni (andoni@mit.edu), Piotr Indyk (indyk@mit.edu)
+ * Modified by Lingxiao Jiang (lxjiang@ ucdavis.edu / smu.edu.sg)
  */
  
 #ifndef BASICDEFINITIONS_INCLUDED
@@ -29,7 +30,7 @@
 #define BooleanT int
 #define TRUE 1
 #define FALSE 0
-/* Pi: used for 'R'=0.0 */
+/* PI: used for 'R'=0.0 */
 #define Pi_EPSILON 10e-6
 #define Pi_PSEUDO_R 0.1
 
@@ -189,10 +190,11 @@
 #define TIMEV_END(timeVar)
 #endif
 
-#define MALLOC(amount) ((amount > 0) ? malloc(totalAllocatedMemory + 2 * amount - (totalAllocatedMemory = totalAllocatedMemory + amount)) : NULL)
+/* PI: add '()' around amount to avoid potential misuses of the macro */
+#define MALLOC(amount) (((amount) > 0) ? malloc(totalAllocatedMemory + 2 * (amount) - (totalAllocatedMemory = totalAllocatedMemory + (amount))) : NULL)
 
 #define REALLOC(oldPointer, amount) ((oldPointer != NULL) ? \
- realloc(oldPointer, totalAllocatedMemory + amount + (amount - (amount * 2) / 3) - (totalAllocatedMemory = totalAllocatedMemory + (amount - (amount * 2) / 3))) : \
+ realloc(oldPointer, totalAllocatedMemory + (amount) + ((amount) - ((amount) * 2) / 3) - (totalAllocatedMemory = totalAllocatedMemory + ((amount) - ((amount) * 2) / 3))) : \
  MALLOC(amount))
 
 #define FREE(pointer) {if (pointer != NULL) {free(pointer);} pointer = NULL; }

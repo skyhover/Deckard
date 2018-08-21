@@ -72,12 +72,21 @@ Usage of the binary: enumBuckets <options>
 Results are printed to stdout, error and warnings are printed to stderr.
 
 ==============================================================================
+Usage of another binary: queryBuckets <options>
+similar to enumBuckets, but allow an additional option to provide query points:
+
+-q <file>	a file containing a set of query points. Results will be the NN for each query point.
+
+==============================================================================
 A typical use:
   time bin/enumBuckets -p gcc.params -f gcc.vector -R 0.9 > gcc.result
 
 Used in Deckard's scripts/:
   time bin/enumBuckets -R $distance -M $memory -b 2 -A \
        -f <vector_file> -c -p <vec.param> > cluster_report 2> /dev/null
+
+Using query points:
+  time bin/queryBuckets -p gcc.params -f gcc.vector -q java.vector -R 0.9 > java.gcc.clones
 
 ==============================================================================
 LSH may be used for many other purposes besides its use in Deckard. Please
