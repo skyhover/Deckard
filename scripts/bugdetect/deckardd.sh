@@ -6,7 +6,7 @@ if [[ -f "`dirname $0`/../../README" ]]; then
 else
    echo " * Version Unknown. Missing README."
 fi
-echo "Copyright (c) 2007-2013. University of California / Singapore Management University"
+echo "Copyright (c) 2007-2018. University of California / Singapore Management University"
 echo "Distributed under the three-clause BSD license."
 echo
 

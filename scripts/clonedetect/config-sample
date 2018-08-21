@@ -1,6 +1,6 @@
 #
 # 
-# Copyright (c) 2007-2013, University of California / Singapore Management University
+# Copyright (c) 2007-2018, University of California / Singapore Management University
 #   Lingxiao Jiang         <lxjiang@ucdavis.edu> <lxjiang@smu.edu.sg>
 #   Ghassan Misherghi      <ghassanm@ucdavis.edu>
 #   Zhendong Su            <su@ucdavis.edu>
